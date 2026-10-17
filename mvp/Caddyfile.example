@@ -1,0 +1,7 @@
+# Replace with your own domain; DNS must point to the chosen server.
+# The app port must remain private, accessible only by the reverse proxy.
+compass.example.com {
+    encode zstd gzip
+    header Strict-Transport-Security "max-age=31536000"
+    reverse_proxy 127.0.0.1:4174
+}
