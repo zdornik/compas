@@ -1,6 +1,6 @@
 # Компас · список работ
 
-Дата: 17 октября 2026. `[x]` — выполнено и проверено в указанном объёме; `[ ]` — ещё нет. Список обновлять при каждой следующей итерации. Выполненность интерфейса не означает готовность медицинского сервиса.
+Обновлено: 19 октября 2026. Исходный план составлен 17 октября. `[x]` — выполнено и проверено в указанном объёме; `[ ]` — ещё нет. Список обновлять при каждой следующей итерации. Выполненность интерфейса не означает готовность медицинского сервиса. Разделы 2–6 описывают требования к допуску защищённого пилота; реализованные локальные исследовательские сценарии и их ограничения перечислены в поздних разделах. Исторические макеты не являются текущими медицинскими функциями.
 
 ## 1. Согласованный дизайн и работающий frontend
 
@@ -13,12 +13,12 @@
 - [x] Шкала от очень неприятного до очень приятного, выбор «сейчас / за день».
 - [x] Синий → серо-зелёный → жёлтый, три выражения маскота, плавная смена сцен.
 - [x] Уточняющие слова для текущего состояния, множественный выбор.
-- [x] Факторы и необязательная заметка; сохранение в памяти вкладки.
+- [x] Факторы настроения; большие личные заметки отдельно в дневнике, сохранение в локальной PostgreSQL.
 - [x] Отображение записи и контекста в дневнике.
 - [x] Переключение дней, недели/месяца и соседних периодов, пустые дни.
 - [x] Ручная запись длительности и качества сна.
 - [x] Демо-план на два вымышленных препарата, независимые статусы, исправление отметок.
-- [x] Демонстрационный опрос из 3 вопросов без клинического балла.
+- [x] Полные PHQ-9/GAD-7 с проверенными русскими формами, подсчётом и сохранением результата; демоопроc из трёх вопросов удалён.
 - [x] Вкладка врача с явными пояснениями о неподключённых функциях.
 - [x] Установка приложения через манифест; инструкции на iOS, кнопка при доступном browser prompt.
 - [x] Production service worker: только публичная статическая оболочка по allowlist.
@@ -34,7 +34,7 @@
 
 ### Уже сделано для демоверсии
 
-- [x] Нет API-передачи пользовательских данных, внешних шрифтов, аналитики и трекеров.
+- [x] Нет передачи внешним сервисам, внешних шрифтов, аналитики и трекеров; данные идут только в собственный локальный API.
 - [x] Нет хранения записей в localStorage, sessionStorage или IndexedDB.
 - [x] Пользовательский текст рендерится React как текст, без HTML-вставок.
 - [x] CSP и защитные заголовки на production Node-сервере; deny framing, no-referrer, nosniff.
@@ -79,13 +79,14 @@
 
 ## 3. Защищённый MVP пациента после P0
 
-- [ ] FastAPI API и PostgreSQL, вход, аккаунт, связь с врачом, перенос mock-данных на API.
+- [ ] Вход, аккаунты и связь с врачом поверх реализованного Node API/PostgreSQL; окончательный стек пилота утвердить отдельно.
 - [ ] Устойчивое хранение дневника, серверное время и часовой пояс пациента.
 - [ ] Назначения врача: препарат, дозировка, расписание, начало/конец, журнал изменений.
 - [ ] Титрация только в рамках утверждённого врачом плана, без автоподбора доз.
 - [ ] Надёжный журнал приёма с идемпотентностью, повторами и обработкой офлайн-конфликтов.
 - [ ] Назначение опросников врачом, календарь сроков и сохранение ответов.
-- [ ] Выбрать валидированные шкалы, права на использование, точную версию, алгоритм подсчёта и клинический протокол.
+- [x] Выбрать PHQ-9/GAD-7, проверить русские формы, права и подсчёт; ASSESSMENTS.md.
+- [ ] Утвердить клинический протокол сопровождения и реакции врача на результаты.
 - [ ] Обратная связь врача после отметок состояния, без автогенерации лечения.
 - [ ] Чат: доступ, хранение, доставка, непрочитанное, часы ответа и правила экстренных обращений.
 - [ ] Профиль препаратов, хронических заболеваний, аллергий и подтверждение источника сведений.
@@ -117,8 +118,9 @@
 
 - [x] Production-сборка и отдельный сервер статических файлов с защитными заголовками.
 - [x] Инструкции для HTTPS-домена, Dockerfile и пример reverse proxy.
-- [ ] Выбрать хостинг/домен; публичное развёртывание пока не выполнялось.
-- [ ] Проверить Docker-сборку и runtime в выбранной инфраструктуре.
+- [ ] Выбрать постоянный хостинг/домен. Временный отдельный демостенд для коллег описан в разделе 10.
+- [x] Проверить локальные Docker Compose: приложение и PostgreSQL, постоянный том, loopback-порт.
+- [ ] Проверить Docker/runtime в выбранной публичной инфраструктуре после отдельного решения о размещении.
 - [ ] Повторить security headers / CSP / PWA проверки на реальном HTTPS-домене.
 - [ ] Провести функциональные, ролевые, нагрузочные и recovery-тесты защищённого MVP.
 - [ ] Утвердить пилот с синтетическими данными; реальные данные разрешать только после P0.
@@ -142,9 +144,180 @@
 - [x] Тонкий прогресс перенесён над заголовком «Ваше состояние».
 - [x] Скользящая подложка переключателя «Прямо сейчас / За весь день».
 - [x] Единая высота всех экранов и последовательное затухание/появление содержимого; отмена motion по системной настройке.
-- [x] Минимальная карточка «Личная заметка», без необязательных подписей, счётчика и пояснения о демоверсии.
+- [x] Поле личной заметки убрано из отметки состояния; большие тексты пишутся в самостоятельном дневнике по последнему решению.
 - [x] Стабильное открытие редактора: без scale окна, без повторного позиционирования в animationend, с предварительной загрузкой фона и показом после первой отрисовки.
 - [x] Убрана светлая обводка редактора и уменьшена внешняя тень.
 - [x] Главная: та же привязка внутренней ниши к маскоту и дополнительные видимые слои возле «Сегодня» и состояния; проверено на 390px и 1280px.
 - [x] Убрано уменьшение фона до 420px: отрисовка в исходных 971×1619. Сохранён согласованный неглубокий v4; рельефный v5 не используется по просьбе пользователя.
 - [x] Регрессионные проверки дат, палитр, глаз, геометрии и непрерывных акцентов; 17 прикладных/security + 4 packaging проверки проходят.
+
+## 8. Дневник, лечение, врач и новые формы
+
+- [x] Самостоятельные длинные записи до 20 000 символов, поиск, редактирование и сохранение даты.
+- [x] Простая читаемая Notes-подобная лента; полный текст открывается в редакторе.
+- [x] Оформить лечение и врача в общем стиле, независимые статусы препаратов и честные заглушки неподключённых функций.
+- [x] Сохранять состояние разделов без движения страниц; убрать slide-переход самих страниц.
+- [x] Исправить квадратный hover у «Написать врачу»; форма кнопки сохраняется.
+- [x] Собственный календарь с месяцами/годами, запретом будущих дат, «Вчера»/«Сегодня», клавиатурой и Escape.
+- [x] Переработанные колёсики сна: нативная прокрутка, непрерывная геометрия цифр, клавиатура, ограничения 24:00.
+- [x] Общая живая палитра всех разделов и форм, включая бумагу дневника без фиксированной желтизны; возврат палитры при отмене, исторические состояния не перекрашиваются.
+- [x] Полные PHQ-9/GAD-7, точные русские формы и все исходные вопросы.
+- [x] Отдельный функциональный вопрос PHQ-9 вне суммы, поддерживающая подсказка при любом положительном пункте 9.
+- [x] Клиентский и серверный подсчёт, неизменяемые сохранённые результаты, чтение ответов в дневнике.
+- [x] Сократить визуальный шум опросников: один вопрос, четыре ответа, тихий прогресс; маскот без отдельной карточки в отведённом месте над вопросом.
+- [x] Компактный выбор шкалы без пустого низа; плавное расширение к фиксированному окну теста и плавный переход к результату.
+- [x] Одинаковая высота всех вопросов, включая дополнительный PHQ-9; длинный текст прокручивается внутри, заголовок и footer остаются на месте.
+- [x] Единый фон с нишей под маскота на входе и результате опросника: контуры выходят за внутренний блок к заголовку и кнопкам; между вопросами остаются тихими.
+- [x] Проверить плавное перемещение маскота вверх к вопросам и обратно к результату; маскот и фон прокручиваются вместе с содержимым, header/footer сохраняют положение.
+- [x] Убрать начальное переползание, унифицировать масштаб с редактором настроения и продолжить фон за исходный край без линии слева.
+
+## 9. Локальное постоянное хранилище
+
+- [x] Node API того же origin и PostgreSQL 17 в Docker Compose; основная база остаётся локальной, внешний демостенд отделён.
+- [x] Сохранение дневника, настроения, сна, полных результатов шкал и дневных статусов демопрепаратов.
+- [x] Случайный локальный профиль через HttpOnly/SameSite cookie, хеш токена в БД; отдельные профили разных браузеров.
+- [x] Origin/Host/CSRF, параметризованные SQL, лимит тела и rate limit, серверная валидация.
+- [x] Шифрование содержимого AES-256-GCM, ключ отдельно от БД, связь ciphertext с профилем и записью через AAD.
+- [x] Non-owner runtime role, FORCE RLS; реальные проверки default deny, чужого чтения/записи и сброса контекста транзакции.
+- [x] Не показывать успех до ответа сервера; ошибки сохраняют введённый текст и результат в форме.
+- [x] Обновление сохранённых записей между вкладками через сигнал без медицинского содержимого; черновики форм не сбрасываются.
+- [x] Проверить сохранение API и cookie-сессии после перезапуска обоих контейнеров.
+- [ ] Полноценный вход/восстановление/отзыв доступа, HTTPS Secure cookies, роли врача, дальнейшие миграции, KMS/ротация, бэкапы с восстановлением и допуск реальных пациентов — остаются P0.
+
+## 10. Отдельная демоверсия для коллег по прямому запросу
+
+- [x] Отдельный Compose-проект, PostgreSQL volume и ключи; основная локальная база не публикуется и не копируется.
+- [x] Временный HTTPS-доступ к серверу на компьютере через Docker TLS WebSocket-туннель; без открытия портов роутера и без личных SSH-ключей.
+- [x] Код входа, HttpOnly/Secure/SameSite cookie демодоступа, лимит попыток, строгий Origin, изолированные cookie-профили API.
+- [x] Проверить интернет-API: сохранение, повторное редактирование, изоляция двух профилей, CSRF/Origin, Secure и no-store.
+- [x] Проверить реальный браузер: вход, вымышленная запись, обновление страницы и повторное чтение.
+- [x] Измерить объём ресурсов, память контейнеров и главный поток браузера; PERFORMANCE.md с границами измерений.
+- [ ] Реальные iPhone/Android и нагрузка большой многопользовательской системы пока не проверены.
+- [ ] Постоянный домен, стабильный хостинг и допуск реальных пациентов требуют отдельного этапа.
+
+## 11. Актуальная локальная итерация и новая демоверсия
+
+- [x] Читаемые результаты независимо от настроения, спокойная поддержка, аккуратные ответы и источник.
+- [x] Мягкое закатное золото; все поверхности следуют общей палитре.
+- [x] Тесты в меню «+», отдельная кнопка личной записи; календарь со скользящим выбором, анимацией высоты и перелистывания.
+- [x] Удалены старые рендеры, неиспользуемая графика и прежние QA-снимки; активные ресурсы сохранены. На этом этапе GitHub не менялся; позднее пользователь отдельно разрешил финальный commit/push.
+- [x] Ручные схемы препаратов, редактирование/архив, ежедневное время, единицы, дозировка и количество.
+- [x] Титрация: тумблер, плавное раскрытие, периоды и дозы этапов, продолжение/завершение.
+- [x] Связь с едой; прочерк по умолчанию скрывает указание. На главной — предстоящие приёмы, время, количество, отметка; прошедшие напоминания убираются.
+- [x] Шифрованное сохранение схем и приёмов, ревизии/история, снимок дозы с сервера, миграция без сброса данных.
+- [x] Мг/мкг непосредственно перед дозировкой; лицо SVG постоянной толщины, штрихи короче на 12%.
+- [x] Прогресс теста: 2px, верхний отступ и боковые поля как в настроении, без видимых PHQ-9 и 1/9.
+- [ ] Создание/подтверждение назначений врачом, роли, проверка взаимодействий, фоновые push и медицинская эксплуатация.
+
+Публикация той итерации по прямому указанию пользователя проверялась только на запуск сайта. Проверки следующих локальных изменений перечислены ниже; отдельный интернет-демостенд не обновляется.
+
+## 13. Исторический этап: UX/UI кабинета врача · 18 октября 2026
+
+Это запись первоначального этапа с вымышленными примерами, а не текущий статус. Позднее демонстрационные пациенты и приёмы убраны из рабочего кабинета; локальные подключения, назначения, справочники, аккаунты и чат описаны в разделах 17 и ниже. Клинический допуск и требования раздела 2 остаются открытыми.
+
+- [x] Прочитать требования чата «Создать MVP интерфейс» и действующий пациентский интерфейс.
+- [x] Общий вход с выбором врача / пациента, прямые локальные адреса #doctor / #patient, возврат к выбору роли.
+- [x] Обзор дня: сводка, поводы обратить внимание, новые записи и ближайшие приёмы.
+- [x] Список вымышленных пациентов, поиск, фильтры, пустой результат.
+- [x] Медкарта: обзор, динамика настроения, отдельное отсутствие данных, отметки препаратов, сон и примеры результатов опросников.
+- [x] Макеты лечения, этапов титрации, цикла наблюдения, дневника, документов и сведений о пациенте.
+- [x] Макет периодичности опросников и доступа при смене врача без сохранения/изменения прав.
+- [x] Календарь дня / недели, переход по датам и пустые дни, просмотр карты из приёма.
+- [x] Структура справочника с поиском по разделам; явное отсутствие проверенных медицинских материалов.
+- [x] Макет сообщений без искусственной переписки и отправки.
+- [x] Адаптивные варианты, клавиатурный focus, reduced motion, возврат фокуса из окон.
+- [ ] Подключить реальную авторизацию врача и связь с пациентами после отдельной задачи.
+- [ ] Подключить все врачебные действия, источники и обмен данными после отдельной задачи.
+
+## 14. Реальный исследовательский справочник · 18 октября 2026
+
+- [x] Подтверждён некоммерческий исследовательский сценарий.
+- [x] 33 оригинальных КР из полного каталога Минздрава с любым F00–F99, версии, хеши, страницы и полнотекстовый индекс.
+- [x] Полная выгрузка ГРЛС как метаданные: 126 861 уникальная запись всех статусов, 3 745 названий составов; отличать от числа инструкций.
+- [x] Источник инструкции проверяется по точному РУ, сохраняются оригинал и карточка, несколько редакций не объявляются автоматически последней.
+- [x] Возобновляемый сбор и фоновый импорт в отдельную схему knowledge, read-only API без данных пациентов.
+- [x] По последнему указанию остановлена широкая очередь, пересобран отбор только для психиатрии; проверяемый список и причины включения.
+- [x] Завершить проход психиатрической очереди; случаи без файла и ошибки источника показаны отдельно.
+- [ ] Разобрать 3 ошибки источника и OCR сканов; не объявлять их готовыми.
+- [ ] Получить отдельную официальную выгрузку DDInter: прямой сервер по-прежнему недоступен, файл требует собственной проверки происхождения и условий. Это не означает отсутствие взаимодействий в приложении: позднее импортирован корпус OpenMRS/DDInter — 295 183 прямые пары и 8 268 записей о заболеваниях, см. текущий статус ниже и KNOWLEDGE.md.
+- [ ] Экспертная проверка формуляра, извлечения, редакций, правил, доз и клинических сценариев. Медицинская эксплуатация не разрешена.
+
+## 15. Чтение клинреков и поиск
+
+- [x] Непрерывный полный текст без перелистывания; исходное оглавление и поиск прокручивают к разделам/подразделам и страницам.
+- [x] Абзацы вместо PDF-переносов, отдельные списки/уровни доказательности, контроль сохранности исходного текста всех 33 документов.
+- [x] Поиск слова/части слова/фразы по всему клинреку, регистр и е/ё, контекст, подсветка, счётчик, стрелки и Enter/Shift+Enter.
+- [x] Размер текста, адаптивная навигация, исходный текст страницы и оригинал PDF с текущей страницы.
+- [ ] Клиническая редактура сложных таблиц и OCR сканов без изменения исходных оригиналов.
+
+## 16. Исторический этап: исходные PDF, инструкции и рабочие сценарии врача
+
+Этот раздел фиксирует переход от макета к отдельному вымышленному демо. Демонстрационное создание приёмов не является подключённым календарём: в текущем кабинете общий календарь пациента показывает честное отсутствие сохранения приёмов. Рабочие локальные подключения и назначения описаны в разделе 17 и поздних обновлениях; авторизация и чат — в разделе аккаунтов. Реальное клиническое применение не заявляется.
+
+- [x] Разметка всех 33 КР по геометрии PDF, реальные ячейки таблиц, примечания и проверка сохранности букв/цифр; оригинальные изображения для сложных областей.
+- [x] Общий непрерывный читатель для инструкций и КР; исходный текст сохраняется отдельно, неразобранные колонки не склеиваются.
+- [x] Режим PDF с собственными поиском, выделением, масштабом, навигацией и исходным оформлением; без зависимости от плагина браузера.
+- [x] Раздельные счётчики МНН/составов, регистраций и файлов; готовые инструкции первыми, психиатрия по умолчанию.
+- [x] Обработать всю очередь 1 374 регистраций; сохранить явные 224 случая без документов и 3 ошибки источника, не выдавать их за готовые инструкции.
+- [ ] OCR и экспертная проверка сканов/ошибок источника, подтверждение применимости редакций.
+- [x] Перенести общий календарь с анимацией, выбор даты, колёса времени, редактор препарата/титрации и скользящие переключатели во врачебное демо.
+- [x] Создание, просмотр перед сохранением, редактирование, версии и завершение схемы лечения для отдельного вымышленного пациента.
+- [x] Дневник настроения/сна по датам, графики с пропусками, выбор дня из графика, длительность сна по имеющимся записям и распределение категорий настроения.
+- [x] Создание демо-приёма с проверкой пересечений, отображение в календаре дня/недели.
+- [ ] Допуск настоящих пациентов и клиническая проверка личности/квалификации врача. Историческое ограничение этого этапа на записи в памяти позднее заменено разрешёнными локальными синтетическими профилями, серверными согласиями и аудитом; это не допуск к медицинской эксплуатации.
+
+- [x] Просмотр доступных вымышленных личных записей с поиском, PHQ-9/GAD-7 с исходными ответами и проверенным общим расчётом.
+
+## 17. Подключённые профили и назначения, 18.10.2026
+- [x] Проверить завершение психиатрической загрузки: 1 374 регистрации обработаны, 1 922 инструкции в БД; 224 регистрации без документов и 3 ошибки источника учтены отдельно.
+- [x] Повторить прямое скачивание DDInter с официального сайта; сохранить явный результат тайм-аута без замены зеркалом.
+- [x] Медицинский профиль пациента: уже принимаемые препараты и хронические заболевания, поиск ГРЛС или ручное название, сведения со слов пациента, шифрование и оптимистические версии.
+- [x] Одноразовый код подключения, именованный запрос врача, подтверждение и отзыв доступа пациентом; проверка отношения на сервере, RLS, CSRF и аудит.
+- [x] Редактор назначения с выбором конкретного РУ/инструкции, просмотром схемы, источниками предупреждений и передачей в «Лечение» пациента с сохранением происхождения и истории.
+- [x] Проверка ограничений: реальные разделы инструкций, полные фрагменты и PDF, отсутствие ложного заключения о безопасности, повторная проверка при изменении сведений пациента или предлагаемой схемы.
+- [x] Подготовить отдельный словарь русских/английских действующих веществ, полного состава, солей/форм и ID DDInter; не допускать перевод или неполное сопоставление к DDI-проверке.
+- [ ] Получить официальную выгрузку DDInter, наполнить словарь с источниками и экспертной проверкой, проверить актуальность применимых инструкций и клинических правил.
+- [ ] Подтверждение личности/квалификации врача, клиническая авторизация, эксплуатационные согласия и юридический электронный рецепт для реального применения. Локальный прототип этого не обеспечивает.
+
+## Latest connected-care/reference revision
+- [x] Permanent patient code and separate patient/doctor cookies in one browser, with consent gate.
+- [x] Real connected patients replace fictional overview cards.
+- [x] Physician edits current therapy and diagnoses with encrypted revisions, attribution/history and patient refresh.
+- [x] Trade-name/INN autocomplete with explicit second-step GRLS product/registration selection; bulk pharmaceutical substances excluded from prescribing suggestions.
+- [x] ICD-10 diagnosis catalog, common-language search aliases and adult-first ranking.
+- [x] Shared animated suggestion disclosure and result-count resizing for diagnoses and medicines; stale choices disabled.
+- [x] OpenMRS direct DDI + disease corpus imported with pinned provenance and quality controls: 295,183 direct drug pairs and 8,268 distinct drug–disease rows. Clinical identity coverage is partial (40 reviewed INNs); the separate official DDInter download remains pending.
+- [x] Wrapped recommendation class retained in the evidence block; embedded PDF fonts enabled.
+- [x] Verbose GRLS download progress removed from the product view; sliding library selector.
+- [ ] Production identity verification, medical certification, clinical validation and complete reviewed multilingual mapping remain outside this local research prototype.
+- [x] Smooth measured height of the complete medical-profile dialog across medication/condition switches, record changes and editor disclosure; fixed save footer and styled inputs.
+
+## New queue requested 18 October (continue before final Git push)
+- [x] One current-medication list derives from physician prescriptions, manually added therapy and reconciliation; reversible removal preserves history and source authorship.
+- [x] Patient medication-management entry in Treatment/settings; disease names remain inside private medical-details editor, with convenient add/remove controls at the top.
+- [x] Compact safety alerts: one source sentence containing the named condition, full context/source behind details, preserve negation and original language.
+- [x] Normalize private-use PDF bullet glyphs and similar extraction artifacts into standard bullets without rewriting medical prose; originals unchanged.
+- [x] PDF smaller initial zoom, working scale controls across guidelines and instructions, continuous navigation/search/selection preserved.
+- [x] From unambiguous GRLS solid-form strengths, prefill smallest registered tablet/capsule strength and quantity 1 as editable source facts; no inferred treatment dose, no conversion of ambiguous compounds/liquids.
+- [x] Reuse patient calendar/components/tokens throughout physician workspace; preserve care drafts and access boundaries.
+- [x] Dedicated bilingual drug/disease catalog (official EAEU naming snapshot and existing ICD crosswalk; full clinical identity coverage still pending): English names + source IDs retained, Russian display/search translations separated from source-verified clinical identity mappings. User repeated this as a priority queue item. Investigate primary multilingual identifiers/crosswalks, broaden supported names, explicitly flag unresolved mappings; no fuzzy/LLM matching as medical fact.
+- [ ] Final authorized commit/push of source changes only. Stage checks are recorded below; exclude secrets, patient data, raw/processed medical corpora and unrelated design-directory changes. Mark this complete only after successful push.
+
+- [x] DDI checking for GRLS medicines with no downloaded instruction: confirmed substance/provider identity is resolved independently of PDF availability. EAEU display labels do not establish clinical identity; complete reviewed components/provider IDs remain required. Synthetic reference-care verification checks an actual no-PDF registration, returns source DDI matches, document=null, instruction screening unavailable and safeToCombine=null. No prescription was created from that historical registration; ambiguous salts/combinations and missing pairs remain gaps.
+- [x] Official EAEU INN catalog 1016 downloaded in full through documented /api/v1: 9,578 RU/EN terms, 9,573 Latin terms (5 missing in source), page reports update 26.11.2025. Validated paging, unique codes and hashes; offline importer keeps naming separate from the 40 reviewed provider identities.
+
+## Accounts and remaining workflows · 19 October 2026
+
+The following items are functional local research workflows tested with synthetic profiles. They do not establish production identity verification, medical licensing, a legally valid electronic prescription or operational clinical readiness.
+
+- [x] Local registration/login/logout with scrypt password hashes, isolated account ownership and fixed patient/doctor roles; CSRF checks, session rotation, generic login failures and attempt limits. Existing anonymous health records stay in a separate local profile and are not silently adopted by a registered account.
+- [x] Introductory registration steps: app overview, name/surname, patient age, optional medications/diagnoses through the shared source pickers, explicit health-data storage consent and separate journal-text processing/sharing permissions defaulting off. A failed optional intake save retains the authenticated account and a retryable medical-profile draft.
+- [x] Journal sharing requires both optional permissions and an approved active care relationship. Settings can revoke either permission; revoking health-data consent blocks new medical writes and physician access while preserving the patient's own access to saved history. Automatic journal-text analysis remains unconnected.
+- [x] Auth mascot and continuous contour background reuse the patient's native texture, pocket geometry and figure. Patient login includes a flight into the measured home position with a reduced-motion fallback; doctor login opens the workspace.
+- [x] Real encrypted chat along active approved care relationships: server-derived sender, React-only drafts, polling, idempotent sends, pagination and server-side revocation enforcement. No artificial replies, push delivery, unread counters or guaranteed response time are claimed.
+- [x] Automated verification: 88 unit/security/domain tests pass. Synthetic auth, care-chat and reference-care API scenarios pass, including separate role cookies, account isolation, login persistence, consent-gated journal visibility/revocation, chat delivery and document-free DDI checking. No tests write to the user's browser patient profile.
+- [x] Primary-interface walkthrough of registration, login, settings and patient mascot arrival completed with a synthetic account. Successful registration and private-by-default permissions were checked in the running local app.
+- [x] Cross-tab logout immediately returns both open tabs to the account gate. Mobile auth at 360px has no horizontal overflow; desktop and mobile visuals were inspected.
+- [ ] Final authorized Git commit/push after checks; exclude secrets, patient data, medical corpus files and unrelated changes.
+- [ ] Production email verification/password recovery, clinician identity and qualification verification, MFA/session management, legal consent documents, clinical validation and operational deployment.
+- [ ] Appointment creation/confirmation/storage, clinician-assigned questionnaire schedules, reliable background notifications, unread-message counters and the remaining unconnected workflows. The current calendar is a shared interface with an explicit empty state.

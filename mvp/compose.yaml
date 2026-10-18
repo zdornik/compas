@@ -1,0 +1,137 @@
+name: compass-mvp
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: compass
+      POSTGRES_USER: compass_admin
+      POSTGRES_PASSWORD_FILE: /run/secrets/admin_db_password
+      POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256
+    secrets: [admin_db_password, app_db_password]
+    volumes:
+      - compass-data:/var/lib/postgresql/data
+      - ./docker/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    networks: [private]
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U compass_admin -d compass]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+    restart: unless-stopped
+    security_opt: [no-new-privileges:true]
+  migrate:
+    image: postgres:17-alpine
+    user: postgres
+    command: [sh, -ec, 'export PGPASSWORD="$$(cat /run/secrets/admin_db_password)"; exec psql -h db -U compass_admin -d compass -v ON_ERROR_STOP=1 -f /migrations/001-medications.sql -f /migrations/002-knowledge.sql -f /migrations/003-knowledge-layout.sql -f /migrations/004-care.sql -f /migrations/005-ingredient-identities.sql -f /migrations/006-reference-catalogs.sql -f /migrations/007-eaeu-inn.sql -f /migrations/008-auth.sql -f /migrations/009-care-chat.sql']
+    secrets: [admin_db_password]
+    volumes: [./docker/migrations:/migrations:ro]
+    networks: [private]
+    depends_on:
+      db: { condition: service_healthy }
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: "no"
+  web:
+    image: compass-mvp-local:latest
+    build: .
+    environment:
+      PORT: 8080
+      HOST: 0.0.0.0
+      DB_HOST: db
+      DB_PASSWORD_FILE: /run/secrets/app_db_password
+      DATA_KEY_FILE: /run/secrets/data_key
+      SITE_ORIGIN: http://127.0.0.1:4174
+    secrets: [app_db_password, data_key]
+    volumes: [./knowledge:/app/knowledge:ro]
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    ports: [127.0.0.1:4174:8080]
+    networks: [private, edge]
+    read_only: true
+    tmpfs: ["/tmp:size=16m,noexec,nosuid"]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: unless-stopped
+    healthcheck:
+      test: [CMD, node, -e, "require('node:http').get({host:'127.0.0.1',port:8080,path:'/api/health',headers:{Host:'127.0.0.1:4174'}},r=>{r.resume();if(r.statusCode!==200)process.exit(1)}).on('error',()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  knowledge-download:
+    profiles: [knowledge-tools]
+    image: compass-knowledge-loader:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.knowledge
+    command: [python, scripts/knowledge/fetch-instructions.py]
+    volumes:
+      - ./scripts/knowledge:/app/scripts/knowledge:ro
+      - ./knowledge:/app/knowledge
+    networks: [edge]
+    read_only: true
+    tmpfs: ["/tmp:size=64m,noexec,nosuid"]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: "on-failure:3"
+  knowledge-import:
+    profiles: [knowledge-tools]
+    image: compass-mvp-local:latest
+    command: [node, server/import-knowledge.mjs, --follow]
+    environment:
+      DB_HOST: db
+      DB_PASSWORD_FILE: /run/secrets/admin_db_password
+    secrets: [admin_db_password]
+    volumes: [./knowledge:/app/knowledge:ro]
+    networks: [private]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+  knowledge-layout-import:
+    profiles: [knowledge-tools]
+    image: compass-mvp-local:latest
+    command: [node, server/import-layout.mjs, --follow]
+    environment:
+      DB_HOST: db
+      DB_PASSWORD_FILE: /run/secrets/admin_db_password
+    secrets: [admin_db_password]
+    volumes: [./knowledge:/app/knowledge:ro]
+    networks: [private]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+  knowledge-instruction-layout-import:
+    profiles: [knowledge-tools]
+    image: compass-mvp-local:latest
+    command: [node, server/import-layout.mjs, --instructions, --follow]
+    environment:
+      DB_HOST: db
+      DB_PASSWORD_FILE: /run/secrets/admin_db_password
+    secrets: [admin_db_password]
+    volumes: [./knowledge:/app/knowledge:ro]
+    networks: [private]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+volumes:
+  compass-data:
+networks:
+  private:
+    internal: true
+  edge: {}
+secrets:
+  admin_db_password:
+    file: .local-secrets/admin_db_password
+  app_db_password:
+    file: .local-secrets/app_db_password
+  data_key:
+    file: .local-secrets/data_key

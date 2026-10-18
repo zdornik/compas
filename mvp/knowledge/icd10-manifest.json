@@ -1,0 +1,15 @@
+{
+  "sourceId": "icd10-ru-nsi",
+  "sourceVersion": "2.27",
+  "oid": "1.2.643.5.1.13.13.11.1005",
+  "sourceUrl": "https://github.com/ak4nv/mkb10/blob/master/resources/1.2.643.5.1.13.13.11.1005_2.27.csv",
+  "sha256": "3b0a2ff314b3a1e1489338ae9e83c15fbdf4f98250f7b886c27edb60ef507509",
+  "records": 14641,
+  "englishSource": "https://icdcdn.who.int/icd10/meta/icd102019enMeta.zip",
+  "englishVersion": "2019",
+  "englishSha256": "a9fa787fa79076e199e46ca645bbc076449853e93e62cd3b2050b96dc96bbc1d",
+  "latestVersionVerified": false,
+  "allCodesAreChronic": false,
+  "gitBlobSha": "0f15ca440d1555e6ea630d6ac5916d898d7d162b",
+  "mirrorBlobUrl": "https://api.github.com/repos/ak4nv/mkb10/git/blobs/0f15ca440d1555e6ea630d6ac5916d898d7d162b"
+}

@@ -4,7 +4,7 @@ import { contourPalette } from './mood-motion.js';
 // Recolour the actual generated contour texture, keeping its geometry and
 // sculptural shading. A single continuous mood coordinate visits every palette
 // between the old and new state, even when the slider jumps from end to end.
-export function ContourCanvas({ value, src = '/art/contours-v2.webp', tracking = false, style, onReady }) {
+export function ContourCanvas({ value, src = '/art/mood-environment-v4-hq.webp', tracking = false, style, onReady }) {
   const canvas = useRef(null);
   const texture = useRef(null);
   const position = useRef(value);
@@ -13,6 +13,7 @@ export function ContourCanvas({ value, src = '/art/contours-v2.webp', tracking =
   const direct = useRef(tracking);
   const mounted = useRef(false);
   const reduced = useRef(false);
+  const onScreen = useRef(true);
   const animate = useRef(null);
 
   useEffect(() => {
@@ -39,11 +40,11 @@ export function ContourCanvas({ value, src = '/art/contours-v2.webp', tracking =
       context.putImageData(pixels, 0, 0);
     };
     animate.current = () => {
-      if (!texture.current || frame.current) return;
+      if (!texture.current || frame.current || !onScreen.current || document.hidden) return;
       let previous = performance.now();
       const tick = now => {
         frame.current = 0;
-        if (!mounted.current) return;
+        if (!mounted.current || !onScreen.current || document.hidden) return;
         const elapsed = Math.min(50, Math.max(1, now - previous));
         previous = now;
         if (direct.current || reduced.current) position.current = target.current;
@@ -56,6 +57,13 @@ export function ContourCanvas({ value, src = '/art/contours-v2.webp', tracking =
     };
     const motionChange = event => { reduced.current = event.matches; animate.current?.(); };
     media.addEventListener('change', motionChange);
+    const refreshVisible = () => {
+      cancelAnimationFrame(frame.current); frame.current = 0;
+      if (onScreen.current && !document.hidden && texture.current) { position.current = target.current; render(position.current); }
+    };
+    const observer = new IntersectionObserver(([entry]) => { onScreen.current = entry.isIntersecting; refreshVisible(); });
+    observer.observe(canvas.current);
+    document.addEventListener('visibilitychange', refreshVisible);
     image.onload = () => {
       if (!mounted.current) return;
       // Never reduce the source to a thumbnail before stretching it across the
@@ -76,7 +84,7 @@ export function ContourCanvas({ value, src = '/art/contours-v2.webp', tracking =
       onReady?.(true);
     };
     image.src = src;
-    return () => { mounted.current = false; image.onload = null; cancelAnimationFrame(frame.current); frame.current = 0; media.removeEventListener('change', motionChange); texture.current = null; };
+    return () => { mounted.current = false; image.onload = null; cancelAnimationFrame(frame.current); frame.current = 0; media.removeEventListener('change', motionChange); observer.disconnect(); document.removeEventListener('visibilitychange', refreshVisible); texture.current = null; };
   }, [src, onReady]);
 
   useEffect(() => { target.current = value; direct.current = tracking; animate.current?.(); }, [value, tracking]);

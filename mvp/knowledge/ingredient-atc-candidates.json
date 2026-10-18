@@ -1,0 +1,1271 @@
+[
+  {
+    "nameRu": "Азитромицин",
+    "atc": "J01FA10",
+    "evidence": {
+      "nameRu": "Азитромицин",
+      "atc": "J01FA10",
+      "documentId": "grls-doc:9edf1c11e9557901161acc279a92eb29",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/09/30/1534999/8b58df26-7863-42af-8180-763b029598f4.pdf",
+      "sha256": "0206dfd47856c36d3a4b95a860a0eed87bebea7ecfc3c5838db5525e39058076"
+    },
+    "providers": [
+      {
+        "id": "DDInter157",
+        "name": "Azithromycin"
+      }
+    ]
+  },
+  {
+    "nameRu": "Алимемазин",
+    "atc": "R06AD01",
+    "evidence": {
+      "nameRu": "Алимемазин",
+      "atc": "R06AD01",
+      "documentId": "grls-doc:ea605aff71ffb43e2131522efd65e9fa",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/02/12/1526430/6988b3c1-18af-453a-a658-2c1bff9ce280.pdf",
+      "sha256": "1d77871e5bc39c5278a5d6eba9b4266add212ed210d2029aa81dc7c00f9f91fb"
+    },
+    "providers": [
+      {
+        "id": "DDInter45",
+        "name": "Alimemazine"
+      }
+    ]
+  },
+  {
+    "nameRu": "Алпразолам",
+    "atc": "N05BA12",
+    "evidence": {
+      "nameRu": "Алпразолам",
+      "atc": "N05BA12",
+      "documentId": "grls-doc:ac3eccca3bd4fba18da1472aa89ffdee",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2024/11/21/1511063/c38dcf50-4665-4cfc-af5b-d5f5cff5ff88.pdf",
+      "sha256": "5376d5d85643a35c92bdd2b48027af322321fbc44b779888ec5fb9feabc56990"
+    },
+    "providers": [
+      {
+        "id": "DDInter54",
+        "name": "Alprazolam"
+      }
+    ]
+  },
+  {
+    "nameRu": "Амитриптилин",
+    "atc": "N06AA09",
+    "evidence": {
+      "nameRu": "Амитриптилин",
+      "atc": "N06AA09",
+      "documentId": "grls-doc:f7a1210d906b0a5c5da65c11770f95f2",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2024/01/11/1500729/56d64b0d-f34f-46ec-960c-3a7c1da7d5b8.pdf",
+      "sha256": "1b2643f5aa74fe12ecda2b92dc9c1fe577def2da8a35fa44db8e1fc611eecce7"
+    },
+    "providers": [
+      {
+        "id": "DDInter78",
+        "name": "Amitriptyline"
+      }
+    ]
+  },
+  {
+    "nameRu": "Арипипразол",
+    "atc": "N05AX12",
+    "evidence": {
+      "nameRu": "Арипипразол",
+      "atc": "N05AX12",
+      "documentId": "grls-doc:077fd4bf3df5a2b9e23514f6871b7bb7",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2025/02/06/1513557/05b1fa4b-7271-49e6-82de-cb36547a9aae.pdf",
+      "sha256": "ea0a05de38e34627f929f3f59b25fd885e886ac708027b2f21e5eb83974c066c"
+    },
+    "providers": [
+      {
+        "id": "DDInter118",
+        "name": "Aripiprazole"
+      }
+    ]
+  },
+  {
+    "nameRu": "Ацикловир",
+    "atc": "D06BB03",
+    "evidence": {
+      "nameRu": "Ацикловир",
+      "atc": "D06BB03",
+      "documentId": "grls-doc:80bed8522d42437836c6256f40db9766",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/05/12/1529688/2ccb5afb-bb8f-49bc-b1d8-c2ca87b9fd9c.pdf",
+      "sha256": "52df59fc9b7abf16ed4cebc95f83f58edb3760a01bdb36742f0dee1ae1ed7a6c"
+    },
+    "providers": [
+      {
+        "id": "DDInter25",
+        "name": "Acyclovir"
+      },
+      {
+        "id": "DDInter26",
+        "name": "Acyclovir (topical)"
+      }
+    ]
+  },
+  {
+    "nameRu": "Валацикловир",
+    "atc": "J05AB11",
+    "evidence": {
+      "nameRu": "Валацикловир",
+      "atc": "J05AB11",
+      "documentId": "grls-doc:d574f482471a103aa835d5cf9e9e8d37",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/05/20/1530114/6fcb4dbe-bffe-4921-8a84-31b1165bcdd6.pdf",
+      "sha256": "748c3082bef0ec0caab5f944ed28517bd0339eca0ffa94ee2af7d46757781fe1"
+    },
+    "providers": [
+      {
+        "id": "DDInter1908",
+        "name": "Valaciclovir"
+      }
+    ]
+  },
+  {
+    "nameRu": "Валерианы лекарственной корневищ с корнями настойка",
+    "atc": "N05CM09",
+    "evidence": {
+      "nameRu": "Валерианы лекарственной корневищ с корнями настойка",
+      "atc": "N05CM09",
+      "documentId": "grls-doc:6703194aa559903f2267832a0ccf3e56",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2024/09/09/1508600/24276eb4-8c63-40ad-9555-e986de6a590a.pdf",
+      "sha256": "471ec76bedab72c525233d2d80b6ed005467a94cb38b97dba5a99a990a3a532c"
+    },
+    "providers": [
+      {
+        "id": "DDInter1911",
+        "name": "Valerian"
+      }
+    ]
+  },
+  {
+    "nameRu": "Валерианы лекарственной корневищ с корнями экстракт",
+    "atc": "N05CM09",
+    "evidence": {
+      "nameRu": "Валерианы лекарственной корневищ с корнями экстракт",
+      "atc": "N05CM09",
+      "documentId": "grls-doc:63780f7045424bb2b9db4e2cab8d1102",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/07/20/1532359/73c34b0e-d385-4c6e-a118-ff65e926b029.pdf",
+      "sha256": "18ed5c9a7d01b5c4d85c2205e11727706cda63498b836ae7bf2e19033431d86b"
+    },
+    "providers": [
+      {
+        "id": "DDInter1911",
+        "name": "Valerian"
+      }
+    ]
+  },
+  {
+    "nameRu": "Валерианы лекарственной корневища с корнями",
+    "atc": "N05CM09",
+    "evidence": {
+      "nameRu": "Валерианы лекарственной корневища с корнями",
+      "atc": "N05CM09",
+      "documentId": "grls-doc:43367741e32b311c8226ea8d3aa9fc57",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/04/29/1529349/7fbf668e-1315-4ec2-a351-c71d2fc729d0.pdf",
+      "sha256": "6d3ad8aae4be9f949a1662fe1de87dc7a9c3edb7b3a690dbfbd86994687bb0f8"
+    },
+    "providers": [
+      {
+        "id": "DDInter1911",
+        "name": "Valerian"
+      }
+    ]
+  },
+  {
+    "nameRu": "Валерианы лекарственной корневища с корнями настойка",
+    "atc": "N05CM09",
+    "evidence": {
+      "nameRu": "Валерианы лекарственной корневища с корнями настойка",
+      "atc": "N05CM09",
+      "documentId": "grls-doc:ffa5663848753fa64bce8e281d8196d6",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2024/12/20/1512138/a8221691-52f7-47d3-a72b-db279e820983.pdf",
+      "sha256": "8a8bb1780d6b54ad6067c031e983d7abfca303073e73d657f23e4573abdab634"
+    },
+    "providers": [
+      {
+        "id": "DDInter1911",
+        "name": "Valerian"
+      }
+    ]
+  },
+  {
+    "nameRu": "Венлафаксин",
+    "atc": "N06AX16",
+    "evidence": {
+      "nameRu": "Венлафаксин",
+      "atc": "N06AX16",
+      "documentId": "grls-doc:cc17d077ebb5ef7f715367129abe9aee",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2025/09/01/1520778/f7f08317-af35-4279-bb3c-3bad77df4c87.pdf",
+      "sha256": "86dfef27fa861a82b4d6f1b459b2bc45f907e3e330474a8b74fc69106eab88c7"
+    },
+    "providers": [
+      {
+        "id": "DDInter1927",
+        "name": "Venlafaxine"
+      }
+    ]
+  },
+  {
+    "nameRu": "Габапентин",
+    "atc": "N02BF01",
+    "evidence": {
+      "nameRu": "Габапентин",
+      "atc": "N02BF01",
+      "documentId": "grls-doc:e4911299b6757535b09d4519e04993b4",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2025/07/04/1518836/da9ec707-cef7-476d-b5e4-e9126c0edab3.pdf",
+      "sha256": "311c2b67258e18f6351c1feb55040d9a91fc5b3247cab2f083d067407eba7704"
+    },
+    "providers": [
+      {
+        "id": "DDInter2090",
+        "name": "Gabapentin enacarbil"
+      },
+      {
+        "id": "DDInter791",
+        "name": "Gabapentin"
+      }
+    ]
+  },
+  {
+    "nameRu": "Галоперидол",
+    "atc": "N05AD01",
+    "evidence": {
+      "nameRu": "Галоперидол",
+      "atc": "N05AD01",
+      "documentId": "grls-doc:dec4a4181d13acb99f32a2fd5b06783f",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/08/14/1533327/074a9568-dab9-4d47-99a2-e8d2c1ca54de.pdf",
+      "sha256": "f2d3f282b232f6368c15d58a36c61ff5744d32f4cb0b54301e70a3d885e5faf2"
+    },
+    "providers": [
+      {
+        "id": "DDInter853",
+        "name": "Haloperidol"
+      }
+    ]
+  },
+  {
+    "nameRu": "Ганцикловир",
+    "atc": "J05AB06",
+    "evidence": {
+      "nameRu": "Ганцикловир",
+      "atc": "J05AB06",
+      "documentId": "grls-doc:209c9d19264feceb08838c7c5c77b196",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2025/12/10/1524129/ee8b1a02-e056-4bd1-adc0-7b2f429578fe.pdf",
+      "sha256": "0c4248269a5fc86d94366d4df6196c19220260e788b0dc06c57ea592b3231fb5"
+    },
+    "providers": [
+      {
+        "id": "DDInter806",
+        "name": "Ganciclovir"
+      }
+    ]
+  },
+  {
+    "nameRu": "Гентамицин",
+    "atc": "S01AA11",
+    "evidence": {
+      "nameRu": "Гентамицин",
+      "atc": "S01AA11",
+      "documentId": "grls-doc:9516cca94fb4666ad2bbf7756f8bfc9a",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/04/03/1528269/ff8802a9-50a7-497b-b42f-cde77f7b229d.pdf",
+      "sha256": "eca0e8a670003946377c5e173e28b798193f0e6a6b8a855713ee0e0e198f1076"
+    },
+    "providers": [
+      {
+        "id": "DDInter815",
+        "name": "Gentamicin"
+      },
+      {
+        "id": "DDInter816",
+        "name": "Gentamicin (topical)"
+      }
+    ]
+  },
+  {
+    "nameRu": "Дексмедетомидин",
+    "atc": "N05CM18",
+    "evidence": {
+      "nameRu": "Дексмедетомидин",
+      "atc": "N05CM18",
+      "documentId": "grls-doc:64384706b14a7a88d33e3359ba27ef64",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/04/23/1529090/8fa47b84-cc55-48e2-8513-88d2c625fe83.pdf",
+      "sha256": "d66a0d2ba9bc6deeaccd9f1f29efdebb6a5aa458cd2cf71e48b4fc1bea414d7f"
+    },
+    "providers": [
+      {
+        "id": "DDInter520",
+        "name": "Dexmedetomidine"
+      }
+    ]
+  },
+  {
+    "nameRu": "Диазепам",
+    "atc": "N05BA01",
+    "evidence": {
+      "nameRu": "Диазепам",
+      "atc": "N05BA01",
+      "documentId": "grls-doc:5475f48c4a17c49e44fca285d1e7997c",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/06/10/1531030/08f010dd-25ac-4990-afea-fd163dbee18d.pdf",
+      "sha256": "76724389d79843e1c12d5a75d05a549197b6b3679864a9a5bc648ddc740e0234"
+    },
+    "providers": [
+      {
+        "id": "DDInter534",
+        "name": "Diazepam"
+      }
+    ]
+  },
+  {
+    "nameRu": "Доксиламин",
+    "atc": "R06AA09",
+    "evidence": {
+      "nameRu": "Доксиламин",
+      "atc": "R06AA09",
+      "documentId": "grls-doc:d8f5364557860989848dc496c7bbd028",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2025/10/20/1522604/a7220f09-e10e-4fd9-a94d-ce640975c299.pdf",
+      "sha256": "bb778094db51e5849a372d28fad45a903473367b1927ebf06d9bce9090c67d5b"
+    },
+    "providers": [
+      {
+        "id": "DDInter600",
+        "name": "Doxylamine"
+      }
+    ]
+  },
+  {
+    "nameRu": "Донепезил",
+    "atc": "N06DA02",
+    "evidence": {
+      "nameRu": "Донепезил",
+      "atc": "N06DA02",
+      "documentId": "grls-doc:1f1172cf5b3973fe72cb9723ba80ce13",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/07/20/1532352/bc86ca8e-ede4-4ff8-8d58-eaedd20ff8b2.pdf",
+      "sha256": "53f1a1cb31e87bbe3b56549eed30fbfa16ed7d2d943fb93f3e911ab75a959f9b"
+    },
+    "providers": [
+      {
+        "id": "DDInter583",
+        "name": "Donepezil"
+      }
+    ]
+  },
+  {
+    "nameRu": "Дроперидол",
+    "atc": "N05AD08",
+    "evidence": {
+      "nameRu": "Дроперидол",
+      "atc": "N05AD08",
+      "documentId": "grls-doc:ee9f4590cca0fb9046e33172e11f5ad9",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/06/26/1531461/1fa961c9-e598-45c1-bf20-3e4593c1c915.pdf",
+      "sha256": "9e1bc4c00f923ab5d772e70f2fc16a8e56d53bcb6b56f3d1396ba9fe6b7a9c3e"
+    },
+    "providers": [
+      {
+        "id": "DDInter603",
+        "name": "Droperidol"
+      }
+    ]
+  },
+  {
+    "nameRu": "Дулоксетин",
+    "atc": "N06AX21",
+    "evidence": {
+      "nameRu": "Дулоксетин",
+      "atc": "N06AX21",
+      "documentId": "grls-doc:20aeb136cbfea805aa5aeb3ec4760223",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2025/01/27/1513198/9a9840f3-e047-449b-9522-de4bbfeb68e4.pdf",
+      "sha256": "c31bd37837ca490f52c85b1d0473d7ecc3ce2ab03fb9abc7dde6e58e179bda55"
+    },
+    "providers": [
+      {
+        "id": "DDInter608",
+        "name": "Duloxetine"
+      }
+    ]
+  },
+  {
+    "nameRu": "Зипрасидон",
+    "atc": "N05AE04",
+    "evidence": {
+      "nameRu": "Зипрасидон",
+      "atc": "N05AE04",
+      "documentId": "grls-doc:486402dc0642ed35b3927c97e5afcace",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2025/09/26/1521819/52eb231c-0974-4bcc-93ca-113e0558d30a.pdf",
+      "sha256": "3b7f1f87765c8bbb2a2eebda8710f0494668e63069c57305653462c78903f4de"
+    },
+    "providers": [
+      {
+        "id": "DDInter1967",
+        "name": "Ziprasidone"
+      }
+    ]
+  },
+  {
+    "nameRu": "Золпидем",
+    "atc": "N05CF02",
+    "evidence": {
+      "nameRu": "Золпидем",
+      "atc": "N05CF02",
+      "documentId": "grls-doc:c16b8e382f792d50e49964a402eb693b",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2025/11/06/1523289/21ab4dff-49a1-4bbc-8c01-4187d89c4803.pdf",
+      "sha256": "1651933c45d6463dfca81a4e6b6a452b8a53c9d7927efbb61227df7a76c6227e"
+    },
+    "providers": [
+      {
+        "id": "DDInter1970",
+        "name": "Zolpidem"
+      }
+    ]
+  },
+  {
+    "nameRu": "Интерферон альфа-2b",
+    "atc": "L03AB05",
+    "evidence": {
+      "nameRu": "Интерферон альфа-2b",
+      "atc": "L03AB05",
+      "documentId": "grls-doc:d4bf7b3f9125d483757e77ac0d0d7b8b",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/09/14/1534375/3204e87a-941f-438e-bac2-5ceb88694ebc.pdf",
+      "sha256": "3fd4408f6e50bef3ac76f6b796b3e0a114a96502ea1d649a84be59590332d492"
+    },
+    "providers": [
+      {
+        "id": "DDInter943",
+        "name": "Interferon alfa-2b"
+      }
+    ]
+  },
+  {
+    "nameRu": "Итраконазол",
+    "atc": "J02AC02",
+    "evidence": {
+      "nameRu": "Итраконазол",
+      "atc": "J02AC02",
+      "documentId": "grls-doc:d17dfc75796d7a9798bd0699eb9f2146",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/01/12/1524985/2767823b-d1b2-480c-9f32-8e75d8b1a2dc.pdf",
+      "sha256": "2425a321995ab8102615d2ba4bc3ddfcf42b9b3447101b7378d340a8279c3e72"
+    },
+    "providers": [
+      {
+        "id": "DDInter995",
+        "name": "Itraconazole"
+      }
+    ]
+  },
+  {
+    "nameRu": "Кальция хлорид",
+    "atc": "B05XA07",
+    "evidence": {
+      "nameRu": "Кальция хлорид",
+      "atc": "B05XA07",
+      "documentId": "grls-doc:9c2e696c7836cd74f706116b81464c32",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/08/12/1533204/cd2d273b-b0d8-4a4d-86f3-20c32e5eb5a4.pdf",
+      "sha256": "c11ebd7ceac7d11d05a6e9646ee76045774e30ae7d9dc4a53152174882466631"
+    },
+    "providers": [
+      {
+        "id": "DDInter272",
+        "name": "Calcium chloride"
+      }
+    ]
+  },
+  {
+    "nameRu": "Карбамазепин",
+    "atc": "N03AF01",
+    "evidence": {
+      "nameRu": "Карбамазепин",
+      "atc": "N03AF01",
+      "documentId": "grls-doc:1ce5766beb8fcc2b809402db2a246645",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/04/15/1528699/c14e726d-4306-474e-934a-117bea6c2acf.pdf",
+      "sha256": "8b68556e38c591d37f8e39c7e5f4e759345bff870191607773bdcc2efc7f1bff"
+    },
+    "providers": [
+      {
+        "id": "DDInter293",
+        "name": "Carbamazepine"
+      }
+    ]
+  },
+  {
+    "nameRu": "Кветиапин",
+    "atc": "N05AH04",
+    "evidence": {
+      "nameRu": "Кветиапин",
+      "atc": "N05AH04",
+      "documentId": "grls-doc:bcab2b75848643b6fa9764dfd5c39d4c",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2024/03/11/1502662/e70afdef-a62b-4995-9347-c8d8bd3bba08.pdf",
+      "sha256": "215d81236fd587c67f01c26029505859a8640e5975e524a9da3e95e77941b7de"
+    },
+    "providers": [
+      {
+        "id": "DDInter1553",
+        "name": "Quetiapine"
+      }
+    ]
+  },
+  {
+    "nameRu": "Кларитромицин",
+    "atc": "J01FA09",
+    "evidence": {
+      "nameRu": "Кларитромицин",
+      "atc": "J01FA09",
+      "documentId": "grls-doc:50e52cb7c1953c293ce0d2a02a2688c5",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/04/14/1528662/f2be3ea1-3b4a-40a4-86e7-dcfebe6ed60a.pdf",
+      "sha256": "d6101e697d1e2c89834546219398e361f27bd45b4792fc175bcc1b9cc54b735b"
+    },
+    "providers": [
+      {
+        "id": "DDInter393",
+        "name": "Clarithromycin"
+      }
+    ]
+  },
+  {
+    "nameRu": "Клиндамицин",
+    "atc": "D10AF01",
+    "evidence": {
+      "nameRu": "Клиндамицин",
+      "atc": "D10AF01",
+      "documentId": "grls-doc:ae0516cf86ca47b8e6d2e8b3360385af",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/07/09/1531904/6a538f28-ea9f-4662-98a4-ffe57b2b76ad.pdf",
+      "sha256": "09b089ef50ec6ecce479917a07e6ffc7dedf5ba998f5c4bdbc60320ddfcee227"
+    },
+    "providers": [
+      {
+        "id": "DDInter398",
+        "name": "Clindamycin"
+      },
+      {
+        "id": "DDInter399",
+        "name": "Clindamycin (topical)"
+      }
+    ]
+  },
+  {
+    "nameRu": "Клозапин",
+    "atc": "N05AH02",
+    "evidence": {
+      "nameRu": "Клозапин",
+      "atc": "N05AH02",
+      "documentId": "grls-doc:d99c6ab5d08ee1966aa77e0dfa524b14",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2024/07/08/1506522/10b12750-b80e-433e-b62e-220d9963eb24.pdf",
+      "sha256": "f1430aea14409d31c851182fe9acb3dd709ef809dcfe0199570494b3aa274bc8"
+    },
+    "providers": [
+      {
+        "id": "DDInter419",
+        "name": "Clozapine"
+      }
+    ]
+  },
+  {
+    "nameRu": "Кломипрамин",
+    "atc": "N06AA04",
+    "evidence": {
+      "nameRu": "Кломипрамин",
+      "atc": "N06AA04",
+      "documentId": "grls-doc:6c8dac53fa9dc3c2d29816a3a6e20a82",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2025/10/24/1522820/cac9d74e-a047-4e29-92c1-5fdbc936ae9c.pdf",
+      "sha256": "e5822157820f903d8ad37ba91d63c363e068562a43f6a89991409568feaf8369"
+    },
+    "providers": [
+      {
+        "id": "DDInter410",
+        "name": "Clomipramine"
+      }
+    ]
+  },
+  {
+    "nameRu": "Клоназепам",
+    "atc": "N03AE01",
+    "evidence": {
+      "nameRu": "Клоназепам",
+      "atc": "N03AE01",
+      "documentId": "grls-doc:5c52bb8b10f8ae248eb21051ee92ad5f",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2025/11/07/1523312/e5de0f72-33db-4e41-b46c-0a801388cf75.pdf",
+      "sha256": "60372267f21055d1c6983432636bdc8b5609a7725bed63ed63596a72e7ab48c2"
+    },
+    "providers": [
+      {
+        "id": "DDInter411",
+        "name": "Clonazepam"
+      }
+    ]
+  },
+  {
+    "nameRu": "Ламивудин",
+    "atc": "J05AF05",
+    "evidence": {
+      "nameRu": "Ламивудин",
+      "atc": "J05AF05",
+      "documentId": "grls-doc:a80bd7317473da4ed9a0fe313deedae7",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/02/05/1526104/35bcbdee-6482-4cc0-b6d6-304083bfad7a.pdf",
+      "sha256": "0cb4438a74c4b92119b3040b8a1f1c9120ff0e77b54b7ac341cd1624cc10eb9d"
+    },
+    "providers": [
+      {
+        "id": "DDInter1019",
+        "name": "Lamivudine"
+      }
+    ]
+  },
+  {
+    "nameRu": "Ламотриджин",
+    "atc": "N03AX09",
+    "evidence": {
+      "nameRu": "Ламотриджин",
+      "atc": "N03AX09",
+      "documentId": "grls-doc:ea5f19dbcdbfb02f0215a893bdc0f237",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/10/15/1535531/b5d492ca-0d42-4543-aadc-3cdc050fa229.pdf",
+      "sha256": "95c726f9b29ea012678bda548c3eb4cde523c6300850668811a15add72e4eaa6"
+    },
+    "providers": [
+      {
+        "id": "DDInter1020",
+        "name": "Lamotrigine"
+      }
+    ]
+  },
+  {
+    "nameRu": "Лидокаин",
+    "atc": "N01BB02",
+    "evidence": {
+      "nameRu": "Лидокаин",
+      "atc": "N01BB02",
+      "documentId": "grls-doc:d8c66701f2e4a6a158ad52902900076a",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/09/11/1534370/6a17cf8f-4e61-4a5d-8446-ab9a4ace487c.pdf",
+      "sha256": "11be705d3b469bac86627df9fec556486fb2416949f9682849141dbef0539064"
+    },
+    "providers": [
+      {
+        "id": "DDInter1066",
+        "name": "Lidocaine"
+      },
+      {
+        "id": "DDInter1067",
+        "name": "Lidocaine (ophthalmic)"
+      },
+      {
+        "id": "DDInter1068",
+        "name": "Lidocaine (topical)"
+      }
+    ]
+  },
+  {
+    "nameRu": "Мелатонин",
+    "atc": "N05CH01",
+    "evidence": {
+      "nameRu": "Мелатонин",
+      "atc": "N05CH01",
+      "documentId": "grls-doc:5cdff81154d2a85cea8bdab8ca4998e2",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2025/03/25/1515254/1ead5ed0-962e-4f04-be01-79e0d22431ff.pdf",
+      "sha256": "a05d2e1abac773b069a99378f866cfee1be396dc4acb4068d10839bc9c0d6562"
+    },
+    "providers": [
+      {
+        "id": "DDInter1142",
+        "name": "Melatonin"
+      }
+    ]
+  },
+  {
+    "nameRu": "Мемантин",
+    "atc": "N06DX01",
+    "evidence": {
+      "nameRu": "Мемантин",
+      "atc": "N06DX01",
+      "documentId": "grls-doc:71a04206c37e27b861b053a224ee4709",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2025/10/13/1522278/a8ee4fef-6835-4db1-af6c-b6c2361d8cff.pdf",
+      "sha256": "30622d9a735fb7b61fa5bb5fdaeeae66eafae8fbd95eeb60d3e2f0379bdfb1db"
+    },
+    "providers": [
+      {
+        "id": "DDInter1146",
+        "name": "Memantine"
+      }
+    ]
+  },
+  {
+    "nameRu": "Метоклопрамид",
+    "atc": "A03FA01",
+    "evidence": {
+      "nameRu": "Метоклопрамид",
+      "atc": "A03FA01",
+      "documentId": "grls-doc:7040fe3cc5b7021b9e053468f0e3e9c0",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/04/28/1529318/bd3da4a4-2965-4619-8085-01143fa64f9e.pdf",
+      "sha256": "cb980c64fc94a77d85e2d82d04c57175bf24b9e83a1835554b2854e1faf99064"
+    },
+    "providers": [
+      {
+        "id": "DDInter1197",
+        "name": "Metoclopramide"
+      }
+    ]
+  },
+  {
+    "nameRu": "Миртазапин",
+    "atc": "N06AX11",
+    "evidence": {
+      "nameRu": "Миртазапин",
+      "atc": "N06AX11",
+      "documentId": "grls-doc:31ff8401d3a70edc14ab19c4b5dda465",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/04/03/1528198/9bb22e99-7716-4d53-bae9-cae51a4fe64c.pdf",
+      "sha256": "5b76efdb0583b89bb0188efb04808fa043e31defc4af2a6de2523b38ff6537de"
+    },
+    "providers": [
+      {
+        "id": "DDInter1230",
+        "name": "Mirtazapine"
+      }
+    ]
+  },
+  {
+    "nameRu": "Налтрексон",
+    "atc": "N07BB04",
+    "evidence": {
+      "nameRu": "Налтрексон",
+      "atc": "N07BB04",
+      "documentId": "grls-doc:f3d6f8b22dae21106d02e6544a129e95",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2025/04/18/1516232/7ec59f09-2a53-452d-8fdc-fa1ad79b3629.pdf",
+      "sha256": "4c2f9430d5e46a6524bd384fe5c4842b04847f9133cda146f7488b06d5eab4b4"
+    },
+    "providers": [
+      {
+        "id": "DDInter1263",
+        "name": "Naltrexone"
+      }
+    ]
+  },
+  {
+    "nameRu": "Невирапин",
+    "atc": "J05AG01",
+    "evidence": {
+      "nameRu": "Невирапин",
+      "atc": "J05AG01",
+      "documentId": "grls-doc:ccca42fc6fc56be96c7f6b65cb83e36a",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/02/18/1526690/6b8660ee-da41-484f-ba6a-d403354cdd91.pdf",
+      "sha256": "d30451641cb60b0a991de2ea3735d53f8da5b41e6de12622d0821d4f44cbeebb"
+    },
+    "providers": [
+      {
+        "id": "DDInter1285",
+        "name": "Nevirapine"
+      }
+    ]
+  },
+  {
+    "nameRu": "Нитразепам",
+    "atc": "N05CD02",
+    "evidence": {
+      "nameRu": "Нитразепам",
+      "atc": "N05CD02",
+      "documentId": "grls-doc:0e5a59204f0065e6c4ed493014409e93",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2025/06/19/1518323/afb95134-b705-4ebd-a49a-16bdb78725df.pdf",
+      "sha256": "5c6c6a414631c0b52335a5f76d07ef0ab50a03b7db76f5bcb53f64d44322b7d0"
+    },
+    "providers": [
+      {
+        "id": "DDInter1301",
+        "name": "Nitrazepam"
+      }
+    ]
+  },
+  {
+    "nameRu": "Оксазепам",
+    "atc": "N05BA04",
+    "evidence": {
+      "nameRu": "Оксазепам",
+      "atc": "N05BA04",
+      "documentId": "grls-doc:81be64bbcdb8e7eaf56511fe0fec2f9e",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2025/06/03/1517820/ab9fefe4-3758-473b-b495-6809f968eac8.pdf",
+      "sha256": "b9848baf6b9abfe4f1d2b2cbb936eadef882067ec18d5d977316d3ab27236e67"
+    },
+    "providers": [
+      {
+        "id": "DDInter1359",
+        "name": "Oxazepam"
+      }
+    ]
+  },
+  {
+    "nameRu": "Оланзапин",
+    "atc": "N05AH03",
+    "evidence": {
+      "nameRu": "Оланзапин",
+      "atc": "N05AH03",
+      "documentId": "grls-doc:976c0fb482c74e46fc188bd2eb90fcab",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2025/06/25/1518529/ca215c98-2d82-48fe-851b-31669ad523f5.pdf",
+      "sha256": "5361eb82f892f6d6467f6c1229d5ad0de37849198818bb6e21840622ec40a19e"
+    },
+    "providers": [
+      {
+        "id": "DDInter1326",
+        "name": "Olanzapine"
+      }
+    ]
+  },
+  {
+    "nameRu": "Палиперидон",
+    "atc": "N05AX13",
+    "evidence": {
+      "nameRu": "Палиперидон",
+      "atc": "N05AX13",
+      "documentId": "grls-doc:ea6b7f984182715d3097f73c290d8c89",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2025/05/19/1517388/c5aab5f2-a5b0-422c-96a2-b308c0c1f154.pdf",
+      "sha256": "2c778c7bbb091bce1e5b9ccdd338c502cef8a6dccb0949204e1581bebfa51b44"
+    },
+    "providers": [
+      {
+        "id": "DDInter1381",
+        "name": "Paliperidone"
+      }
+    ]
+  },
+  {
+    "nameRu": "Парацетамол",
+    "atc": "N02BE01",
+    "evidence": {
+      "nameRu": "Парацетамол",
+      "atc": "N02BE01",
+      "documentId": "grls-doc:54cf4e68d766fa7f6a277cf550c0d244",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/09/11/1534325/be4c6fa6-3346-4952-b66f-477bc0bd8336.pdf",
+      "sha256": "1318aa1aa60da4d2b951d20a3b7db21c04dc966776e3269f4e8a4966b8f129e4"
+    },
+    "providers": [
+      {
+        "id": "DDInter14",
+        "name": "Acetaminophen"
+      }
+    ]
+  },
+  {
+    "nameRu": "Пиридоксин",
+    "atc": "A11HA02",
+    "evidence": {
+      "nameRu": "Пиридоксин",
+      "atc": "A11HA02",
+      "documentId": "grls-doc:843fa9504ec4f50ddabf7c5c3f5c3f66",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2025/12/29/1524870/903bdc63-d13e-4f70-b018-aa12864f54a0.pdf",
+      "sha256": "7ac74a0e91f905735fc21181f49f16a4399b11c441609317771b1718f88d9883"
+    },
+    "providers": [
+      {
+        "id": "DDInter1549",
+        "name": "Pyridoxine"
+      }
+    ]
+  },
+  {
+    "nameRu": "Промазин",
+    "atc": "N05AA03",
+    "evidence": {
+      "nameRu": "Промазин",
+      "atc": "N05AA03",
+      "documentId": "grls-doc:922ae5f32988cd5aeb5b9a69f5a7c103",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2025/09/08/1521096/761df1e1-2c40-414f-a7a6-efbc4e1f3a13.pdf",
+      "sha256": "fdba7aa25daafa468ce9696b26ca97229ab1d4bcfcf520392fb4255314a2efe9"
+    },
+    "providers": [
+      {
+        "id": "DDInter1532",
+        "name": "Promazine"
+      }
+    ]
+  },
+  {
+    "nameRu": "Рисперидон",
+    "atc": "N05AX08",
+    "evidence": {
+      "nameRu": "Рисперидон",
+      "atc": "N05AX08",
+      "documentId": "grls-doc:6ed7c162a4e2e68fd7e830cee8da6fce",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2024/10/18/1509888/a5b2e6b5-3566-42d6-83d1-c829ad85f179.pdf",
+      "sha256": "050e92687c59fe86bd40756e9764646a204b7db1a93f93995a7d8dbd9ef83785"
+    },
+    "providers": [
+      {
+        "id": "DDInter1605",
+        "name": "Risperidone"
+      }
+    ]
+  },
+  {
+    "nameRu": "Ритонавир",
+    "atc": "J05AE03",
+    "evidence": {
+      "nameRu": "Ритонавир",
+      "atc": "J05AE03",
+      "documentId": "grls-doc:e7d1345aed644adfab38ed34139533cf",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/08/18/1533489/3c127c5c-76d3-4781-80c4-0113f2248631.pdf",
+      "sha256": "12f262c1e9c381d5d3705a66e95b5c4542739b4c8d84c899f22190bec6125d61"
+    },
+    "providers": [
+      {
+        "id": "DDInter1607",
+        "name": "Ritonavir"
+      }
+    ]
+  },
+  {
+    "nameRu": "Сертралин",
+    "atc": "N06AB06",
+    "evidence": {
+      "nameRu": "Сертралин",
+      "atc": "N06AB06",
+      "documentId": "grls-doc:fef5a7ea84963e9f225a87bd38cca1f4",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2024/08/12/1507776/7349b291-e01f-4cb5-8aa6-e44069aa9ec7.pdf",
+      "sha256": "cd9aa45def88f2e1af90dd18ba8165bd61fa9f93e1d4ae481c3a8f9408983e7c"
+    },
+    "providers": [
+      {
+        "id": "DDInter1662",
+        "name": "Sertraline"
+      }
+    ]
+  },
+  {
+    "nameRu": "Теофиллин",
+    "atc": "R03DA04",
+    "evidence": {
+      "nameRu": "Теофиллин",
+      "atc": "R03DA04",
+      "documentId": "grls-doc:11e08b5483dc972c298877f90971d1bb",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2025/12/04/1523882/ed09455e-cf15-41c3-a8b3-84904cc5b6cb.pdf",
+      "sha256": "ed6fdda0afa16555f1ee38e78a0ff8616067bfa68c0b54da9a14ad2a06deb16b"
+    },
+    "providers": [
+      {
+        "id": "DDInter1791",
+        "name": "Theophylline"
+      }
+    ]
+  },
+  {
+    "nameRu": "Топирамат",
+    "atc": "N03AX11",
+    "evidence": {
+      "nameRu": "Топирамат",
+      "atc": "N03AX11",
+      "documentId": "grls-doc:601ac81252c6b5e9cf92d30eaffc5915",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2025/12/25/1524705/fbd91c27-a3c6-40f4-8e99-7f2aa0aac5b8.pdf",
+      "sha256": "7c0b3b275ce63055e232e06d0b5213ad4dba5d75712837544788085619fc46f6"
+    },
+    "providers": [
+      {
+        "id": "DDInter1834",
+        "name": "Topiramate"
+      }
+    ]
+  },
+  {
+    "nameRu": "Трамадол",
+    "atc": "N02AX02",
+    "evidence": {
+      "nameRu": "Трамадол",
+      "atc": "N02AX02",
+      "documentId": "grls-doc:9375b025f988428f242ed89bd717a7c0",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/10/07/1535267/f5218233-e920-45d0-b401-3b98d0b42eef.pdf",
+      "sha256": "8379302384e1898e0c692d79bc3e5650256ef0cc5a7182fd800d0eaa6e14403d"
+    },
+    "providers": [
+      {
+        "id": "DDInter1841",
+        "name": "Tramadol"
+      }
+    ]
+  },
+  {
+    "nameRu": "Тригексифенидил",
+    "atc": "N04AA01",
+    "evidence": {
+      "nameRu": "Тригексифенидил",
+      "atc": "N04AA01",
+      "documentId": "grls-doc:6fd179246f5f7699d89d6bbcf71cee60",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/07/10/1531932/2c74c11e-3c62-45ab-9c07-6f5269b4bf11.pdf",
+      "sha256": "e2c4cb91cd846bfc68503f5aa874695055e627a936cc1a4caf01a26962a6365e"
+    },
+    "providers": [
+      {
+        "id": "DDInter1870",
+        "name": "Trihexyphenidyl"
+      }
+    ]
+  },
+  {
+    "nameRu": "Трифлуоперазин",
+    "atc": "N05AB06",
+    "evidence": {
+      "nameRu": "Трифлуоперазин",
+      "atc": "N05AB06",
+      "documentId": "grls-doc:d9634c33ed9e88285e27902f43ff356f",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/04/06/1528301/5c0a82a4-9e15-4740-8995-8024102efdfe.pdf",
+      "sha256": "c7a9e52aba97a605b27bcccc23b82ef71c0dbf9171b10d3eb2a47fd90f8f83f0"
+    },
+    "providers": [
+      {
+        "id": "DDInter1866",
+        "name": "Trifluoperazine"
+      }
+    ]
+  },
+  {
+    "nameRu": "Троспия хлорид",
+    "atc": "G04BD09",
+    "evidence": {
+      "nameRu": "Троспия хлорид",
+      "atc": "G04BD09",
+      "documentId": "grls-doc:d17a73f688b467d23773065d1bdbb3b5",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2025/05/29/1517674/ffde15bb-e3bc-4235-b3be-d42165a6aaf3.pdf",
+      "sha256": "6b73acfeabaec67ea4917566e5e68e3e45e39ac8a985b992a30ec5bd0baed6e0"
+    },
+    "providers": [
+      {
+        "id": "DDInter1886",
+        "name": "Trospium"
+      }
+    ]
+  },
+  {
+    "nameRu": "Фамцикловир",
+    "atc": "J05AB09",
+    "evidence": {
+      "nameRu": "Фамцикловир",
+      "atc": "J05AB09",
+      "documentId": "grls-doc:53bce39dae5b76ad2d3d1e024d8d0498",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/07/13/1532003/f4946dc3-2217-4651-b539-89fad056abad.pdf",
+      "sha256": "7a9fd34e47fd9dbfef0aa7cb8b45d746c0a4a605d89d1c350e8f30c58fd2ce23"
+    },
+    "providers": [
+      {
+        "id": "DDInter711",
+        "name": "Famciclovir"
+      }
+    ]
+  },
+  {
+    "nameRu": "Фенитоин",
+    "atc": "N03AB02",
+    "evidence": {
+      "nameRu": "Фенитоин",
+      "atc": "N03AB02",
+      "documentId": "grls-doc:6ce9f913d8c1ab4c04111e8d547c7393",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/07/02/1531678/3da9d8f4-168d-41b8-b9fb-4162c5551cc6.pdf",
+      "sha256": "5297c406864b085a092aace038d3db805a7f4719f62f251384ae1124f94f9ef4"
+    },
+    "providers": [
+      {
+        "id": "DDInter1460",
+        "name": "Phenytoin"
+      }
+    ]
+  },
+  {
+    "nameRu": "Фенобарбитал",
+    "atc": "N03AA02",
+    "evidence": {
+      "nameRu": "Фенобарбитал",
+      "atc": "N03AA02",
+      "documentId": "grls-doc:00ede8d41f834160b1d22b759638a296",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/09/03/1533737/cf94b86b-01cc-4071-b0eb-99aa74a63d06.pdf",
+      "sha256": "104d90171f566a770006404a8532a85bbfd1d01b10dd72c8f8f5c5899e9f63ad"
+    },
+    "providers": [
+      {
+        "id": "DDInter1442",
+        "name": "Phenobarbital"
+      }
+    ]
+  },
+  {
+    "nameRu": "Филграстим",
+    "atc": "L03AA02",
+    "evidence": {
+      "nameRu": "Филграстим",
+      "atc": "L03AA02",
+      "documentId": "grls-doc:36350a975e310bd0f6c089975b86cb94",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/05/28/1530425/7d255276-b87b-4da4-b3d5-f2a7ebc092ad.pdf",
+      "sha256": "3285934901fc892b18caf5f2d81b8c079bf4047abcac78ec2fe58f803fc15c89"
+    },
+    "providers": [
+      {
+        "id": "DDInter735",
+        "name": "Filgrastim"
+      }
+    ]
+  },
+  {
+    "nameRu": "Флумазенил",
+    "atc": "V03AB25",
+    "evidence": {
+      "nameRu": "Флумазенил",
+      "atc": "V03AB25",
+      "documentId": "grls-doc:8d7425f952ee1e1364a0171cd8cb8a99",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/05/18/1529906/35606baa-a64c-4039-8cdb-fc9fcb40eacb.pdf",
+      "sha256": "addd61cf8fc9458a97e2425adc6297b86019a506b996c8752c45c12f3a29ace7"
+    },
+    "providers": [
+      {
+        "id": "DDInter748",
+        "name": "Flumazenil"
+      }
+    ]
+  },
+  {
+    "nameRu": "Флуоксетин",
+    "atc": "N06AB03",
+    "evidence": {
+      "nameRu": "Флуоксетин",
+      "atc": "N06AB03",
+      "documentId": "grls-doc:288833d61d09add8bbf46032707eebcc",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2024/10/18/1510020/90406f03-4aba-4f8c-8a84-7fe9e4c6aa22.pdf",
+      "sha256": "58e3d221d41dd14a8c3429639b4831183662bfc9b6b4c46fc14af31cd853413e"
+    },
+    "providers": [
+      {
+        "id": "DDInter758",
+        "name": "Fluoxetine"
+      }
+    ]
+  },
+  {
+    "nameRu": "Фолиевая кислота",
+    "atc": "B03BB01",
+    "evidence": {
+      "nameRu": "Фолиевая кислота",
+      "atc": "B03BB01",
+      "documentId": "grls-doc:b0a89e89771a9ec2274a129155897ecd",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/09/01/1533699/fc42e019-a4df-461e-a082-cea6cf8395fa.pdf",
+      "sha256": "98942525d896692eb30e39350285fd219e4103669ccf70febf2610c5cc6c600e"
+    },
+    "providers": [
+      {
+        "id": "DDInter771",
+        "name": "Folic acid"
+      }
+    ]
+  },
+  {
+    "nameRu": "Цетиризин",
+    "atc": "R06AE07",
+    "evidence": {
+      "nameRu": "Цетиризин",
+      "atc": "R06AE07",
+      "documentId": "grls-doc:0630b635dcc96af6d99fdb441fdea6e9",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2025/12/03/1523841/f4a428a6-f555-411e-b77c-fdd30b6805b0.pdf",
+      "sha256": "fcd7bfa0729c69482ffe046d7329b96afdb36cbe28e9a024ecaa78a486ca5e26"
+    },
+    "providers": [
+      {
+        "id": "DDInter343",
+        "name": "Cetirizine"
+      }
+    ]
+  },
+  {
+    "nameRu": "Циклопентолат",
+    "atc": "S01FA04",
+    "evidence": {
+      "nameRu": "Циклопентолат",
+      "atc": "S01FA04",
+      "documentId": "grls-doc:1f09abd8ff57cf82ecc6a3ae4afb3f1b",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/06/24/1531352/7cc19ad0-a1c5-4c3f-95fc-0afd99f8c314.pdf",
+      "sha256": "f2c2b28ce5ac130888c5ec543cdd11b15262753db31a5ae3f378bd9fd345f87e"
+    },
+    "providers": [
+      {
+        "id": "DDInter455",
+        "name": "Cyclopentolate (ophthalmic)"
+      }
+    ]
+  },
+  {
+    "nameRu": "Циклоспорин",
+    "atc": "L04AD01",
+    "evidence": {
+      "nameRu": "Циклоспорин",
+      "atc": "L04AD01",
+      "documentId": "grls-doc:42860a3fb47424a0a0d610fc4766a91d",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/04/28/1529264/99494dc9-7a5f-4c47-8fa6-30442bea221e.pdf",
+      "sha256": "45cac716a88370be5c1c6948bb697071159176342f2e4531eacc76ad9e953456"
+    },
+    "providers": [
+      {
+        "id": "DDInter2146",
+        "name": "Cyclosporine (ophthalmic)"
+      },
+      {
+        "id": "DDInter458",
+        "name": "Cyclosporine"
+      }
+    ]
+  },
+  {
+    "nameRu": "Циталопрам",
+    "atc": "N06AB04",
+    "evidence": {
+      "nameRu": "Циталопрам",
+      "atc": "N06AB04",
+      "documentId": "grls-doc:cf1da57d3c8c586555cc2ef6a15b8374",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2025/09/22/1521684/174d5e00-c464-4b78-886f-2586766bc33d.pdf",
+      "sha256": "1db6e00404188547e998b89a27577769c4b2b020fb8bab80a88134093823d065"
+    },
+    "providers": [
+      {
+        "id": "DDInter388",
+        "name": "Citalopram"
+      }
+    ]
+  },
+  {
+    "nameRu": "Эсциталопрам",
+    "atc": "N06AB10",
+    "evidence": {
+      "nameRu": "Эсциталопрам",
+      "atc": "N06AB10",
+      "documentId": "grls-doc:61fe936a2a3d7c706dbd5db39b561558",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/08/19/1533508/64a4c672-770c-451b-be08-2be58728ccc3.pdf",
+      "sha256": "c173e1bfd95a1d6e37bc45a3263cc9302dae80070e54e25e9ff1098917ee0e4c"
+    },
+    "providers": [
+      {
+        "id": "DDInter672",
+        "name": "Escitalopram"
+      }
+    ]
+  },
+  {
+    "nameRu": "Этанол",
+    "atc": "D08AX08",
+    "evidence": {
+      "nameRu": "Этанол",
+      "atc": "D08AX08",
+      "documentId": "grls-doc:372a707aa900dc4aba41302bb1db317e",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/09/29/1534947/83f9d15e-2329-435f-908f-cd4c97e3b2cf.pdf",
+      "sha256": "c19bdaed17d5b0def55fd0c7fab45e9f630099631dbeedb660ddae87b4c3386c"
+    },
+    "providers": [
+      {
+        "id": "DDInter690",
+        "name": "Ethanol"
+      }
+    ]
+  },
+  {
+    "nameRu": "Этосуксимид",
+    "atc": "N03AD01",
+    "evidence": {
+      "nameRu": "Этосуксимид",
+      "atc": "N03AD01",
+      "documentId": "grls-doc:7f8631e44481859e6a5eeb6ff3ed61f4",
+      "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/09/30/1535051/5e41f2fb-82b8-4fd6-9e96-9e1245211bc5.pdf",
+      "sha256": "dab739f2997aee026424819a4a76800472ef0b812f0cb43404acf17107c4b37a"
+    },
+    "providers": [
+      {
+        "id": "DDInter695",
+        "name": "Ethosuximide"
+      }
+    ]
+  }
+]

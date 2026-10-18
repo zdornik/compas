@@ -1,0 +1,50 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { createServer, request } from 'node:http';
+import { createDemoGate } from '../server/demo-gate.mjs';
+
+test('internet demo denies unauthenticated app/API access, rejects cross-origin login, isolates gate cookies and expires access', async t => {
+  let time = Date.now(), hits = 0, forwardedCookie;
+  const upstream = createServer((req, res) => { hits++; forwardedCookie = req.headers.cookie; res.end('app'); });
+  await new Promise(resolve => upstream.listen(0, '127.0.0.1', resolve));
+  const origin = 'https://compass.test', accessCode = 'synthetic-demo-access-code';
+  const gate = createDemoGate({ origin, accessCode, upstream: `http://127.0.0.1:${upstream.address().port}`, now: () => time });
+  await new Promise(resolve => gate.listen(0, '127.0.0.1', resolve));
+  t.after(() => { gate.closeAllConnections(); gate.close(); upstream.closeAllConnections(); upstream.close(); });
+  const base = `http://127.0.0.1:${gate.address().port}`;
+  const call = (path, options = {}) => new Promise((resolve, reject) => {
+    const body = options.body?.toString();
+    const req = request(base + path, { method: options.method || 'GET', headers: { Host: 'compass.test', ...options.headers, ...(body ? { 'Content-Length': Buffer.byteLength(body) } : {}) } }, res => {
+      const chunks = [];
+      res.on('data', chunk => chunks.push(chunk));
+      res.on('end', () => resolve(new Response(Buffer.concat(chunks), { status: res.statusCode, headers: Object.fromEntries(Object.entries(res.headers).map(([key, value]) => [key, Array.isArray(value) ? value.join(', ') : value])) })));
+    });
+    req.on('error', reject); req.end(body);
+  });
+  assert.equal((await call('/')).status, 303);
+  assert.equal((await call('/assets/app.js')).status, 303);
+  assert.equal((await call('/api/state')).status, 401);
+  assert.equal((await call('/__demo/login')).headers.get('referrer-policy'), 'same-origin');
+  const insecure=await call('/',{headers:{'X-Forwarded-Proto':'http'}});
+  assert.equal(insecure.status,308); assert.equal(insecure.headers.get('location'),origin+'/');
+  assert.equal((await call('/', { headers: { Host: 'other.test' } })).status, 403);
+  assert.equal(hits, 0);
+  const login = (code, headers = {}) => call('/__demo/login', { method: 'POST', headers: { Origin: origin, 'Content-Type': 'application/x-www-form-urlencoded', ...headers }, body: new URLSearchParams({ code }) });
+  assert.equal((await login(accessCode, { Origin: 'https://other.test' })).status, 403);
+  assert.equal((await login(accessCode, { 'X-Forwarded-Proto': 'http' })).status, 403);
+  assert.equal((await login('wrong')).status, 401);
+  const accepted = await login(accessCode);
+  assert.equal(accepted.status, 303);
+  const cookieHeader = accepted.headers.get('set-cookie');
+  assert.match(cookieHeader, /HttpOnly; Secure; SameSite=Strict; Path=\//);
+  const cookie = cookieHeader.split(';')[0];
+  const app = await call('/', { headers: { Cookie: cookie + '; compass_session=synthetic-profile' } });
+  assert.equal(await app.text(), 'app');
+  assert.equal(app.headers.get('cache-control'), 'private, no-store');
+  assert.equal(forwardedCookie, 'compass_session=synthetic-profile');
+  assert.equal((await call('/', { headers: { Cookie: cookie + '-forged' } })).status, 303);
+  for (let i = 0; i < 10; i++) await login('wrong');
+  assert.equal((await login(accessCode)).status, 429);
+  time += 8 * 60 * 60 * 1000 + 1;
+  assert.equal((await call('/api/state', { headers: { Cookie: cookie } })).status, 401);
+});

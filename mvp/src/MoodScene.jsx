@@ -1,9 +1,10 @@
+import { MascotFace } from './MascotFace.jsx';
 import { useLayoutEffect, useRef, useState } from 'react';
-import { ContourCanvas } from './ContourCanvas.jsx';
+import { ContourField } from './ContourField.jsx';
 import { contourPlacement } from './contour-placement.js';
 import { moodVisualAt } from './mood-motion.js';
 
-export function MoodScene({ value = 3, label }) {
+export function MoodScene({ value = 3, label, variant = 'hero' }) {
   const scene = useRef(null);
   const [layout, setLayout] = useState(null);
   useLayoutEffect(() => {
@@ -12,19 +13,21 @@ export function MoodScene({ value = 3, label }) {
       const width = element.clientWidth, height = element.clientHeight;
       if (!width || !height) return;
       const mobile = window.matchMedia('(max-width: 760px)').matches;
-      const figureWidth = mobile ? 174 : 245;
-      const x = width * (mobile ? .73 : .81), y = height * (mobile ? .55 : .52);
+      const compact = variant.startsWith('assessment');
+      const entry = variant === 'entry';
+      const figureWidth = entry ? (mobile ? (width < 330 ? 115 : 135) : 180) : compact ? (variant === 'assessment-small' ? 60 : 100) : window.innerHeight <= 720 ? 147 : mobile ? 180 : 196;
+      const x = width * (entry ? (mobile ? .77 : .56) : compact ? (variant === 'assessment-small' ? .5 : .81) : mobile ? .73 : .81), y = height * (entry ? .47 : compact ? .52 : mobile ? .55 : .52);
       setLayout({
         width, height, x, y,
         figure: { left: x, top: y, width: figureWidth },
-        image: contourPlacement({ width, height, centerX: x, centerY: y, figureWidth, figureHeight: figureWidth * 1408 / 1126 }),
+        image: contourPlacement({ width, height, centerX: x, centerY: y, figureWidth, figureHeight: figureWidth * 1408 / 1126, cover: false }),
       });
     };
     measure();
     const observer = new ResizeObserver(measure);
     observer.observe(element);
     return () => observer.disconnect();
-  }, []);
+  }, [variant]);
   const visual = moodVisualAt(value);
   const style = {
     '--scene-bg': visual.background,
@@ -32,11 +35,11 @@ export function MoodScene({ value = 3, label }) {
     '--brow-y': `${visual.browY}px`, '--brow-left': `${visual.browAngle}deg`, '--brow-right': `${-visual.browAngle}deg`,
     '--brow-opacity': visual.browOpacity, '--head-tilt': `${visual.tilt}deg`,
   };
-  return <div ref={scene} className="mood-scene scene-hero" style={style} role={label ? 'img' : undefined} aria-label={label} aria-hidden={label ? undefined : true}>
-    <ContourCanvas value={value} style={layout?.image} src="/art/mood-environment-v4-hq.webp"/>
+  return <div ref={scene} className={`mood-scene scene-hero ${variant.startsWith('assessment') ? 'scene-assessment' : ''}`} style={style} role={label ? 'img' : undefined} aria-label={label} aria-hidden={label ? undefined : true}>
+    <ContourField value={value} placement={layout?.image} viewport={layout ? { left:0, top:0, width:layout.width, height:layout.height } : undefined}/>
     <div className="mascot-figure" style={layout?.figure}><div className="mascot-breath">
       <img className="mascot-body" src="/art/mascot-rig-v2.webp" alt="" draggable="false"/>
-      <div className="mascot-face">{['brow-left','brow-right','eye-left','eye-right','mouth'].map(part => <img key={part} className={`face-feature ${part}`} src="/art/face-rig-v2.webp" alt="" draggable="false"/>)}</div>
+      <MascotFace value={value}/>
     </div></div>
   </div>;
 }

@@ -1,31 +1,142 @@
-import { useEffect, useRef, useState } from 'react';
+import {medicationDraft} from './medications.js';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { House, BookOpen, CalendarBlank, ChatsCircle, Pill, ClipboardText, Plus, Moon, Check, CaretLeft, CaretRight, ArrowUpRight, GearSix, ShieldCheck, DownloadSimple, ArrowCounterClockwise, LockSimple, Bell, CheckCircle } from '@phosphor-icons/react';
 import { Modal, Row, Art } from './components.jsx';
 import { MoodFlow } from './MoodFlow.jsx';
 import { MoodScene } from './MoodScene.jsx';
-import { MOODS, initialEntries, timeLabel, dateLabel, dayKey, changeDoseStatus, latestMoodForDay, entryTimestamp } from './domain.js';
+import { JournalEditor } from './JournalEditor.jsx';
+import { DatePicker, DurationWheel } from './DateTimeControls.jsx';
+import { Assessments } from './Assessments.jsx';
+import { SCALES } from './assessments.js';
+import { DiaryCalendar } from './DiaryCalendar.jsx';
+import { appThemeAt } from './mood-motion.js';
+import { PersistenceContext, loadStoredState, storeEntry, loadAuthAccount, authenticateAccount, signOutAccount, updateAccountConsents, setAccountOwner, authSignalRole } from './persistence.js';
+import { DiaryPage, DoctorPage } from './WorkspacePages.jsx';
+import { TreatmentPage } from './Treatment.jsx';
+import { HomeMedicationReminders } from './HomeMedicationReminders.jsx';
+import { MOODS, timeLabel, dateLabel, dayKey, latestMoodForDay, entryTimestamp } from './domain.js';
+import { RoleEntry, DoctorWorkspace } from './DoctorWorkspace.jsx';
+import './doctor.css';
+import { MedicalProfile, PatientConnections } from './MedicalProfile.jsx';
+import {AccountGate,MascotFlight} from './AccountGate.jsx';
+import {AccountPreferences} from './AccountPreferences.jsx';
+import {CareChat} from './CareChat.jsx';
 
 const tabs = [{ id: 'today', name: 'Сегодня', icon: House }, { id: 'diary', name: 'Дневник', icon: BookOpen }, { id: 'treatment', name: 'Лечение', icon: CalendarBlank }, { id: 'doctor', name: 'Врач', icon: ChatsCircle }];
-const initialDoses = [{ id: 'one', name: 'Препарат 1', status: 'planned' }, { id: 'two', name: 'Препарат 2', status: 'planned' }];
 
 export function App() {
+ const readRole=()=>({'#patient':'patient','#doctor':'doctor'}[window.location.hash]||null);
+ const [role,setRole]=useState(readRole),[accounts,setAccounts]=useState({patient:undefined,doctor:undefined}),[guests,setGuests]=useState({patient:false,doctor:false}),[visited,setVisited]=useState({patient:false,doctor:false}),[seeds,setSeeds]=useState({}),[pendingIntake,setPendingIntake]=useState(null),[flight,setFlight]=useState(null),[accountWindow,setAccountWindow]=useState(null),[accountError,setAccountError]=useState('');
+ const authWorking=useRef(null),accountRequest=useRef({patient:0,doctor:0}),knownAccounts=useRef({patient:null,doctor:null});
+ const allowed=id=>Boolean(accounts[id]||guests[id]);
+ useLayoutEffect(()=>{for(const id of ['patient','doctor'])if(accounts[id]!==undefined)setAccountOwner(id,accounts[id]?.id||'local');},[accounts]);
+ const refreshAccount=async id=>{if(!id||authWorking.current===id)return;const n=++accountRequest.current[id];try{const result=await loadAuthAccount(id);if(n!==accountRequest.current[id]||authWorking.current===id)return;const nextId=result.account?.id||null,previousId=knownAccounts.current[id];if(previousId!==nextId){setGuests(old=>({...old,[id]:false}));setVisited(old=>({...old,[id]:Boolean(nextId)}));if(id==='patient'){setPendingIntake(null);setSeeds({});setFlight(null);}}knownAccounts.current[id]=nextId;setAccounts(old=>({...old,[id]:result.account}));if(result.account)setVisited(old=>({...old,[id]:true}));setAccountError('');}catch(error){if(n===accountRequest.current[id]&&authWorking.current!==id)setAccountError(error.message);}};
+
+ useEffect(()=>{document.title=role==='doctor'?'Компас — кабинет врача':'Компас — забота о себе';refreshAccount(role);},[role]);
+ useEffect(()=>{const sync=()=>setRole(readRole());window.addEventListener('hashchange',sync);return()=>window.removeEventListener('hashchange',sync);},[]);
+ useEffect(()=>{
+  const refresh=()=>{if(document.hidden)return;if(role)refreshAccount(role);else for(const id of ['patient','doctor'])if(knownAccounts.current[id])refreshAccount(id);};
+  const quarantine=id=>{if(!['patient','doctor'].includes(id)||authWorking.current===id)return;accountRequest.current[id]++;setVisited(old=>({...old,[id]:false}));setGuests(old=>({...old,[id]:false}));setAccounts(old=>({...old,[id]:undefined}));if(id==='patient'){setSeeds({});setPendingIntake(null);setFlight(null);}if(id===role)refreshAccount(id);};
+  const mismatch=event=>quarantine(event.detail),timer=setInterval(refresh,8000);
+  window.addEventListener('focus',refresh);window.addEventListener('compass-account-mismatch',mismatch);
+  const channel='BroadcastChannel' in window?new BroadcastChannel('compass-local-updates'):null;
+  if(channel)channel.onmessage=event=>{if(event.data==='changed')refresh();else{const id=authSignalRole(event.data);if(id)quarantine(id);}};
+  return()=>{clearInterval(timer);window.removeEventListener('focus',refresh);window.removeEventListener('compass-account-mismatch',mismatch);channel?.close();};
+ },[role]);
+
+ const chooseRole=next=>{setRole(next);setFlight(null);setAccountWindow(null);setAccountError('');window.location.hash=next||'';window.scrollTo({top:0,behavior:'instant'});};
+ const useGuest=()=>{setGuests(old=>({...old,[role]:true}));setVisited(old=>({...old,[role]:true}));};
+ const authenticate=async(mode,input)=>{accountRequest.current[input.role]++;authWorking.current=input.role;try{return await authenticateAccount(mode,input);}catch(error){authWorking.current=null;throw error;}};
+ const authenticated=async(result,meta)=>{
+  let initialState=null,intake=null;
+  if(meta.role==='patient'){
+   try{initialState=await loadStoredState(result.account.id);}catch(error){if(error.code==='ACCOUNT_CHANGED'||error.status===401){authWorking.current=null;await refreshAccount(meta.role);return;}}
+   if(meta.medicalProfile.medications.length||meta.medicalProfile.conditions.length){
+    const draft={id:'medical-profile',type:'medical-profile',expectedRevision:0,...meta.medicalProfile};
+    try{const saved=await storeEntry(draft,result.account.id);if(initialState)initialState={...initialState,entries:[saved,...initialState.entries.filter(row=>row.id!=='medical-profile')]};}catch(error){if(error.code==='ACCOUNT_CHANGED'||error.status===401){authWorking.current=null;await refreshAccount(meta.role);return;}intake=draft;}
+   }
+   setPendingIntake(intake?{accountId:result.account.id,entry:intake}:null);setSeeds(old=>({...old,[result.account.id]:initialState}));
+   if(meta.sourceRect?.width)setFlight({from:meta.sourceRect,to:null,value:latestMoodForDay(initialState?.entries||[])?.value??3});
+  }
+  knownAccounts.current[meta.role]=result.account.id;accountRequest.current[meta.role]++;setAccounts(old=>({...old,[meta.role]:result.account}));setGuests(old=>({...old,[meta.role]:false}));setVisited(old=>({...old,[meta.role]:true}));authWorking.current=null;window.scrollTo({top:0,behavior:'instant'});
+ };
+ useEffect(()=>{if(!flight||flight.to||role!=='patient')return;let frame1,frame2;frame1=requestAnimationFrame(()=>{frame2=requestAnimationFrame(()=>{const target=document.querySelector('.auth-arrival .home-hero .mascot-figure');if(!target){setFlight(null);return;}const {left,top,width,height}=target.getBoundingClientRect();setFlight(old=>old?{...old,to:{left,top,width,height}}:null);});});return()=>{cancelAnimationFrame(frame1);cancelAnimationFrame(frame2);};},[flight,role]);
+ const logout=async id=>{accountRequest.current[id]++;authWorking.current=id;try{await signOutAccount(id);knownAccounts.current[id]=null;setAccounts(old=>({...old,[id]:null}));setGuests(old=>({...old,[id]:false}));setVisited(old=>({...old,[id]:false}));setAccountWindow(null);setSeeds({});setPendingIntake(null);setFlight(null);}finally{authWorking.current=null;}};
+ const updateConsents=async(id,value)=>{const result=await updateAccountConsents(value,id);setAccounts(old=>({...old,[id]:result.account||result}));return result;};
+ return <>
+  {!role&&<RoleEntry onChoose={chooseRole}/>}
+  {role&&!allowed(role)&&<AccountGate key={role} role={role} onRoleChange={chooseRole} onBack={()=>chooseRole(null)} onGuest={accounts[role]===null?useGuest:undefined} onLogin={input=>authenticate('login',input)} onRegister={input=>authenticate('register',input)} onAuthenticated={authenticated}/>}
+  {accountError&&role&&!allowed(role)&&<p className="auth-connection-error" role="status">{accountError}</p>}
+  {visited.patient&&<div className={flight?'auth-arrival':''} hidden={role!=='patient'||!allowed('patient')} inert={role!=='patient'||!allowed('patient')}><PatientApp key={accounts.patient?.id||'local'} initialState={seeds[accounts.patient?.id]} pendingIntake={pendingIntake?.accountId===accounts.patient?.id?pendingIntake.entry:null} onIntakeSaved={()=>setPendingIntake(null)} account={accounts.patient} onUpdateConsents={value=>updateConsents('patient',value)} onSignOut={()=>logout('patient')} onRequestAuth={()=>setGuests(old=>({...old,patient:false}))} active={role==='patient'&&allowed('patient')} onSwitchRole={()=>chooseRole(null)}/></div>}
+  {visited.doctor&&<div hidden={role!=='doctor'||!allowed('doctor')} inert={role!=='doctor'||!allowed('doctor')}><DoctorWorkspace key={accounts.doctor?.id||'local'} account={accounts.doctor} onAccount={()=>accounts.doctor?setAccountWindow('doctor'):setGuests(old=>({...old,doctor:false}))} active={role==='doctor'&&allowed('doctor')} onSwitchRole={()=>chooseRole(null)}/></div>}
+  {flight&&role==='patient'&&<MascotFlight from={flight.from} to={flight.to||flight.from} ready={Boolean(flight.to)} value={flight.value} onComplete={()=>setFlight(null)}/>}
+  {accountWindow&&accounts[accountWindow]&&<Modal title="Учётная запись" onClose={()=>setAccountWindow(null)}><div className="modal-body settings-body"><AccountPreferences account={accounts[accountWindow]} onUpdate={value=>updateConsents(accountWindow,value)} onSignOut={()=>logout(accountWindow)}/></div></Modal>}
+ </>;
+}
+
+function PatientApp({ active, onSwitchRole, account, onUpdateConsents, onSignOut, onRequestAuth,initialState,pendingIntake,onIntakeSaved }) {
   const [page, setPage] = useState('today');
+  const [moodPreview, setMoodPreview] = useState(null);
+  const [journalDraft, setJournalDraft] = useState(null);
+  const [selectedJournalId, setSelectedJournalId] = useState(null);
+  const [viewingAssessment, setViewingAssessment] = useState(null);
+  const sectionIndex = tabs.findIndex(tab => tab.id === page);
   const [diaryDay, setDiaryDay] = useState(dayKey);
   const [editingMood, setEditingMood] = useState(null);
-  const [modal, setModal] = useState(null);
+  const [modal, setModal] = useState(pendingIntake?'health':null);
+  const [medicalDraft,setMedicalDraft]=useState(pendingIntake);
+  const [chatDrafts,setChatDrafts]=useState({});
+  useEffect(() => { if (!active) { setModal(null); setMoodPreview(null); } }, [active]);
   const [closing, setClosing] = useState(false);
   const closeTimer = useRef(null);
   const closeModal = () => {
     if (closeTimer.current) return;
     setClosing(true);
     const duration = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 220;
-    closeTimer.current = setTimeout(() => { setModal(null); setClosing(false); closeTimer.current = null; }, duration);
+    closeTimer.current = setTimeout(() => { setModal(null); setClosing(false); setMoodPreview(null); closeTimer.current = null; }, duration);
   };
-  useEffect(() => () => clearTimeout(closeTimer.current), []);
-  const [entries, setEntries] = useState(initialEntries);
-  const [doses, setDoses] = useState(initialDoses);
-  const [questionnaire, setQuestionnaire] = useState(false);
-  const [toast, setToast] = useState('');
+  useEffect(() => () => { clearTimeout(closeTimer.current); }, []);
+  const [entries, setEntries] = useState(initialState?.entries||[]);
+  const [clock, setClock] = useState(() => new Date());
+  useEffect(() => {
+    let timer;
+    const tick = () => { setClock(new Date()); timer = setTimeout(tick, 60000 - Date.now() % 60000 + 20); };
+    const refresh = () => { clearTimeout(timer); tick(); };
+    const visible = () => { if (!document.hidden) refresh(); };
+    timer = setTimeout(tick, 60000 - Date.now() % 60000 + 20);
+    window.addEventListener('focus', refresh); document.addEventListener('visibilitychange', visible);
+    return () => { clearTimeout(timer); window.removeEventListener('focus', refresh); document.removeEventListener('visibilitychange', visible); };
+  }, []);
+  const [storage, setStorage] = useState(initialState?'ready':'loading');
+  const refreshRevision = useRef(0), mutationRevision = useRef(0), receivedPlans=useRef(null);
+  useEffect(() => {
+    if(!active)return;
+    let alive = true;
+    let lastRefresh = 0;
+    const refresh = async force => {
+      if (force !== true && Date.now() - lastRefresh < 1000) return;
+      lastRefresh = Date.now();
+      const request = ++refreshRevision.current, revision = mutationRevision.current;
+      try {
+        const state = await loadStoredState();
+        if (alive && request === refreshRevision.current && revision === mutationRevision.current) {
+          const delivered=state.entries.filter(entry=>entry.type==='medication-plan'&&entry.origin==='doctor');
+          if(receivedPlans.current&&delivered.some(entry=>receivedPlans.current.get(entry.id)!==entry.revision))setToast('Врач обновил ваш план лечения');
+          receivedPlans.current=new Map(delivered.map(entry=>[entry.id,entry.revision]));
+          setEntries(state.entries); setStorage('ready');
+        }
+      } catch { if (alive && request === refreshRevision.current) setStorage('offline'); }
+    };
+    const visible = () => { if (document.visibilityState === 'visible') refresh(); };
+    const channel = 'BroadcastChannel' in window ? new BroadcastChannel('compass-local-updates') : null;
+    if (channel) channel.onmessage = event => { if (event.data === 'changed') refresh(true); };
+    window.addEventListener('focus', refresh);
+    document.addEventListener('visibilitychange', visible);
+    refresh();
+    const timer=setInterval(()=>{if(!document.hidden)refresh();},4000);
+    return () => { alive = false; clearInterval(timer); channel?.close(); window.removeEventListener('focus', refresh); document.removeEventListener('visibilitychange', visible); };
+  }, [active]);
+  const [toast, setToast] = useState(pendingIntake?'Аккаунт создан. Медицинские сведения оставлены в черновике — сохраните их после подключения.':'');
   const [installPrompt, setInstallPrompt] = useState(null);
   const [installed, setInstalled] = useState(false);
   useEffect(() => {
@@ -38,105 +149,105 @@ export function App() {
   useEffect(() => { if (toast) { const t = setTimeout(() => setToast(''), 3200); return () => clearTimeout(t); } }, [toast]);
   const latest = latestMoodForDay(entries);
   const mood = MOODS[latest?.value ?? 3];
-  const completed = doses.filter(d => d.status !== 'planned').length;
-  const navigate = p => { setPage(p); window.scrollTo({ top: 0, behavior: 'instant' }); };
+  const themePosition = moodPreview ?? latest?.value ?? 3;
+  const navigate = next => {
+    if (next === page) return;
+    setPage(next);
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  };
+  const openSectionModal = type => { if (type === 'questionnaire') setViewingAssessment(null); setModal(type); };
+  const openJournal = (entry = null, date = dayKey()) => {
+    if (entry) setJournalDraft(old => old?.id === entry.id ? old : { ...entry, date: entry.day || dayKey(new Date(entry.at)) });
+    else setJournalDraft(old => old && !old.id ? old : { title: '', body: '', date, clientId: crypto.randomUUID() });
+    setModal('journal');
+  };
   const openMood = (entry = null) => { setEditingMood(entry); setModal('mood'); };
-  const save = entry => { setEntries(old => old.some(e => e.id === entry.id) ? old.map(e => e.id === entry.id ? entry : e) : [entry, ...old]); if (page === 'diary') setDiaryDay(entry.day || dayKey(new Date(entry.at))); };
-  return <div className={`app tone-${mood.tone} ${closing ? 'closing' : ''}`}>
-    <a className="skip-link" href="#main-content">Перейти к содержимому</a>
+  const save = async entry => {
+    if (storage !== 'ready') throw new Error('База недоступна. Запись остаётся в форме — повторите сохранение после подключения');
+    mutationRevision.current++;
+    const saved = await storeEntry(entry);
+    setEntries(old => old.some(e => e.id === saved.id) ? old.map(e => e.id === saved.id ? saved : e) : [saved, ...old]);
+    if (page === 'diary' && ['mood', 'sleep', 'assessment', 'journal'].includes(saved.type)) setDiaryDay(saved.day || dayKey(new Date(saved.at)));
+    return saved;
+  };
+  const reloadState = async () => {
+    const state = await loadStoredState();
+    refreshRevision.current++; setEntries(state.entries); setStorage('ready'); return state;
+  };
+  return <PersistenceContext.Provider value={storage === 'ready'}><div className={`app tone-${MOODS[Math.round(themePosition)].tone} ${closing ? 'closing' : ''}`} style={{ ...appThemeAt(themePosition), '--section-index': sectionIndex }}>
+    <a className="skip-link" href="#main-content" onClick={event => { event.preventDefault(); document.getElementById('main-content')?.focus(); }}>Перейти к содержимому</a>
     <aside className="sidebar">
       <div className="wordmark">компас<span className="wordmark-dot"/></div><div className="sidebar-caption">Пространство заботы о себе</div>
-      <nav aria-label="Основная навигация">{tabs.map(({ id, name, icon: Icon }) => <button key={id} onClick={() => navigate(id)} className={page === id ? 'current' : ''} aria-current={page === id ? 'page' : undefined}><Icon size={23} weight={page === id ? 'duotone' : 'regular'}/><span>{name}</span>{page === id && <span className="nav-indicator"/>}</button>)}</nav>
-      <div className="sidebar-bottom"><button className="sidebar-setting" onClick={() => setModal('settings')}><GearSix size={21}/>Настройки и приватность</button><p><span className="demo-dot"/>Демонстрационная версия</p><small>Только вымышленные данные.<br/>Записи до обновления страницы.</small></div>
+      <nav aria-label="Основная навигация"><span className="sidebar-glider" aria-hidden="true"/>{tabs.map(({ id, name, icon: Icon }) => <button key={id} onClick={() => navigate(id)} className={page === id ? 'current' : ''} aria-current={page === id ? 'page' : undefined}><Icon size={23} weight={page === id ? 'duotone' : 'regular'}/><span>{name}</span></button>)}</nav>
+      <div className="sidebar-bottom"><button className="sidebar-setting" onClick={onSwitchRole}><ArrowCounterClockwise size={21}/>Сменить роль</button><button className="sidebar-setting" onClick={() => setModal('settings')}><GearSix size={21}/>Настройки и приватность</button><p><span className="demo-dot"/>Локальный прототип</p><small>Только вымышленные данные.<br/>{storage === 'ready' ? 'Записи в локальной базе.' : storage === 'loading' ? 'Подключаем хранилище…' : 'База недоступна. Сохранение отключено.'}</small></div>
     </aside>
-    <main tabIndex={-1} id="main-content" className={`main page-${page}`}>
-      {page === 'today' ? <>
+    <main tabIndex={-1} id="main-content" className="main" aria-busy={storage === 'loading'}>
+      <button className="patient-role-switch" onClick={onSwitchRole}>Пациент <ArrowCounterClockwise size={15}/></button>
+      {storage === 'offline' && <div className="storage-error" role="status">Хранилище недоступно. Записи пока нельзя сохранить.<button onClick={() => { setStorage('loading'); loadStoredState().then(state => { setEntries(state.entries); setStorage('ready'); }).catch(() => setStorage('offline')); }}>Подключить снова</button></div>}
+      <div className="page-window">{tabs.map(tab => <section key={tab.id} className={`page-pane page-${tab.id} ${page === tab.id ? 'active' : ''}`} inert={page !== tab.id} aria-hidden={page !== tab.id} aria-label={tab.name}>
+        {tab.id === 'today' ? <>
         <section className="home-hero">
-          <MoodScene value={latest?.value ?? 3}/>
+          <MoodScene value={themePosition}/>
           <div className="hero-inner"><h1>Сегодня</h1><div className="hero-state"><h2>{mood.short}</h2><p>Последняя отметка<br/>{latest ? timeLabel(latest.at) : 'Пока нет отметки'}</p></div>
             <button className="mascot-target" aria-label="Оценить настроение, нажав на маскота" onClick={() => openMood()}/>
             <button className="mood-cta" onClick={() => openMood()}>Отметить настроение<Plus size={25}/></button>
           </div>
         </section>
         <section className="today-section content-width"><div className="section-heading"><h2>На сегодня</h2><span className="desktop-only quiet">В своём ритме</span></div><div className="reminder-group">
-          <Row icon={completed === 2 ? CheckCircle : Pill} className="medication-reminder" title="Лекарства" subtitle={completed === 2 ? 'Демонстрационный журнал заполнен' : 'Вечерний приём · 2 препарата'} end={completed === 2 ? <Check size={22}/> : '22:00'} onClick={() => setModal('medication')}/>
-          <Row icon={ClipboardText} title="Опросник самочувствия" subtitle={questionnaire ? 'Демоопрос пройден сегодня' : 'Демоопрос · 3 вопроса'} end={questionnaire ? <Check size={22}/> : '2 мин'} onClick={() => setModal('questionnaire')}/>
-        </div><button className="mobile-info" onClick={() => setModal('settings')}>Демоверсия · о данных и приложении</button></section>
-      </> : <div className="page-content content-width" key={page}>
-        <header className="page-header"><div><p className="eyebrow desktop-only">ЛИЧНОЕ ПРОСТРАНСТВО</p><h1>{tabs.find(t => t.id === page).name}</h1></div>{page === 'diary' && <button className="icon-button light" aria-label="Добавить запись в дневник" disabled={diaryDay > dayKey()} onClick={() => setModal('add')}><Plus size={24}/></button>}</header>
-        {page === 'diary' && <Diary entries={entries} selected={diaryDay} setSelected={setDiaryDay} onEdit={openMood} onAdd={() => setModal('add')}/>}
-        {page === 'treatment' && <Treatment doses={doses} questionnaire={questionnaire} onOpen={setModal}/>}
-        {page === 'doctor' && <Doctor onOpen={setModal}/>}
-      </div>}
+          <HomeMedicationReminders entries={entries} now={clock} onOpen={() => navigate('treatment')} onSave={save} onReload={reloadState} onToast={setToast}/>
+          <Row icon={ClipboardText} title="Опросники самочувствия" subtitle="Депрессия и тревожность · PHQ-9 и GAD-7" end="3 мин" onClick={() => openSectionModal('questionnaire')}/>
+        </div><button className="mobile-info" onClick={() => setModal('settings')}>Локальный прототип · о данных и приложении</button></section>
+        </> : <div className="page-content content-width workspace-page">
+          <header className="page-header"><div><p className="eyebrow desktop-only">ЛИЧНОЕ ПРОСТРАНСТВО</p><h1>{tab.name}</h1></div></header>
+          {tab.id === 'diary' && <DiaryPage entries={entries} selectedId={selectedJournalId} onSelect={setSelectedJournalId} onNew={() => openJournal()} onAdd={date => { if (date) setDiaryDay(date); setModal('add'); }} onEdit={openJournal} hasDraft={Boolean(journalDraft && !journalDraft.id && journalDraft.body.trim())}><MoodHistory entries={entries.filter(entry => ['mood', 'sleep', 'assessment'].includes(entry.type))} selected={diaryDay} setSelected={setDiaryDay} onEdit={openMood} onAssessment={entry => { setViewingAssessment(entry); setModal('questionnaire'); }} onAdd={() => setModal('add')}/></DiaryPage>}
+          {tab.id === 'treatment' && <TreatmentPage entries={entries} themeValue={themePosition} now={clock} onOpen={openSectionModal} onSave={save} onReload={reloadState} onToast={setToast}/>}
+          {tab.id === 'doctor' && <DoctorPage onOpen={setModal} onNavigate={navigate}><PatientConnections active={active&&page==='doctor'} onHealth={()=>setModal('health')}/></DoctorPage>}
+        </div>}
+      </section>)}</div>
     </main>
-    <nav className="bottom-nav" aria-label="Навигация по приложению">{tabs.map(({ id, name, icon: Icon }) => <button key={id} onClick={() => navigate(id)} className={page === id ? 'current' : ''} aria-current={page === id ? 'page' : undefined}><Icon size={24}/><span>{name}</span></button>)}</nav>
+    <nav className="bottom-nav" aria-label="Навигация по приложению"><span className="bottom-nav-glider" aria-hidden="true"/>{tabs.map(({ id, name, icon: Icon }) => <button key={id} onClick={() => navigate(id)} className={page === id ? 'current' : ''} aria-current={page === id ? 'page' : undefined}><Icon size={24}/><span>{name}</span></button>)}</nav>
     {toast && <div role="status" className="toast"><CheckCircle size={20}/>{toast}</div>}
-    {modal === 'mood' && <MoodFlow initialEntry={editingMood} initialDate={page === 'diary' ? diaryDay : dayKey()} onClose={() => closeModal()} onSave={save}/>}
-    {modal === 'medication' && <Medication doses={doses} onChange={(id, status) => setDoses(items => changeDoseStatus(items, id, status))} onClose={() => closeModal()}/>}
-    {modal === 'questionnaire' && <Questionnaire completed={questionnaire} onClose={() => closeModal()} onComplete={() => { setQuestionnaire(true); setToast('Демоопрос завершён'); }}/ >}
-    {modal === 'sleep' && <Sleep initialDate={page === 'diary' ? diaryDay : dayKey()} onClose={() => closeModal()} onSave={entry => { save(entry); closeModal(); setToast('Сон отмечен в дневнике'); }}/ >}
-    {modal === 'add' && <Modal title="Добавить запись" onClose={() => closeModal()}><div className="modal-body"><Row icon={Plus} title="Состояние" subtitle={`За ${dateLabel(`${diaryDay}T12:00:00+03:00`)}`} onClick={() => openMood()}/><Row icon={Moon} title="Сон" subtitle="Длительность и качество отдыха" onClick={() => setModal('sleep')}/></div></Modal>}
-    {modal === 'settings' && <Settings installed={installed} installPrompt={installPrompt} onClose={() => closeModal()} onInstall={async () => { await installPrompt.prompt(); const result = await installPrompt.userChoice; setInstallPrompt(null); if (result.outcome === 'accepted') setInstalled(true); }}/ >}
-    {['health', 'change-doctor', 'chat', 'appointment', 'recommendations'].includes(modal) && <Unavailable type={modal} onClose={() => closeModal()}/>}
-  </div>;
+    {modal === 'journal' && journalDraft && <JournalEditor draft={journalDraft} onChange={setJournalDraft} onClose={closeModal} onSave={async entry => { const saved = await save(entry); setSelectedJournalId(saved.id); setJournalDraft({ ...saved, date: saved.day }); closeModal(); setToast('Запись сохранена в дневнике'); }}/>}
+    {modal === 'mood' && <MoodFlow initialEntry={editingMood} initialDate={page === 'diary' ? diaryDay : dayKey()} onPreview={(editingMood?.day || (editingMood ? dayKey(new Date(editingMood.at)) : page === 'diary' ? diaryDay : dayKey())) === dayKey() ? setMoodPreview : undefined} onClose={() => closeModal()} onSave={save}/>}
+    {modal === 'questionnaire' && <Assessments moodValue={themePosition} initialEntry={viewingAssessment} entries={entries} onClose={closeModal} onSave={async entry => { const saved = await save(entry); setToast('Результат сохранён в дневнике'); return saved; }}/ >}
+    {modal === 'sleep' && <Sleep initialDate={page === 'diary' ? diaryDay : dayKey()} onClose={() => closeModal()} onSave={async entry => { await save(entry); closeModal(); setToast('Сон отмечен в дневнике'); }}/ >}
+    {modal === 'add' && <Modal title="Добавить в дневник" className="diary-add-modal" onClose={() => closeModal()}><div className="modal-body"><Row icon={Plus} title="Состояние" subtitle={`За ${dateLabel(`${diaryDay}T12:00:00+03:00`)}`} onClick={() => openMood()}/><Row icon={Moon} title="Сон" subtitle="Длительность и качество отдыха" onClick={() => setModal('sleep')}/><Row icon={ClipboardText} title="Пройти опросник" subtitle="PHQ-9 и GAD-7 · отметка за сегодня" onClick={() => openSectionModal('questionnaire')}/></div></Modal>}
+    {modal === 'settings' && <Settings account={account} onUpdateConsents={onUpdateConsents} onSignOut={onSignOut} onRequestAuth={onRequestAuth} onHealth={()=>setModal('health')} installed={installed} installPrompt={installPrompt} onClose={() => closeModal()} onInstall={async () => { await installPrompt.prompt(); const result = await installPrompt.userChoice; setInstallPrompt(null); if (result.outcome === 'accepted') setInstalled(true); }}/ >}
+    {modal==='health'&&<MedicalProfile entries={entries} onArchivePlan={plan=>save({...medicationDraft(plan),type:'medication-plan',archived:true})} profile={entries.find(entry=>entry.type==='medical-profile')} draft={medicalDraft} onChange={setMedicalDraft} onSave={async value=>{const saved=await save(value);onIntakeSaved?.();return saved;}} storageReady={storage==='ready'} onClose={closeModal}/>}
+    {modal==='chat'&&<Modal title="Сообщения" className="patient-chat-modal" onClose={closeModal}><div className="modal-body"><CareChat role="patient" drafts={chatDrafts} onDraftsChange={setChatDrafts} active={active} onManageConnections={()=>{setModal(null);setPage('doctor');}}/></div></Modal>}
+    {['change-doctor', 'appointment', 'recommendations'].includes(modal) && <Unavailable type={modal} onClose={() => closeModal()}/>}
+  </div></PersistenceContext.Provider>;
 }
 
-function Diary({ entries, selected, setSelected, onAdd, onEdit }) {
-  const [view, setView] = useState('week');
-  const [offset, setOffset] = useState(0);
+function MoodHistory({ entries, selected, setSelected, onAdd, onEdit, onAssessment }) {
   const today = dayKey();
-  const date = new Date(`${today}T12:00:00Z`);
-  let days;
-  let period;
-  if (view === 'week') {
-    const weekday = (date.getUTCDay() + 6) % 7;
-    date.setUTCDate(date.getUTCDate() - weekday + offset * 7);
-    days = Array.from({ length: 7 }, (_, i) => { const d = new Date(date); d.setUTCDate(d.getUTCDate() + i); return d; });
-    period = `${dateLabel(days[0])} – ${dateLabel(days[6])}`;
-  } else {
-    date.setUTCDate(1); date.setUTCMonth(date.getUTCMonth() + offset);
-    const count = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 0)).getUTCDate();
-    days = Array.from({ length: count }, (_, i) => new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), i + 1, 12)));
-    period = new Intl.DateTimeFormat('ru-RU', { month: 'long', year: 'numeric', timeZone: 'Europe/Moscow' }).format(date);
-  }
-  const filtered = entries.filter(e => dayKey(new Date(e.at)) === selected);
-  return <><section className="surface calendar-surface"><div className="calendar-toolbar"><div className="segmented"><button className={view === 'week' ? 'active' : ''} onClick={() => { setView('week'); setOffset(0); }}>Неделя</button><button className={view === 'month' ? 'active' : ''} onClick={() => { setView('month'); setOffset(0); }}>Месяц</button></div><div className="calendar-arrows"><button className="icon-button" aria-label="Предыдущий период" onClick={() => setOffset(o => o - 1)}><CaretLeft size={18}/></button><button className="icon-button" aria-label="Следующий период" onClick={() => setOffset(o => o + 1)}><CaretRight size={18}/></button></div></div><p className="calendar-period">{period}</p><div className={`calendar-grid ${view === 'month' ? 'month' : ''}`}>
-      {days.map((d, i) => { const key = dayKey(d); const record = entries.find(e => e.type === 'mood' && dayKey(new Date(e.at)) === key); return <button key={key} className={`calendar-day ${key === selected ? 'selected' : ''}`} style={view === 'month' && i === 0 ? { gridColumnStart: (d.getUTCDay() + 6) % 7 + 1 } : undefined} aria-label={`${dateLabel(d)}${record ? `, ${MOODS[record.value].short}` : ', нет отметок'}`} aria-pressed={key === selected} onClick={() => setSelected(key)}><small>{new Intl.DateTimeFormat('ru-RU', { weekday: 'short', timeZone: 'Europe/Moscow' }).format(d)}</small><span>{d.getUTCDate()}</span>{record ? <Art tone={MOODS[record.value].tone} className="calendar-orb"/> : <span className="empty-day">·</span>}</button>; })}
-    </div><div className="calendar-summary"><strong>{filtered.find(e => e.type === 'mood') ? MOODS[filtered.find(e => e.type === 'mood').value].short : 'Нет отметок'}</strong><span>{filtered.length ? `Записей: ${filtered.length}` : 'День ещё не заполнен'}</span></div></section>
+  const filtered = entries.filter(e => (e.day || dayKey(new Date(e.at))) === selected);
+  return <><DiaryCalendar entries={entries} selected={selected} onSelect={setSelected}/>
     <div className="section-heading"><h2>{selected === today ? 'Сегодня' : dateLabel(`${selected}T12:00:00Z`)}</h2><button className="text-button" onClick={onAdd} disabled={selected > today}>Добавить <Plus size={17}/></button></div>
-    <div className="timeline">{filtered.length ? filtered.map(entry => <article className="timeline-row" key={entry.id}><time>{entry.kind === 'day' ? 'За день' : timeLabel(entry.at)}</time><div className="timeline-dot"/><div className="entry surface"><div className="entry-title">{entry.type === 'mood' ? <><Art tone={MOODS[entry.value].tone} className="entry-orb"/><h3>{MOODS[entry.value].short}</h3></> : <><Moon size={23}/><h3>Сон · {entry.hours} ч {entry.minutes} мин</h3></>}{entry.sample && <span className="sample-label">пример</span>}</div>{entry.type === 'mood' && <small className="secondary">{entry.kind === 'day' ? 'Состояние за день' : 'Состояние в моменте'}</small>}{entry.note && <p className="entry-note">{entry.note}</p>}{entry.type === 'sleep' && <p className="secondary">Качество сна: {entry.quality.toLowerCase()}</p>}{entry.words?.length > 0 && <div className="entry-tags">{entry.words.map(word => <span key={word}>{word}</span>)}</div>}{entry.factors?.length > 0 && <p className="entry-factors">Повлияло: {entry.factors.join(', ').toLowerCase()}</p>}{entry.type === 'mood' && <button className="text-button edit-entry" onClick={() => onEdit(entry)}>Изменить отметку</button>}</div></article>) : <div className="empty-state"><BookOpen size={32}/><h3>Здесь будут ваши записи</h3><p>Выберите другой день или добавьте отметку.</p><button className="text-button" onClick={onAdd} disabled={selected > today}>Добавить запись <Plus size={17}/></button></div>}</div>
-    <p className="page-footnote">Записи видны только в этой вкладке. Отправка врачу и сводки появятся после подключения защищённого сервера.</p>
+    <div className="timeline">{filtered.length ? filtered.map(entry => <article className="timeline-row" key={entry.id}><time>{entry.kind === 'day' ? 'За день' : timeLabel(entry.at)}</time><div className="timeline-dot"/><div className="entry surface"><div className="entry-title">{entry.type === 'mood' ? <><Art tone={MOODS[entry.value].tone} className="entry-orb"/><h3>{MOODS[entry.value].short}</h3></> : entry.type === 'assessment' ? <><ClipboardText size={23}/><h3>{SCALES[entry.scaleId].name} · {entry.score} из {entry.max}</h3></> : <><Moon size={23}/><h3>Сон · {entry.hours} ч {entry.minutes} мин</h3></>}{entry.sample && <span className="sample-label">пример</span>}</div>{entry.type === 'mood' && <small className="secondary">{entry.kind === 'day' ? 'Состояние за день' : 'Состояние в моменте'}</small>}{entry.note && <p className="entry-note">{entry.note}</p>}{entry.type === 'sleep' && <p className="secondary">Качество сна: {entry.quality.toLowerCase()}</p>}{entry.type === 'assessment' && <><p className="secondary">{entry.severity}</p><button className="text-button edit-entry" onClick={() => onAssessment(entry)}>Открыть результат</button></>}{entry.words?.length > 0 && <div className="entry-tags">{entry.words.map(word => <span key={word}>{word}</span>)}</div>}{entry.factors?.length > 0 && <p className="entry-factors">Повлияло: {entry.factors.join(', ').toLowerCase()}</p>}{entry.type === 'mood' && <button className="text-button edit-entry" onClick={() => onEdit(entry)}>Изменить отметку</button>}</div></article>) : <div className="empty-state"><BookOpen size={32}/><h3>Пока нет отметок</h3><p>Здесь будут настроение, сон и результаты опросников.</p><button className="text-button" onClick={onAdd} disabled={selected > today}>Добавить отметку <Plus size={17}/></button></div>}</div>
+    <p className="page-footnote">Записи сохраняются в локальной базе. Доступ подключённого врача к личным текстам настраивается отдельно.</p>
   </>;
 }
 
-function Treatment({ doses, questionnaire, onOpen }) {
-  return <><div className="notice"><span className="demo-dot"/>Демонстрационный план, не назначение врача</div><section className="surface treatment-summary"><div className="section-heading"><h2>Ближайший приём</h2><span className="pill-label">22:00</span></div><p className="secondary">Вечером · 2 препарата</p><div className="dose-preview">{doses.map(d => <div key={d.id}><Pill size={22}/><span>{d.name}</span><small>{d.status === 'taken' ? 'Отмечен приём' : d.status === 'skipped' ? 'Пропущен' : 'Запланирован'}</small></div>)}</div><button className="secondary-button" onClick={() => onOpen('medication')}>Посмотреть и отметить<CaretRight size={18}/></button></section>
-    <div className="section-heading"><h2>Забота о себе</h2></div><section className="surface"><Row icon={ClipboardText} title="Опросник самочувствия" subtitle={questionnaire ? 'Демоопрос завершён' : 'Короткая отметка, без оценки и диагноза'} end="2 мин" onClick={() => onOpen('questionnaire')}/><Row icon={Moon} title="Отметить сон" subtitle="Длительность и самочувствие после сна" onClick={() => onOpen('sleep')}/></section>
-    <div className="section-heading"><h2>Мои сведения</h2></div><section className="surface"><Row icon={ShieldCheck} title="Препараты и заболевания" subtitle="Подключим вместе с медицинским профилем" onClick={() => onOpen('health')}/><Row icon={Bell} title="Напоминания" subtitle="Установка приложения и уведомления" onClick={() => onOpen('settings')}/></section><p className="page-footnote">Титрацию, дозировки и периодичность опросников в рабочей версии задаёт врач. Автоматической проверки совместимости пока нет.</p></>;
-}
-
-function Doctor({ onOpen }) {
-  return <><section className="surface doctor-profile"><img src="/art/physician.png" alt="Демонстрационный портрет врача"/><span className="pill-label">Демо-профиль</span><h2>Анна Сергеевна</h2><p className="secondary">Ваш лечащий врач</p><button className="text-button" onClick={() => onOpen('change-doctor')}>Сменить специалиста<ArrowUpRight size={17}/></button></section><div className="section-heading"><h2>На связи</h2></div><section className="surface"><Row icon={ChatsCircle} title="Написать врачу" subtitle="Переписка ещё не подключена" onClick={() => onOpen('chat')}/><Row icon={CalendarBlank} title="Следующий приём" subtitle="Календарь подключим на следующем этапе" onClick={() => onOpen('appointment')}/><Row icon={ClipboardText} title="Рекомендации врача" subtitle="Здесь будут сообщения после ваших отметок" onClick={() => onOpen('recommendations')}/></section><p className="page-footnote">В этом прототипе сообщения не отправляются. Канал связи с врачом не предназначен для экстренных обращений.</p></>;
-}
-
-function Medication({ doses, onChange, onClose }) {
-  return <Modal title="Вечерний приём" onClose={onClose}><div className="modal-body"><div className="detail-topline"><span className="pill-label">Сегодня · 22:00</span><span className="secondary">Демо-план</span></div><p className="secondary">Вымышленные препараты для проверки интерфейса. Реальные назначения здесь пока не хранятся.</p><div className="dose-list">{doses.map(dose => <section key={dose.id} className="dose-item"><div className="dose-title"><Pill size={24}/><h3>{dose.name}</h3>{dose.status !== 'planned' && <span className="pill-label">{dose.status === 'taken' ? 'Принят' : 'Пропущен'}</span>}</div>{dose.status === 'planned' ? <div className="dose-actions"><button className="primary" onClick={() => onChange(dose.id, 'taken')}><Check size={18}/>Принят</button><button className="secondary-button" onClick={() => onChange(dose.id, 'skipped')}>Пропущен</button></div> : <button className="text-button" onClick={() => onChange(dose.id, 'planned')}><ArrowCounterClockwise size={17}/>Исправить отметку</button>}</section>)}</div><p className="input-hint">Отметки меняют только демонстрационный журнал, а не схему лечения.</p><button className="primary full-width" onClick={onClose}>Готово</button></div></Modal>;
-}
-
 function Sleep({ initialDate, onClose, onSave }) {
+  const entryId = useRef(crypto.randomUUID());
   const [sleepDate, setSleepDate] = useState(initialDate);
-  const [hours, setHours] = useState('7'); const [minutes, setMinutes] = useState('0'); const [quality, setQuality] = useState('Хорошо');
-  return <Modal title="Как вы спали?" onClose={onClose}><form className="modal-body" onSubmit={e => { e.preventDefault(); onSave({ id: crypto.randomUUID(), type: 'sleep', hours, minutes, quality, day: sleepDate, at: entryTimestamp(sleepDate), createdAt: new Date().toISOString() }); }}><p className="secondary">Отметьте длительность и качество последнего сна.</p><label className="entry-date-field">Дата сна<input type="date" required max={dayKey()} value={sleepDate} onChange={e => setSleepDate(e.target.value)}/></label><div className="duration-fields"><label>Часы<input required type="number" min="0" max="24" value={hours} onChange={e => setHours(e.target.value)}/></label><label>Минуты<input required type="number" min="0" max={Number(hours) === 24 ? 0 : 59} value={minutes} onChange={e => setMinutes(e.target.value)}/></label></div><label className="field-label" htmlFor="sleep-quality">Как вы выспались?</label><select id="sleep-quality" value={quality} onChange={e => setQuality(e.target.value)}>{['Плохо', 'Не очень', 'Нормально', 'Хорошо', 'Отлично'].map(q => <option key={q}>{q}</option>)}</select><p className="input-hint">Apple Health не подключён. Запись доступна до обновления страницы.</p><button className="primary full-width" type="submit">Сохранить</button></form></Modal>;
+  const [duration, setDuration] = useState({ hours: 7, minutes: 0 });
+  const [quality, setQuality] = useState('Хорошо');
+  const [error, setError] = useState('');
+  const [pending, setPending] = useState(false);
+  return <Modal title="Как вы спали?" className="sleep-modal" onClose={onClose}><form className="modal-body" onSubmit={async event => {
+    event.preventDefault();
+    if (pending) return;
+    if (duration.hours * 60 + duration.minutes === 0) { setError('Укажите длительность сна больше нуля'); return; }
+    setPending(true);
+    try { await onSave({ id: entryId.current, type: 'sleep', ...duration, quality, day: sleepDate, at: entryTimestamp(sleepDate), createdAt: new Date().toISOString() }); }
+    catch (error) { setError(error.message); } finally { setPending(false); }
+  }}><p className="secondary">Отметьте длительность и качество последнего сна.</p><DatePicker label="Дата сна" value={sleepDate} onChange={setSleepDate}/><DurationWheel {...duration} onChange={(hours, minutes) => { setDuration({ hours, minutes }); setError(''); }}/><fieldset className="sleep-quality"><legend>Как вы выспались?</legend><div>{['Плохо', 'Не очень', 'Нормально', 'Хорошо', 'Отлично'].map(value => <label key={value} className={quality === value ? 'selected' : ''}><input type="radio" name="sleep-quality" value={value} checked={quality === value} onChange={() => setQuality(value)}/><span>{value}</span></label>)}</div></fieldset>{error && <p className="journal-error" role="alert">{error}</p>}<p className="input-hint">Apple Health не подключён. Запись сохраняется в локальную базу.</p><button className="primary full-width" type="submit" disabled={pending}>{pending ? 'Сохраняем…' : 'Сохранить'}</button></form></Modal>;
 }
 
-function Questionnaire({ completed, onComplete, onClose }) {
-  const [answers, setAnswers] = useState({}); const [done, setDone] = useState(completed);
-  const questions = ['Хватало ли вам сил сегодня?', 'Получилось ли отдохнуть?', 'Удалось ли сделать что-то приятное для себя?'];
-  return <Modal title="Опросник самочувствия" onClose={onClose}><div className="modal-body">{done ? <div className="success-view"><span className="success-icon"><Check size={28}/></span><h3>На сегодня всё</h3><p className="secondary">Демонстрационный опрос завершён. Клинический результат не рассчитывается.</p><button className="primary full-width" onClick={onClose}>Готово</button></div> : <form onSubmit={e => { e.preventDefault(); setDone(true); onComplete(); }}><p className="secondary">Три вопроса для знакомства с интерфейсом. Это не шкала Бека и не диагностический тест.</p>{questions.map((q, i) => <fieldset className="question" key={q}><legend>{i + 1}. {q}</legend><div className="question-options">{['Нет', 'Частично', 'Да'].map(a => <label key={a}><input type="radio" name={`q${i}`} required checked={answers[i] === a} onChange={() => setAnswers(old => ({ ...old, [i]: a }))}/><span>{a}</span></label>)}</div></fieldset>)}<p className="input-hint">Ответы не отправляются и не сохраняются после закрытия опроса.</p><button className="primary full-width" type="submit">Завершить</button></form>}</div></Modal>;
-}
-
-function Settings({ installed, installPrompt, onInstall, onClose }) {
-  return <Modal title="О приложении и данных" onClose={onClose}><div className="modal-body settings-body"><div className="settings-intro"><LockSimple size={27}/><h3>Личное остаётся личным</h3></div><p className="secondary">Это интерактивная демоверсия. Пожалуйста, используйте только вымышленные сведения.</p><section><h3>Где находятся записи</h3><p>Только в памяти этой вкладки. Обновление страницы удалит добавленные отметки. Сервер, аналитика и внешние шрифты не подключены.</p></section><section><h3>Добавить на главный экран</h3>{installed || window.matchMedia('(display-mode: standalone)').matches ? <p>Приложение установлено или уже открыто отдельно.</p> : <><p>На iPhone откройте сайт в Safari, нажмите «Поделиться», затем «На экран Домой». На компьютере и Android используйте установку в меню браузера.</p>{installPrompt && <button className="secondary-button" onClick={onInstall}><DownloadSimple size={20}/>Установить приложение</button>}</>}</section><section><h3>Уведомления</h3><p>Фоновые напоминания пока не подключены. В рабочей версии они будут приходить без названий лекарств и медицинских подробностей на экране блокировки.</p></section><button className="primary full-width" onClick={onClose}>Понятно</button></div></Modal>;
+function Settings({ installed, installPrompt, onInstall, onClose, onHealth,account,onUpdateConsents,onSignOut,onRequestAuth }) {
+  return <Modal title="О приложении и данных" onClose={onClose}><div className="modal-body settings-body"><div className="settings-intro"><LockSimple size={27}/><h3>Личное остаётся личным</h3></div><p className="secondary">Это интерактивная демоверсия. Пожалуйста, используйте только вымышленные сведения.</p><section>{account?<AccountPreferences key={account.id} account={account} onUpdate={onUpdateConsents} onSignOut={onSignOut}/>:<><h3>Локальный профиль</h3><p>Регистрация создаст отдельную учётную запись. Эти записи останутся в локальном профиле этого браузера.</p><button className="secondary-button" onClick={onRequestAuth}>Войти или зарегистрироваться</button></>}</section><section><h3>Сведения для врача</h3><p>Принимаемые препараты и личные медицинские сведения можно добавить, исправить или убрать здесь.</p><button className="secondary-button" onClick={onHealth}>Управлять сведениями</button></section><section><h3>Где находятся записи</h3><p>Сохранённые записи и отметки находятся в локальной базе PostgreSQL. Обновление страницы их не удаляет. Доступ к вашему локальному профилю хранится в защищённой от чтения скриптами cookie этого браузера. Без регистрации другой браузер открывает отдельный локальный профиль. В учётную запись можно войти по почте и паролю. Аналитика и внешние шрифты не подключены.</p></section><section><h3>Добавить на главный экран</h3>{installed || window.matchMedia('(display-mode: standalone)').matches ? <p>Приложение установлено или уже открыто отдельно.</p> : <><p>На iPhone откройте сайт в Safari, нажмите «Поделиться», затем «На экран Домой». На компьютере и Android используйте установку в меню браузера.</p>{installPrompt && <button className="secondary-button" onClick={onInstall}><DownloadSimple size={20}/>Установить приложение</button>}</>}</section><section><h3>Уведомления</h3><p>Фоновые напоминания пока не подключены. В рабочей версии они будут приходить без названий лекарств и медицинских подробностей на экране блокировки.</p></section><button className="primary full-width" onClick={onClose}>Понятно</button></div></Modal>;
 }
 
 function Unavailable({ type, onClose }) {

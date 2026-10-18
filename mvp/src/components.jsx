@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef } from 'react';
 import { X, CaretRight } from '@phosphor-icons/react';
 
-export function Modal({ title, children, onClose, className = '', style, headerLead }) {
+export function Modal({ title, children, onClose, className = '', style, headerLead, headerDetail, closeDisabled = false }) {
   const ref = useRef(null);
   useLayoutEffect(() => {
     const dialog = ref.current;
@@ -13,7 +13,7 @@ export function Modal({ title, children, onClose, className = '', style, headerL
   }, []);
   return <dialog ref={ref} style={style} className={`modal ${className}`} aria-labelledby="modal-title" onCancel={e => { e.preventDefault(); onClose(); }}>
     {headerLead}
-    <div className="modal-header"><h2 id="modal-title">{title}</h2><button className="icon-button" aria-label="Закрыть" onClick={onClose}><X size={22}/></button></div>
+    <div className="modal-header">{headerDetail ? <div className="modal-title-group"><h2 id="modal-title">{title}</h2>{headerDetail}</div> : <h2 id="modal-title">{title}</h2>}<button className="icon-button" aria-label="Закрыть" disabled={closeDisabled} onClick={onClose}><X size={22}/></button></div>
     {children}
   </dialog>;
 }

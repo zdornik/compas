@@ -1,0 +1,22 @@
+{
+  "sourceId": "grls",
+  "sourceUrl": "https://grls.minzdrav.gov.ru/GetGRLS.ashx?FileGUID=b470dbf5-9ec2-4070-899a-244b6937e01b&UserReq=7196564",
+  "landingUrl": "https://grls.minzdrav.gov.ru/grls.aspx",
+  "sha256": "be69c51b808c4fb1c65395c3a1817de5bc39727a72b77412c3cec3eaa76d0196",
+  "snapshotDate": "2026-10-16",
+  "retrievedAt": "2026-10-18T07:11:34.508072+00:00",
+  "products": 143283,
+  "innOrGroupingNames": 3745,
+  "statuses": {
+    "Действующий": 19633,
+    "Изменённый": 104074,
+    "Исключённый": 4363,
+    "Истёкший": 5484,
+    "Выдано по правилам ЕАЭС": 9567,
+    "Действует на подтверждении государственной регистрации": 77,
+    "Приостановлено применение": 49,
+    "Действует в иностранных упаковках": 36
+  },
+  "instructionFiles": 0,
+  "limitation": "Registry metadata is not an instruction corpus. Statuses and grouping names are preserved exactly."
+}

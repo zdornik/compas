@@ -1,0 +1,6 @@
+FROM python:3.13-slim
+RUN pip install --no-cache-dir pypdf==6.10.0
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+WORKDIR /app
+USER 501:20
+CMD ["python", "scripts/knowledge/fetch-instructions.py"]

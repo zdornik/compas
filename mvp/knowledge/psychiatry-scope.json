@@ -1,0 +1,732 @@
+{
+  "id": "psychiatry-v1",
+  "scope": "psychiatry",
+  "label": "Психиатрия: психотропные препараты и явно перечисленные дополнительные МНН",
+  "createdAt": "2026-10-18T07:48:57.615916+00:00",
+  "registrySnapshot": "2026-10-16",
+  "targetRegistrations": 1374,
+  "registryNames": 136,
+  "selectionMethod": "GRLS core pharmacotherapeutic group, or explicit named collection scope; current status categories and dates, one target per registration number",
+  "limitations": "Collection scope only, not a verified clinical formulary or a statement of approved indications. Combination names are preserved as given by GRLS. No ATC code is inferred for a GRLS row.",
+  "groupPattern": "^(?:антипсихот|нейролепт|антидепрессант|антидепрессивн|анксиолит|транквилиз|снотворн|нормотим)|^(?:психолепт|психоаналепт|психотропн).*(?:антипсихот|анксиолит|антидепресс|снотворн|деменц|лития)",
+  "explicitExtensions": {
+    "Вальпроевая кислота": "нормотимики: отдельный отбор",
+    "Натрия вальпроат": "нормотимики: отдельный отбор",
+    "Карбамазепин": "нормотимики: отдельный отбор",
+    "Ламотриджин": "нормотимики: отдельный отбор",
+    "Окскарбазепин": "нормотимики: отдельный отбор",
+    "Прегабалин": "отдельный отбор для психиатрического корпуса",
+    "Габапентин": "отдельный отбор для психиатрического корпуса",
+    "Топирамат": "отдельный отбор для психиатрического корпуса",
+    "Лития карбонат": "препараты лития",
+    "Мелатонин": "средства для сна",
+    "Бипериден": "корректоры экстрапирамидных нарушений: отдельный отбор",
+    "Тригексифенидил": "корректоры экстрапирамидных нарушений: отдельный отбор",
+    "Дисульфирам": "средства для лечения зависимостей",
+    "Налтрексон": "средства для лечения зависимостей",
+    "Налмефен": "средства для лечения зависимостей",
+    "Акампросат": "средства для лечения зависимостей",
+    "Цианамид": "средства для лечения зависимостей",
+    "Никотин": "средства для лечения зависимостей",
+    "Цитизин": "средства для лечения зависимостей",
+    "Варениклин": "средства для лечения зависимостей",
+    "Донепезил": "средства для лечения деменции",
+    "Галантамин": "средства для лечения деменции",
+    "Ривастигмин": "средства для лечения деменции",
+    "Мемантин": "средства для лечения деменции",
+    "Атомоксетин": "отдельный отбор для психиатрического корпуса",
+    "Аминофенилмасляная кислота": "отдельный отбор для психиатрического корпуса",
+    "фенибут": "отдельный отбор для психиатрического корпуса",
+    "Клоназепам": "отдельный отбор для психиатрического корпуса"
+  },
+  "excludedNames": [
+    "дексмедетомидин",
+    "ипидакрин"
+  ],
+  "selectedNames": [
+    {
+      "name": "Агомелатин",
+      "reason": "антидепрессант",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Алимемазин",
+      "reason": "анксиолитическое средство, седативное средство",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Алпразолам",
+      "reason": "анксиолитическое средство (транквилизатор)",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Амид N-(6-фенилгексаноил)глицил-L-триптофана",
+      "reason": "психолептики; анксиолитические средства; другие анксиолитические средства",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Аминофенилмасляная кислота",
+      "reason": "отдельный отбор для психиатрического корпуса",
+      "classification": "explicit_collection_scope"
+    },
+    {
+      "name": "Амисульприд",
+      "reason": "антипсихотическое средство (нейролептик)",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Амитриптилин",
+      "reason": "антидепрессант",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Арипипразол",
+      "reason": "антипсихотическое средство (нейролептик)",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Атомоксетин",
+      "reason": "отдельный отбор для психиатрического корпуса",
+      "classification": "explicit_collection_scope"
+    },
+    {
+      "name": "Белладонны настойка+Валерианы лекарственной корневищ с корнями настойка+Ландыша травы настойка+[Левоментол]",
+      "reason": "психолептики; снотворные и седативные средства; другие снотворные и седативные средства",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Бипериден",
+      "reason": "корректоры экстрапирамидных нарушений: отдельный отбор",
+      "classification": "explicit_collection_scope"
+    },
+    {
+      "name": "Боярышника плодов настойка+Валерианы лекарственной корневищ с корнями настойка+Левоментол+Натрия бромид",
+      "reason": "психолептики; снотворные и седативные средства; другие снотворные и седативные средства",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Боярышника цветков экстракт+Магния оксид+Эшшольции цветков экстракт",
+      "reason": "психолептики; снотворные и седативные средства; другие снотворные и седативные средства",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Брекспипразол",
+      "reason": "антипсихотическое средство (нейролептик)",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Бромдигидрохлорфенилбензодиазепин",
+      "reason": "анксиолитическое средство (транквилизатор)",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Бромкамфора",
+      "reason": "психолептики; снотворные и седативные средства; другие снотворные и седативные средства",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Буспирон",
+      "reason": "анксиолитическое средство (транквилизатор)",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Валерианы лекарственной корневищ с корнями настойка",
+      "reason": "психолептики; снотворные и седативные средства; другие снотворные и седативные средства",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Валерианы лекарственной корневищ с корнями настойка+Красавки листьев настойка+Ландыша травы настойка+Натрия бромид+[Левоментол]",
+      "reason": "психолептики; снотворные и седативные средства; другие снотворные и седативные средства",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Валерианы лекарственной корневищ с корнями настойка+Ландыша травы настойка",
+      "reason": "психолептики; снотворные и седативные средства; другие снотворные и седативные средства",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Валерианы лекарственной корневищ с корнями экстракт",
+      "reason": "Психолептики. Прочие снотворные и седативные препараты. Валерианы экстракт",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Валерианы лекарственной корневищ с корнями экстракт+Мелиссы лекарственной листьев экстракт+Мяты перечной листьев экстракт",
+      "reason": "психолептики; снотворные и седативные средства; снотворные и седативные средства, комбинации без барбитуратов",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Валерианы лекарственной корневища с корнями",
+      "reason": "психолептики; снотворные и седативные средства; другие снотворные и седативные средства",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Валерианы лекарственной корневища с корнями настойка",
+      "reason": "психолептики; снотворные и седативные средства; другие снотворные и седативные средства",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Вальпроевая кислота",
+      "reason": "нормотимики: отдельный отбор",
+      "classification": "explicit_collection_scope"
+    },
+    {
+      "name": "Варениклин",
+      "reason": "средства для лечения зависимостей",
+      "classification": "explicit_collection_scope"
+    },
+    {
+      "name": "Венлафаксин",
+      "reason": "антидепрессант",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Вортиоксетин",
+      "reason": "антидепрессант",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Габапентин",
+      "reason": "отдельный отбор для психиатрического корпуса",
+      "classification": "explicit_collection_scope"
+    },
+    {
+      "name": "Галантамин",
+      "reason": "психоаналептики; средства для лечения деменции; антихолинэстеразные средства",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Галоперидол",
+      "reason": "антипсихотическое средство (нейролептик)",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Гидразинокарбонилметилбромфенилдигидробенздиазепин",
+      "reason": "анксиолитическое средство (транквилизатор)",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Гидроксизин",
+      "reason": "анксиолитическое средство (транквилизатор)",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Гинкго двулопастного листьев экстракт",
+      "reason": "Психоаналептики; средства для лечения деменции; другие средства для лечения деменции",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Глицин+Мелатонин",
+      "reason": "снотворное средство",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Диазепам",
+      "reason": "анксиолитическое средство (транквилизатор)",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Дисульфирам",
+      "reason": "средства для лечения зависимостей",
+      "classification": "explicit_collection_scope"
+    },
+    {
+      "name": "Дифенгидрамин+Мелатонин",
+      "reason": "психолептики; снотворные и седативные средства; снотворные и седативные средства, комбинации без барбитуратов",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Дифенгидрамин+Мяты перечной листьев масло+Пустырника травы настойка+Этилбромизовалерианат",
+      "reason": "психолептики; снотворные и седативные средства; другие снотворные и седативные средства",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Доксепин",
+      "reason": "психоаналептики; антидепрессанты; неселективные ингибиторы обратного захвата моноаминов",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Доксиламин",
+      "reason": "снотворное средство",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Донепезил",
+      "reason": "психоаналептики; средства для лечения деменции; антихолинэстеразные средства",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Донепезил+Мемантин",
+      "reason": "психоаналептики; средства для лечения деменции; антихолинэстеразные средства",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Дроперидол",
+      "reason": "антипсихотическое средство (нейролептик)",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Дулоксетин",
+      "reason": "антидепрессант",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Залеплон",
+      "reason": "снотворное средство",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Зверобоя травы экстракт",
+      "reason": "антидепрессант растительного происхождения",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Зипрасидон",
+      "reason": "антипсихотическое средство (нейролептик)",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Золпидем",
+      "reason": "снотворное средство",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Зопиклон",
+      "reason": "снотворное средство",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Зуклопентиксол",
+      "reason": "антипсихотическое средство (нейролептик)",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Имипрамин",
+      "reason": "антидепрессант",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Карбамазепин",
+      "reason": "нормотимики: отдельный отбор",
+      "classification": "explicit_collection_scope"
+    },
+    {
+      "name": "Карипразин",
+      "reason": "антипсихотическое средство (нейролептик)",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Кветиапин",
+      "reason": "антипсихотическое средство (нейролептик)",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Клобазам",
+      "reason": "психолептики; анксиолитические средства; производные бензодиазепина",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Клозапин",
+      "reason": "антипсихотическое средство (нейролептик)",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Кломипрамин",
+      "reason": "антидепрессант",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Клоназепам",
+      "reason": "отдельный отбор для психиатрического корпуса",
+      "classification": "explicit_collection_scope"
+    },
+    {
+      "name": "Красавки листьев и травы сумма алкалоидов+Фенобарбитал+Эрготамин",
+      "reason": "психолептики; снотворные и седативные средства; барбитураты, комбинации",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Красавки листьев настойка+Валерианы лекарственной корневищ с корнями настойка+Ландыша травы настойка+[Левоментол]",
+      "reason": "психолептики; снотворные и седативные средства; другие снотворные и седативные средства",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Ламотриджин",
+      "reason": "нормотимики: отдельный отбор",
+      "classification": "explicit_collection_scope"
+    },
+    {
+      "name": "Ландыша травы настойка+Пустырника травы настойка",
+      "reason": "психолептики; снотворные и седативные средства; другие снотворные и седативные средства",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Левомепромазин",
+      "reason": "антипсихотическое средство (нейролептик)",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Лемборексант",
+      "reason": "психолептики; снотворные и седативные средства; антагонисты рецепторов орексина",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Лития карбонат",
+      "reason": "нормотимическое средство",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Лоразепам",
+      "reason": "анксиолитическое средство",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Луразидон",
+      "reason": "антипсихотическое средство (нейролептик)",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Маритупирдин",
+      "reason": "психолептики; анксиолитические средства; другие анксиолитические средства",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Медазепам",
+      "reason": "анксиолитическое средство (транквилизатор)",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Мелатонин",
+      "reason": "снотворное средство",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Мелатонин+Мяты перечной листьев масло+Пустырника травы экстракт",
+      "reason": "снотворное средство",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Мелиссы лекарственной листьев экстракт+Мяты перечной листьев масло+Пустырника травы экстракт",
+      "reason": "психолептики; снотворные и седативные средства; другие снотворные и седативные средства",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Мемантин",
+      "reason": "Психоаналептики; средства для лечения деменции; другие средства для лечения деменции",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Миансерин",
+      "reason": "антидепрессант",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Мидазолам",
+      "reason": "снотворное средство",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Миртазапин",
+      "reason": "антидепрессант",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Мяты перечной листьев масло+Пустырника травы настойка+Этилбромизовалерианат",
+      "reason": "психолептики; снотворные и седативные средства; другие снотворные и седативные средства",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Мяты перечной листьев масло+Пустырника травы экстракт+Этилбромизовалерианат",
+      "reason": "психолептики; снотворные и седативные средства; другие снотворные и седативные средства",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Мяты перечной листьев масло+Фенобарбитал+Этилбромизовалерианат",
+      "reason": "психолептики; снотворные и седативные средства; другие снотворные и седативные средства",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Налмефен",
+      "reason": "средства для лечения зависимостей",
+      "classification": "explicit_collection_scope"
+    },
+    {
+      "name": "Налтрексон",
+      "reason": "средства для лечения зависимостей",
+      "classification": "explicit_collection_scope"
+    },
+    {
+      "name": "Никотин",
+      "reason": "средства для лечения зависимостей",
+      "classification": "explicit_collection_scope"
+    },
+    {
+      "name": "Нитразепам",
+      "reason": "снотворное средство",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Оксазепам",
+      "reason": "анксиолитическое средство (транквилизатор)",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Окскарбазепин",
+      "reason": "нормотимики: отдельный отбор",
+      "classification": "explicit_collection_scope"
+    },
+    {
+      "name": "Оланзапин",
+      "reason": "антипсихотическое средство (нейролептик)",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Палиперидон",
+      "reason": "антипсихотическое средство (нейролептик)",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Пароксетин",
+      "reason": "антидепрессант",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Пассифлоры инкарнатной травы экстракт",
+      "reason": "психолептики; снотворные и седативные средства; другие снотворные и седативные средства",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Перициазин",
+      "reason": "антипсихотическое средство (нейролептик)",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Перфеназин",
+      "reason": "Антипсихотические средства. Пиперазиновые производные фенотиазина. Перфеназин.",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Пиона уклоняющегося [корневищ и корней + травы] экстракт",
+      "reason": "психолептики; снотворные и седативные средства; другие снотворные и седативные средства",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Пиона уклоняющегося [корневищ и корней+травы] настойка",
+      "reason": "психолептики; снотворные и седативные средства; другие снотворные и седативные средства",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Пиона уклоняющегося трава+Пиона уклоняющегося корневища и корни",
+      "reason": "психолептики; снотворные и седативные средства; другие снотворные и седативные средства",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Пиона уклоняющегося трава, корневища и корни",
+      "reason": "психолептики; снотворные и седативные средства; другие снотворные и седативные средства",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Пиона уклоняющегося трава, корневища и корни настойка",
+      "reason": "психолептики; снотворные и седативные средства; другие снотворные и седативные средства",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Пиона уклоняющегося травы, корневищ и корней настойка",
+      "reason": "психолептики; снотворные и седативные средства; другие снотворные и седативные средства",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Пипофезин",
+      "reason": "антидепрессант",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Пирлиндол",
+      "reason": "антидепрессант",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Прегабалин",
+      "reason": "отдельный отбор для психиатрического корпуса",
+      "classification": "explicit_collection_scope"
+    },
+    {
+      "name": "Промазин",
+      "reason": "Антипсихотические препараты; производные фенотиазина с алифатической структурой",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Пустырника трава",
+      "reason": "психолептики; снотворные и седативные средства; другие снотворные и седативные средства",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Пустырника травы настойка",
+      "reason": "психолептики; снотворные и седативные средства; другие снотворные и седативные средства",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Пустырника травы экстракт",
+      "reason": "психолептики; снотворные и седативные средства; другие снотворные и седативные средства",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Пустырника травы экстракт+[Магния аспарагинат+Пиридоксин]",
+      "reason": "психолептики; снотворные и седативные средства; снотворные и седативные средства, комбинации без барбитуратов",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Ривастигмин",
+      "reason": "психоаналептики; средства для лечения деменции; антихолинэстеразные средства",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Рисперидон",
+      "reason": "антипсихотическое средство (нейролептик)",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Сертиндол",
+      "reason": "антипсихотическое средство (нейролептик)",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Сертралин",
+      "reason": "антидепрессант",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Сульпирид",
+      "reason": "антипсихотическое средство (нейролептик)",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Темгиколурил",
+      "reason": "анксиолитическое средство (транквилизатор)",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Тианептин",
+      "reason": "антидепрессант",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Тиаприд",
+      "reason": "антипсихотическое средство (нейролептик)",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Тиоридазин",
+      "reason": "антипсихотическое средство (нейролептик)",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Топирамат",
+      "reason": "отдельный отбор для психиатрического корпуса",
+      "classification": "explicit_collection_scope"
+    },
+    {
+      "name": "Тофизопам",
+      "reason": "анксиолитическое средство (транквилизатор)",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Тразодон",
+      "reason": "антидепрессант",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Тригексифенидил",
+      "reason": "корректоры экстрапирамидных нарушений: отдельный отбор",
+      "classification": "explicit_collection_scope"
+    },
+    {
+      "name": "Трифлуоперазин",
+      "reason": "антипсихотическое средство (нейролептик)",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Фабомотизол",
+      "reason": "анксиолитическое средство (транквилизатор)",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Фенобарбитал+Этилбромизовалерианат",
+      "reason": "психолептики; снотворные и седативные средства; другие снотворные и седативные средства",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Флувоксамин",
+      "reason": "антидепрессант, селективный ингибитор обратного захвата серотонина",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Флуоксетин",
+      "reason": "антидепрессант",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Флупентиксол",
+      "reason": "антипсихотическое средство (нейролептик)",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Флуфеназин",
+      "reason": "антипсихотическое средство (нейролептик)",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Хлордиазепоксид",
+      "reason": "анксиолитическое средство (транквилизатор)",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Хлорпромазин",
+      "reason": "антипсихотическое средство (нейролептик)",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Хлорпротиксен",
+      "reason": "антипсихотическое средство (нейролептик)",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Цианамид",
+      "reason": "средства для лечения зависимостей",
+      "classification": "explicit_collection_scope"
+    },
+    {
+      "name": "Циталопрам",
+      "reason": "антидепрессант",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Цитизин",
+      "reason": "средства для лечения зависимостей",
+      "classification": "explicit_collection_scope"
+    },
+    {
+      "name": "Эсзопиклон",
+      "reason": "психолептики; снотворные и седативные средства; бензодиазепиноподобные средства",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Эсциталопрам",
+      "reason": "антидепрессант",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "Этифоксин",
+      "reason": "анксиолитическое средство (транквилизатор)",
+      "classification": "grls_pharmacotherapeutic_group"
+    },
+    {
+      "name": "фенибут",
+      "reason": "отдельный отбор для психиатрического корпуса",
+      "classification": "explicit_collection_scope"
+    }
+  ],
+  "rejectedRows": {
+    "expired": 51,
+    "historical_or_suspended": 5311
+  }
+}

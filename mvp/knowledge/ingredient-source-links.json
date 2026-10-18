@@ -1,0 +1,1282 @@
+[
+  {
+    "nameRu": "Сертралин",
+    "nameEn": "sertraline",
+    "atc": "N06AB06",
+    "providerId": "DDInter1662",
+    "chemicalForm": "active_moiety",
+    "relation": "reviewed_active_moiety",
+    "evidence": [
+      {
+        "kind": "grls_inn_and_atc",
+        "documentId": "grls-doc:fef5a7ea84963e9f225a87bd38cca1f4",
+        "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2024/08/12/1507776/7349b291-e01f-4cb5-8aa6-e44069aa9ec7.pdf",
+        "sha256": "cd9aa45def88f2e1af90dd18ba8165bd61fa9f93e1d4ae481c3a8f9408983e7c",
+        "inn": "Сертралин",
+        "atc": "N06AB06"
+      },
+      {
+        "kind": "who_atc_identity",
+        "sourceUrl": "https://atcddd.fhi.no/atc_ddd_index/?code=N06AB06",
+        "name": "sertraline",
+        "atc": "N06AB06",
+        "sha256": "8b4bb8be4077921b17a01cd80853f99ffad3a8c2e62555e3c86b276c636bba73"
+      },
+      {
+        "kind": "provider_exact_name_and_atc",
+        "commit": "7e2bd2c245bd33550ca1b14951d6955767026775",
+        "externalId": "DDInter1662",
+        "name": "Sertraline",
+        "atc": "N06AB06"
+      }
+    ]
+  },
+  {
+    "nameRu": "Эсциталопрам",
+    "nameEn": "escitalopram",
+    "atc": "N06AB10",
+    "providerId": "DDInter672",
+    "chemicalForm": "active_moiety",
+    "relation": "reviewed_active_moiety",
+    "evidence": [
+      {
+        "kind": "grls_inn_and_atc",
+        "documentId": "grls-doc:61fe936a2a3d7c706dbd5db39b561558",
+        "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/08/19/1533508/64a4c672-770c-451b-be08-2be58728ccc3.pdf",
+        "sha256": "c173e1bfd95a1d6e37bc45a3263cc9302dae80070e54e25e9ff1098917ee0e4c",
+        "inn": "Эсциталопрам",
+        "atc": "N06AB10"
+      },
+      {
+        "kind": "who_atc_identity",
+        "sourceUrl": "https://atcddd.fhi.no/atc_ddd_index/?code=N06AB10",
+        "name": "escitalopram",
+        "atc": "N06AB10",
+        "sha256": "e5f896da32340b119db30132da4029a9a91c85609762a7d1cceffd1ed4579d48"
+      },
+      {
+        "kind": "provider_exact_name_and_atc",
+        "commit": "7e2bd2c245bd33550ca1b14951d6955767026775",
+        "externalId": "DDInter672",
+        "name": "Escitalopram",
+        "atc": "N06AB10"
+      }
+    ]
+  },
+  {
+    "nameRu": "Флуоксетин",
+    "nameEn": "fluoxetine",
+    "atc": "N06AB03",
+    "providerId": "DDInter758",
+    "chemicalForm": "active_moiety",
+    "relation": "reviewed_active_moiety",
+    "evidence": [
+      {
+        "kind": "grls_inn_and_atc",
+        "documentId": "grls-doc:288833d61d09add8bbf46032707eebcc",
+        "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2024/10/18/1510020/90406f03-4aba-4f8c-8a84-7fe9e4c6aa22.pdf",
+        "sha256": "58e3d221d41dd14a8c3429639b4831183662bfc9b6b4c46fc14af31cd853413e",
+        "inn": "Флуоксетин",
+        "atc": "N06AB03"
+      },
+      {
+        "kind": "who_atc_identity",
+        "sourceUrl": "https://atcddd.fhi.no/atc_ddd_index/?code=N06AB03",
+        "name": "fluoxetine",
+        "atc": "N06AB03",
+        "sha256": "b66ba6225e5b968801a9e14f1506530099c23f2585d39cf6bc79528c094650c6"
+      },
+      {
+        "kind": "provider_exact_name_and_atc",
+        "commit": "7e2bd2c245bd33550ca1b14951d6955767026775",
+        "externalId": "DDInter758",
+        "name": "Fluoxetine",
+        "atc": "N06AB03"
+      }
+    ]
+  },
+  {
+    "nameRu": "Кветиапин",
+    "nameEn": "quetiapine",
+    "atc": "N05AH04",
+    "providerId": "DDInter1553",
+    "chemicalForm": "active_moiety",
+    "relation": "reviewed_active_moiety",
+    "evidence": [
+      {
+        "kind": "grls_inn_and_atc",
+        "documentId": "grls-doc:bcab2b75848643b6fa9764dfd5c39d4c",
+        "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2024/03/11/1502662/e70afdef-a62b-4995-9347-c8d8bd3bba08.pdf",
+        "sha256": "215d81236fd587c67f01c26029505859a8640e5975e524a9da3e95e77941b7de",
+        "inn": "Кветиапин",
+        "atc": "N05AH04"
+      },
+      {
+        "kind": "who_atc_identity",
+        "sourceUrl": "https://atcddd.fhi.no/atc_ddd_index/?code=N05AH04",
+        "name": "quetiapine",
+        "atc": "N05AH04",
+        "sha256": "887e4ddb4cdd56656afb90896a71951ad250a0629365741e21b06291206822d7"
+      },
+      {
+        "kind": "provider_exact_name_and_atc",
+        "commit": "7e2bd2c245bd33550ca1b14951d6955767026775",
+        "externalId": "DDInter1553",
+        "name": "Quetiapine",
+        "atc": "N05AH04"
+      }
+    ]
+  },
+  {
+    "nameRu": "Оланзапин",
+    "nameEn": "olanzapine",
+    "atc": "N05AH03",
+    "providerId": "DDInter1326",
+    "chemicalForm": "active_moiety",
+    "relation": "reviewed_active_moiety",
+    "evidence": [
+      {
+        "kind": "grls_inn_and_atc",
+        "documentId": "grls-doc:30fb20e1ca16bfed6ed0f08cbc817958",
+        "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2025/07/04/1518824/c3bf1880-293d-43d1-939f-1c21ae83220a.pdf",
+        "sha256": "6498812775f27df763ab1cc9143417fe623b50061933ba1a1fabe28b805249a2",
+        "inn": "Оланзапин",
+        "atc": "N05AH03"
+      },
+      {
+        "kind": "who_atc_identity",
+        "sourceUrl": "https://atcddd.fhi.no/atc_ddd_index/?code=N05AH03",
+        "name": "olanzapine",
+        "atc": "N05AH03",
+        "sha256": "1ca2e2a7eb29d34975c109a6bc15e41ca904db61b97e606bf85d5ee8bf0c0ec6"
+      },
+      {
+        "kind": "provider_exact_name_and_atc",
+        "commit": "7e2bd2c245bd33550ca1b14951d6955767026775",
+        "externalId": "DDInter1326",
+        "name": "Olanzapine",
+        "atc": "N05AH03"
+      }
+    ]
+  },
+  {
+    "nameRu": "Рисперидон",
+    "nameEn": "risperidone",
+    "atc": "N05AX08",
+    "providerId": "DDInter1605",
+    "chemicalForm": "active_moiety",
+    "relation": "reviewed_active_moiety",
+    "evidence": [
+      {
+        "kind": "grls_inn_and_atc",
+        "documentId": "grls-doc:6ed7c162a4e2e68fd7e830cee8da6fce",
+        "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2024/10/18/1509888/a5b2e6b5-3566-42d6-83d1-c829ad85f179.pdf",
+        "sha256": "050e92687c59fe86bd40756e9764646a204b7db1a93f93995a7d8dbd9ef83785",
+        "inn": "Рисперидон",
+        "atc": "N05AX08"
+      },
+      {
+        "kind": "who_atc_identity",
+        "sourceUrl": "https://atcddd.fhi.no/atc_ddd_index/?code=N05AX08",
+        "name": "risperidone",
+        "atc": "N05AX08",
+        "sha256": "1218062a0a486ed0ac3e4a25e9921eaf4a137d084df9d0111a3152c4072bd7a7"
+      },
+      {
+        "kind": "provider_exact_name_and_atc",
+        "commit": "7e2bd2c245bd33550ca1b14951d6955767026775",
+        "externalId": "DDInter1605",
+        "name": "Risperidone",
+        "atc": "N05AX08"
+      }
+    ]
+  },
+  {
+    "nameRu": "Карбамазепин",
+    "nameEn": "carbamazepine",
+    "atc": "N03AF01",
+    "providerId": "DDInter293",
+    "chemicalForm": "active_moiety",
+    "relation": "reviewed_active_moiety",
+    "evidence": [
+      {
+        "kind": "grls_inn_and_atc",
+        "documentId": "grls-doc:1ce5766beb8fcc2b809402db2a246645",
+        "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/04/15/1528699/c14e726d-4306-474e-934a-117bea6c2acf.pdf",
+        "sha256": "8b68556e38c591d37f8e39c7e5f4e759345bff870191607773bdcc2efc7f1bff",
+        "inn": "Карбамазепин",
+        "atc": "N03AF01"
+      },
+      {
+        "kind": "who_atc_identity",
+        "sourceUrl": "https://atcddd.fhi.no/atc_ddd_index/?code=N03AF01",
+        "name": "carbamazepine",
+        "atc": "N03AF01",
+        "sha256": "2c13c56a8a5a211c84ce96cf8870597b458d109368d81ec3093bbd2927371937"
+      },
+      {
+        "kind": "provider_exact_name_and_atc",
+        "commit": "7e2bd2c245bd33550ca1b14951d6955767026775",
+        "externalId": "DDInter293",
+        "name": "Carbamazepine",
+        "atc": "N03AF01"
+      }
+    ]
+  },
+  {
+    "nameRu": "Ламотриджин",
+    "nameEn": "lamotrigine",
+    "atc": "N03AX09",
+    "providerId": "DDInter1020",
+    "chemicalForm": "active_moiety",
+    "relation": "reviewed_active_moiety",
+    "evidence": [
+      {
+        "kind": "grls_inn_and_atc",
+        "documentId": "grls-doc:ea5f19dbcdbfb02f0215a893bdc0f237",
+        "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/10/15/1535531/b5d492ca-0d42-4543-aadc-3cdc050fa229.pdf",
+        "sha256": "95c726f9b29ea012678bda548c3eb4cde523c6300850668811a15add72e4eaa6",
+        "inn": "Ламотриджин",
+        "atc": "N03AX09"
+      },
+      {
+        "kind": "who_atc_identity",
+        "sourceUrl": "https://atcddd.fhi.no/atc_ddd_index/?code=N03AX09",
+        "name": "lamotrigine",
+        "atc": "N03AX09",
+        "sha256": "3ad9bf7ab0a0ac4aa65a74367e3331013a0f2afa862f33d22e2ff4cb1e0ba52e"
+      },
+      {
+        "kind": "provider_exact_name_and_atc",
+        "commit": "7e2bd2c245bd33550ca1b14951d6955767026775",
+        "externalId": "DDInter1020",
+        "name": "Lamotrigine",
+        "atc": "N03AX09"
+      }
+    ]
+  },
+  {
+    "nameRu": "Амитриптилин",
+    "nameEn": "amitriptyline",
+    "atc": "N06AA09",
+    "providerId": "DDInter78",
+    "chemicalForm": "active_moiety",
+    "relation": "reviewed_active_moiety",
+    "evidence": [
+      {
+        "kind": "grls_inn_and_atc",
+        "documentId": "grls-doc:f7a1210d906b0a5c5da65c11770f95f2",
+        "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2024/01/11/1500729/56d64b0d-f34f-46ec-960c-3a7c1da7d5b8.pdf",
+        "sha256": "1b2643f5aa74fe12ecda2b92dc9c1fe577def2da8a35fa44db8e1fc611eecce7",
+        "inn": "Амитриптилин",
+        "atc": "N06AA09"
+      },
+      {
+        "kind": "who_atc_identity",
+        "sourceUrl": "https://atcddd.fhi.no/atc_ddd_index/?code=N06AA09",
+        "name": "amitriptyline",
+        "atc": "N06AA09",
+        "sha256": "13a65a5d591fb1c968244731bf4dca2ec4b827319b50ec98829feee8fa5625a6"
+      },
+      {
+        "kind": "provider_exact_name_and_atc",
+        "commit": "7e2bd2c245bd33550ca1b14951d6955767026775",
+        "externalId": "DDInter78",
+        "name": "Amitriptyline",
+        "atc": "N06AA09"
+      }
+    ]
+  },
+  {
+    "nameRu": "Венлафаксин",
+    "nameEn": "venlafaxine",
+    "atc": "N06AX16",
+    "providerId": "DDInter1927",
+    "chemicalForm": "active_moiety",
+    "relation": "reviewed_active_moiety",
+    "evidence": [
+      {
+        "kind": "grls_inn_and_atc",
+        "documentId": "grls-doc:dfb02ff3b3a91782e54dff7d4bb835f1",
+        "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2025/02/11/1513652/e8fa81e1-2645-421c-b6d4-e1d783160ddd.pdf",
+        "sha256": "c9d3a654fa7e5f6ed0fa82c9032651f49f4189e8c02f588a80e5421648a59635",
+        "inn": "Венлафаксин",
+        "atc": "N06AX16"
+      },
+      {
+        "kind": "who_atc_identity",
+        "sourceUrl": "https://atcddd.fhi.no/atc_ddd_index/?code=N06AX16",
+        "name": "venlafaxine",
+        "atc": "N06AX16",
+        "sha256": "4252acdfb6fcf2fb111c5891a9fa87c9cb61f4668ad4fecd4b822dc4e919a7e0"
+      },
+      {
+        "kind": "provider_exact_name_and_atc",
+        "commit": "7e2bd2c245bd33550ca1b14951d6955767026775",
+        "externalId": "DDInter1927",
+        "name": "Venlafaxine",
+        "atc": "N06AX16"
+      }
+    ]
+  },
+  {
+    "nameRu": "Миртазапин",
+    "nameEn": "mirtazapine",
+    "atc": "N06AX11",
+    "providerId": "DDInter1230",
+    "chemicalForm": "active_moiety",
+    "relation": "reviewed_active_moiety",
+    "evidence": [
+      {
+        "kind": "grls_inn_and_atc",
+        "documentId": "grls-doc:31ff8401d3a70edc14ab19c4b5dda465",
+        "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/04/03/1528198/9bb22e99-7716-4d53-bae9-cae51a4fe64c.pdf",
+        "sha256": "5b76efdb0583b89bb0188efb04808fa043e31defc4af2a6de2523b38ff6537de",
+        "inn": "Миртазапин",
+        "atc": "N06AX11"
+      },
+      {
+        "kind": "who_atc_identity",
+        "sourceUrl": "https://atcddd.fhi.no/atc_ddd_index/?code=N06AX11",
+        "name": "mirtazapine",
+        "atc": "N06AX11",
+        "sha256": "246db3687ea218a384b9b32cd4c4abb50002e08208f1ce2b798fcfb854e31aa4"
+      },
+      {
+        "kind": "provider_exact_name_and_atc",
+        "commit": "7e2bd2c245bd33550ca1b14951d6955767026775",
+        "externalId": "DDInter1230",
+        "name": "Mirtazapine",
+        "atc": "N06AX11"
+      }
+    ]
+  },
+  {
+    "nameRu": "Галоперидол",
+    "nameEn": "haloperidol",
+    "atc": "N05AD01",
+    "providerId": "DDInter853",
+    "chemicalForm": "active_moiety",
+    "relation": "reviewed_active_moiety",
+    "evidence": [
+      {
+        "kind": "grls_inn_and_atc",
+        "documentId": "grls-doc:dec4a4181d13acb99f32a2fd5b06783f",
+        "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/08/14/1533327/074a9568-dab9-4d47-99a2-e8d2c1ca54de.pdf",
+        "sha256": "f2d3f282b232f6368c15d58a36c61ff5744d32f4cb0b54301e70a3d885e5faf2",
+        "inn": "Галоперидол",
+        "atc": "N05AD01"
+      },
+      {
+        "kind": "who_atc_identity",
+        "sourceUrl": "https://atcddd.fhi.no/atc_ddd_index/?code=N05AD01",
+        "name": "haloperidol",
+        "atc": "N05AD01",
+        "sha256": "09be736bf1b88afef2312e09ea17fdb2d040f1a02d0065215d7791432b6f6dd9"
+      },
+      {
+        "kind": "provider_exact_name_and_atc",
+        "commit": "7e2bd2c245bd33550ca1b14951d6955767026775",
+        "externalId": "DDInter853",
+        "name": "Haloperidol",
+        "atc": "N05AD01"
+      }
+    ]
+  },
+  {
+    "nameRu": "Клозапин",
+    "nameEn": "clozapine",
+    "atc": "N05AH02",
+    "providerId": "DDInter419",
+    "chemicalForm": "active_moiety",
+    "relation": "reviewed_active_moiety",
+    "evidence": [
+      {
+        "kind": "grls_inn_and_atc",
+        "documentId": "grls-doc:d99c6ab5d08ee1966aa77e0dfa524b14",
+        "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2024/07/08/1506522/10b12750-b80e-433e-b62e-220d9963eb24.pdf",
+        "sha256": "f1430aea14409d31c851182fe9acb3dd709ef809dcfe0199570494b3aa274bc8",
+        "inn": "Клозапин",
+        "atc": "N05AH02"
+      },
+      {
+        "kind": "who_atc_identity",
+        "sourceUrl": "https://atcddd.fhi.no/atc_ddd_index/?code=N05AH02",
+        "name": "clozapine",
+        "atc": "N05AH02",
+        "sha256": "83d7c0ad04c6e66c4e3095e58dede9e6a88a439454a02bd38ad3536ab5735541"
+      },
+      {
+        "kind": "provider_exact_name_and_atc",
+        "commit": "7e2bd2c245bd33550ca1b14951d6955767026775",
+        "externalId": "DDInter419",
+        "name": "Clozapine",
+        "atc": "N05AH02"
+      }
+    ]
+  },
+  {
+    "nameRu": "Диазепам",
+    "nameEn": "diazepam",
+    "atc": "N05BA01",
+    "providerId": "DDInter534",
+    "chemicalForm": "active_moiety",
+    "relation": "reviewed_active_moiety",
+    "evidence": [
+      {
+        "kind": "grls_inn_and_atc",
+        "documentId": "grls-doc:5475f48c4a17c49e44fca285d1e7997c",
+        "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/06/10/1531030/08f010dd-25ac-4990-afea-fd163dbee18d.pdf",
+        "sha256": "76724389d79843e1c12d5a75d05a549197b6b3679864a9a5bc648ddc740e0234",
+        "inn": "Диазепам",
+        "atc": "N05BA01"
+      },
+      {
+        "kind": "who_atc_identity",
+        "sourceUrl": "https://atcddd.fhi.no/atc_ddd_index/?code=N05BA01",
+        "name": "diazepam",
+        "atc": "N05BA01",
+        "sha256": "376a3042d06a35fef86803ba0284e84c672d492e61d7157a1a73a5de31057fcc"
+      },
+      {
+        "kind": "provider_exact_name_and_atc",
+        "commit": "7e2bd2c245bd33550ca1b14951d6955767026775",
+        "externalId": "DDInter534",
+        "name": "Diazepam",
+        "atc": "N05BA01"
+      }
+    ]
+  },
+  {
+    "nameRu": "Дулоксетин",
+    "nameEn": "duloxetine",
+    "atc": "N06AX21",
+    "providerId": "DDInter608",
+    "chemicalForm": "active_moiety",
+    "relation": "reviewed_active_moiety",
+    "evidence": [
+      {
+        "kind": "grls_inn_and_atc",
+        "documentId": "grls-doc:20aeb136cbfea805aa5aeb3ec4760223",
+        "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2025/01/27/1513198/9a9840f3-e047-449b-9522-de4bbfeb68e4.pdf",
+        "sha256": "c31bd37837ca490f52c85b1d0473d7ecc3ce2ab03fb9abc7dde6e58e179bda55",
+        "inn": "Дулоксетин",
+        "atc": "N06AX21"
+      },
+      {
+        "kind": "who_atc_identity",
+        "sourceUrl": "https://atcddd.fhi.no/atc_ddd_index/?code=N06AX21",
+        "name": "duloxetine",
+        "atc": "N06AX21",
+        "sha256": "885c75191de52c7f89286e313056ca5b7c6caddfdeebd15942ddc92179bf52f2"
+      },
+      {
+        "kind": "provider_exact_name_and_atc",
+        "commit": "7e2bd2c245bd33550ca1b14951d6955767026775",
+        "externalId": "DDInter608",
+        "name": "Duloxetine",
+        "atc": "N06AX21"
+      }
+    ]
+  },
+  {
+    "nameRu": "Арипипразол",
+    "nameEn": "aripiprazole",
+    "atc": "N05AX12",
+    "providerId": "DDInter118",
+    "chemicalForm": "active_moiety",
+    "relation": "reviewed_active_moiety",
+    "evidence": [
+      {
+        "kind": "grls_inn_and_atc",
+        "documentId": "grls-doc:f683a968f90b778d63cf7575b5f0fd6e",
+        "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2024/10/18/1509972/85493bdc-644e-417f-8487-9a35592ad3d6.pdf",
+        "sha256": "a8ff231ab24409f6a3705a5bc9a9260427d856fc334de9985f33726601f2aafc",
+        "inn": "Арипипразол",
+        "atc": "N05AX12"
+      },
+      {
+        "kind": "who_atc_identity",
+        "sourceUrl": "https://atcddd.fhi.no/atc_ddd_index/?code=N05AX12",
+        "name": "aripiprazole",
+        "atc": "N05AX12",
+        "sha256": "a3f0cd92a186f907925918bed6f63746e82deeb71e68657353304ea13612d211"
+      },
+      {
+        "kind": "provider_exact_name_and_atc",
+        "commit": "7e2bd2c245bd33550ca1b14951d6955767026775",
+        "externalId": "DDInter118",
+        "name": "Aripiprazole",
+        "atc": "N05AX12"
+      }
+    ]
+  },
+  {
+    "nameRu": "Алимемазин",
+    "nameEn": "alimemazine",
+    "atc": "R06AD01",
+    "providerId": "DDInter45",
+    "chemicalForm": "active_moiety",
+    "relation": "reviewed_active_moiety",
+    "evidence": [
+      {
+        "kind": "grls_inn_and_atc",
+        "documentId": "grls-doc:ea605aff71ffb43e2131522efd65e9fa",
+        "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/02/12/1526430/6988b3c1-18af-453a-a658-2c1bff9ce280.pdf",
+        "sha256": "1d77871e5bc39c5278a5d6eba9b4266add212ed210d2029aa81dc7c00f9f91fb",
+        "inn": "Алимемазин",
+        "atc": "R06AD01"
+      },
+      {
+        "kind": "who_atc_identity",
+        "sourceUrl": "https://atcddd.fhi.no/atc_ddd_index/?code=R06AD01",
+        "name": "alimemazine",
+        "atc": "R06AD01",
+        "sha256": "0bdf5c34e1a8cefe5dc801d520dd794f76ae0b9e425e4d810b4519038cbc0cbb"
+      },
+      {
+        "kind": "provider_exact_name_and_atc",
+        "commit": "7e2bd2c245bd33550ca1b14951d6955767026775",
+        "externalId": "DDInter45",
+        "name": "Alimemazine",
+        "atc": "R06AD01"
+      }
+    ]
+  },
+  {
+    "nameRu": "Алпразолам",
+    "nameEn": "alprazolam",
+    "atc": "N05BA12",
+    "providerId": "DDInter54",
+    "chemicalForm": "active_moiety",
+    "relation": "reviewed_active_moiety",
+    "evidence": [
+      {
+        "kind": "grls_inn_and_atc",
+        "documentId": "grls-doc:ac3eccca3bd4fba18da1472aa89ffdee",
+        "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2024/11/21/1511063/c38dcf50-4665-4cfc-af5b-d5f5cff5ff88.pdf",
+        "sha256": "5376d5d85643a35c92bdd2b48027af322321fbc44b779888ec5fb9feabc56990",
+        "inn": "Алпразолам",
+        "atc": "N05BA12"
+      },
+      {
+        "kind": "who_atc_identity",
+        "sourceUrl": "https://atcddd.fhi.no/atc_ddd_index/?code=N05BA12",
+        "name": "alprazolam",
+        "atc": "N05BA12",
+        "sha256": "55182e524f9598fd2f890247ebcc33791388dc5360c94aea9be4a48777e8c724"
+      },
+      {
+        "kind": "provider_exact_name_and_atc",
+        "commit": "7e2bd2c245bd33550ca1b14951d6955767026775",
+        "externalId": "DDInter54",
+        "name": "Alprazolam",
+        "atc": "N05BA12"
+      }
+    ]
+  },
+  {
+    "nameRu": "Габапентин",
+    "nameEn": "gabapentin",
+    "atc": "N02BF01",
+    "providerId": "DDInter791",
+    "chemicalForm": "active_moiety",
+    "relation": "reviewed_active_moiety",
+    "evidence": [
+      {
+        "kind": "grls_inn_and_atc",
+        "documentId": "grls-doc:e4911299b6757535b09d4519e04993b4",
+        "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2025/07/04/1518836/da9ec707-cef7-476d-b5e4-e9126c0edab3.pdf",
+        "sha256": "311c2b67258e18f6351c1feb55040d9a91fc5b3247cab2f083d067407eba7704",
+        "inn": "Габапентин",
+        "atc": "N02BF01"
+      },
+      {
+        "kind": "who_atc_identity",
+        "sourceUrl": "https://atcddd.fhi.no/atc_ddd_index/?code=N02BF01",
+        "name": "gabapentin",
+        "atc": "N02BF01",
+        "sha256": "6c758d56e64e423118067fdc405ff536f721985b16acc6afd3fcd898da32b560"
+      },
+      {
+        "kind": "provider_exact_name_and_atc",
+        "commit": "7e2bd2c245bd33550ca1b14951d6955767026775",
+        "externalId": "DDInter791",
+        "name": "Gabapentin",
+        "atc": "N02BF01"
+      }
+    ]
+  },
+  {
+    "nameRu": "Дексмедетомидин",
+    "nameEn": "dexmedetomidine",
+    "atc": "N05CM18",
+    "providerId": "DDInter520",
+    "chemicalForm": "active_moiety",
+    "relation": "reviewed_active_moiety",
+    "evidence": [
+      {
+        "kind": "grls_inn_and_atc",
+        "documentId": "grls-doc:64384706b14a7a88d33e3359ba27ef64",
+        "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/04/23/1529090/8fa47b84-cc55-48e2-8513-88d2c625fe83.pdf",
+        "sha256": "d66a0d2ba9bc6deeaccd9f1f29efdebb6a5aa458cd2cf71e48b4fc1bea414d7f",
+        "inn": "Дексмедетомидин",
+        "atc": "N05CM18"
+      },
+      {
+        "kind": "who_atc_identity",
+        "sourceUrl": "https://atcddd.fhi.no/atc_ddd_index/?code=N05CM18",
+        "name": "dexmedetomidine",
+        "atc": "N05CM18",
+        "sha256": "96a8c4020250d0cb6585d849f4339ec055ccd5c7598a668bdd39bcda78a6efc6"
+      },
+      {
+        "kind": "provider_exact_name_and_atc",
+        "commit": "7e2bd2c245bd33550ca1b14951d6955767026775",
+        "externalId": "DDInter520",
+        "name": "Dexmedetomidine",
+        "atc": "N05CM18"
+      }
+    ]
+  },
+  {
+    "nameRu": "Донепезил",
+    "nameEn": "donepezil",
+    "atc": "N06DA02",
+    "providerId": "DDInter583",
+    "chemicalForm": "active_moiety",
+    "relation": "reviewed_active_moiety",
+    "evidence": [
+      {
+        "kind": "grls_inn_and_atc",
+        "documentId": "grls-doc:1f1172cf5b3973fe72cb9723ba80ce13",
+        "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/07/20/1532352/bc86ca8e-ede4-4ff8-8d58-eaedd20ff8b2.pdf",
+        "sha256": "53f1a1cb31e87bbe3b56549eed30fbfa16ed7d2d943fb93f3e911ab75a959f9b",
+        "inn": "Донепезил",
+        "atc": "N06DA02"
+      },
+      {
+        "kind": "who_atc_identity",
+        "sourceUrl": "https://atcddd.fhi.no/atc_ddd_index/?code=N06DA02",
+        "name": "donepezil",
+        "atc": "N06DA02",
+        "sha256": "3e4cf7a8691cba7e1375bba896a5d3baf5a218d0dfea97bf22825d436c253213"
+      },
+      {
+        "kind": "provider_exact_name_and_atc",
+        "commit": "7e2bd2c245bd33550ca1b14951d6955767026775",
+        "externalId": "DDInter583",
+        "name": "Donepezil",
+        "atc": "N06DA02"
+      }
+    ]
+  },
+  {
+    "nameRu": "Дроперидол",
+    "nameEn": "droperidol",
+    "atc": "N05AD08",
+    "providerId": "DDInter603",
+    "chemicalForm": "active_moiety",
+    "relation": "reviewed_active_moiety",
+    "evidence": [
+      {
+        "kind": "grls_inn_and_atc",
+        "documentId": "grls-doc:ee9f4590cca0fb9046e33172e11f5ad9",
+        "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/06/26/1531461/1fa961c9-e598-45c1-bf20-3e4593c1c915.pdf",
+        "sha256": "9e1bc4c00f923ab5d772e70f2fc16a8e56d53bcb6b56f3d1396ba9fe6b7a9c3e",
+        "inn": "Дроперидол",
+        "atc": "N05AD08"
+      },
+      {
+        "kind": "who_atc_identity",
+        "sourceUrl": "https://atcddd.fhi.no/atc_ddd_index/?code=N05AD08",
+        "name": "droperidol",
+        "atc": "N05AD08",
+        "sha256": "34c1cb895347d2eb486a642d07fec0a8b63d46a3199f97b1ccfea401858b88f4"
+      },
+      {
+        "kind": "provider_exact_name_and_atc",
+        "commit": "7e2bd2c245bd33550ca1b14951d6955767026775",
+        "externalId": "DDInter603",
+        "name": "Droperidol",
+        "atc": "N05AD08"
+      }
+    ]
+  },
+  {
+    "nameRu": "Зипрасидон",
+    "nameEn": "ziprasidone",
+    "atc": "N05AE04",
+    "providerId": "DDInter1967",
+    "chemicalForm": "active_moiety",
+    "relation": "reviewed_active_moiety",
+    "evidence": [
+      {
+        "kind": "grls_inn_and_atc",
+        "documentId": "grls-doc:486402dc0642ed35b3927c97e5afcace",
+        "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2025/09/26/1521819/52eb231c-0974-4bcc-93ca-113e0558d30a.pdf",
+        "sha256": "3b7f1f87765c8bbb2a2eebda8710f0494668e63069c57305653462c78903f4de",
+        "inn": "Зипрасидон",
+        "atc": "N05AE04"
+      },
+      {
+        "kind": "who_atc_identity",
+        "sourceUrl": "https://atcddd.fhi.no/atc_ddd_index/?code=N05AE04",
+        "name": "ziprasidone",
+        "atc": "N05AE04",
+        "sha256": "7f44d1021905d3fd918f828ce777941275cca40adc05fe8db95707f2009c7f51"
+      },
+      {
+        "kind": "provider_exact_name_and_atc",
+        "commit": "7e2bd2c245bd33550ca1b14951d6955767026775",
+        "externalId": "DDInter1967",
+        "name": "Ziprasidone",
+        "atc": "N05AE04"
+      }
+    ]
+  },
+  {
+    "nameRu": "Золпидем",
+    "nameEn": "zolpidem",
+    "atc": "N05CF02",
+    "providerId": "DDInter1970",
+    "chemicalForm": "active_moiety",
+    "relation": "reviewed_active_moiety",
+    "evidence": [
+      {
+        "kind": "grls_inn_and_atc",
+        "documentId": "grls-doc:c16b8e382f792d50e49964a402eb693b",
+        "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2025/11/06/1523289/21ab4dff-49a1-4bbc-8c01-4187d89c4803.pdf",
+        "sha256": "1651933c45d6463dfca81a4e6b6a452b8a53c9d7927efbb61227df7a76c6227e",
+        "inn": "Золпидем",
+        "atc": "N05CF02"
+      },
+      {
+        "kind": "who_atc_identity",
+        "sourceUrl": "https://atcddd.fhi.no/atc_ddd_index/?code=N05CF02",
+        "name": "zolpidem",
+        "atc": "N05CF02",
+        "sha256": "d168a548e4e760411ca69ea0742895019488b356798f1f2351297f52cdb25036"
+      },
+      {
+        "kind": "provider_exact_name_and_atc",
+        "commit": "7e2bd2c245bd33550ca1b14951d6955767026775",
+        "externalId": "DDInter1970",
+        "name": "Zolpidem",
+        "atc": "N05CF02"
+      }
+    ]
+  },
+  {
+    "nameRu": "Кломипрамин",
+    "nameEn": "clomipramine",
+    "atc": "N06AA04",
+    "providerId": "DDInter410",
+    "chemicalForm": "active_moiety",
+    "relation": "reviewed_active_moiety",
+    "evidence": [
+      {
+        "kind": "grls_inn_and_atc",
+        "documentId": "grls-doc:6c8dac53fa9dc3c2d29816a3a6e20a82",
+        "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2025/10/24/1522820/cac9d74e-a047-4e29-92c1-5fdbc936ae9c.pdf",
+        "sha256": "e5822157820f903d8ad37ba91d63c363e068562a43f6a89991409568feaf8369",
+        "inn": "Кломипрамин",
+        "atc": "N06AA04"
+      },
+      {
+        "kind": "who_atc_identity",
+        "sourceUrl": "https://atcddd.fhi.no/atc_ddd_index/?code=N06AA04",
+        "name": "clomipramine",
+        "atc": "N06AA04",
+        "sha256": "e867abc4e528158f61daa6379b8751eabd05eda6b7ebe8bfbb4dbc198a5412a7"
+      },
+      {
+        "kind": "provider_exact_name_and_atc",
+        "commit": "7e2bd2c245bd33550ca1b14951d6955767026775",
+        "externalId": "DDInter410",
+        "name": "Clomipramine",
+        "atc": "N06AA04"
+      }
+    ]
+  },
+  {
+    "nameRu": "Клоназепам",
+    "nameEn": "clonazepam",
+    "atc": "N03AE01",
+    "providerId": "DDInter411",
+    "chemicalForm": "active_moiety",
+    "relation": "reviewed_active_moiety",
+    "evidence": [
+      {
+        "kind": "grls_inn_and_atc",
+        "documentId": "grls-doc:5c52bb8b10f8ae248eb21051ee92ad5f",
+        "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2025/11/07/1523312/e5de0f72-33db-4e41-b46c-0a801388cf75.pdf",
+        "sha256": "60372267f21055d1c6983432636bdc8b5609a7725bed63ed63596a72e7ab48c2",
+        "inn": "Клоназепам",
+        "atc": "N03AE01"
+      },
+      {
+        "kind": "who_atc_identity",
+        "sourceUrl": "https://atcddd.fhi.no/atc_ddd_index/?code=N03AE01",
+        "name": "clonazepam",
+        "atc": "N03AE01",
+        "sha256": "cb401793b1aedb023816652a9d861fd81ba1fc1146940fdd02b81e6dcb887f57"
+      },
+      {
+        "kind": "provider_exact_name_and_atc",
+        "commit": "7e2bd2c245bd33550ca1b14951d6955767026775",
+        "externalId": "DDInter411",
+        "name": "Clonazepam",
+        "atc": "N03AE01"
+      }
+    ]
+  },
+  {
+    "nameRu": "Мелатонин",
+    "nameEn": "melatonin",
+    "atc": "N05CH01",
+    "providerId": "DDInter1142",
+    "chemicalForm": "active_moiety",
+    "relation": "reviewed_active_moiety",
+    "evidence": [
+      {
+        "kind": "grls_inn_and_atc",
+        "documentId": "grls-doc:5cdff81154d2a85cea8bdab8ca4998e2",
+        "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2025/03/25/1515254/1ead5ed0-962e-4f04-be01-79e0d22431ff.pdf",
+        "sha256": "a05d2e1abac773b069a99378f866cfee1be396dc4acb4068d10839bc9c0d6562",
+        "inn": "Мелатонин",
+        "atc": "N05CH01"
+      },
+      {
+        "kind": "who_atc_identity",
+        "sourceUrl": "https://atcddd.fhi.no/atc_ddd_index/?code=N05CH01",
+        "name": "melatonin",
+        "atc": "N05CH01",
+        "sha256": "7c0a7c0f4340f293525edbf2c2e69b0eb3aa2ecb6df59a37d98643eb508bb7c6"
+      },
+      {
+        "kind": "provider_exact_name_and_atc",
+        "commit": "7e2bd2c245bd33550ca1b14951d6955767026775",
+        "externalId": "DDInter1142",
+        "name": "Melatonin",
+        "atc": "N05CH01"
+      }
+    ]
+  },
+  {
+    "nameRu": "Мемантин",
+    "nameEn": "memantine",
+    "atc": "N06DX01",
+    "providerId": "DDInter1146",
+    "chemicalForm": "active_moiety",
+    "relation": "reviewed_active_moiety",
+    "evidence": [
+      {
+        "kind": "grls_inn_and_atc",
+        "documentId": "grls-doc:71a04206c37e27b861b053a224ee4709",
+        "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2025/10/13/1522278/a8ee4fef-6835-4db1-af6c-b6c2361d8cff.pdf",
+        "sha256": "30622d9a735fb7b61fa5bb5fdaeeae66eafae8fbd95eeb60d3e2f0379bdfb1db",
+        "inn": "Мемантин",
+        "atc": "N06DX01"
+      },
+      {
+        "kind": "who_atc_identity",
+        "sourceUrl": "https://atcddd.fhi.no/atc_ddd_index/?code=N06DX01",
+        "name": "memantine",
+        "atc": "N06DX01",
+        "sha256": "ec42465156d950bac396dd1918b804a2aac271f88ffa4bb3cad4b7ba9f955524"
+      },
+      {
+        "kind": "provider_exact_name_and_atc",
+        "commit": "7e2bd2c245bd33550ca1b14951d6955767026775",
+        "externalId": "DDInter1146",
+        "name": "Memantine",
+        "atc": "N06DX01"
+      }
+    ]
+  },
+  {
+    "nameRu": "Налтрексон",
+    "nameEn": "naltrexone",
+    "atc": "N07BB04",
+    "providerId": "DDInter1263",
+    "chemicalForm": "active_moiety",
+    "relation": "reviewed_active_moiety",
+    "evidence": [
+      {
+        "kind": "grls_inn_and_atc",
+        "documentId": "grls-doc:f3d6f8b22dae21106d02e6544a129e95",
+        "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2025/04/18/1516232/7ec59f09-2a53-452d-8fdc-fa1ad79b3629.pdf",
+        "sha256": "4c2f9430d5e46a6524bd384fe5c4842b04847f9133cda146f7488b06d5eab4b4",
+        "inn": "Налтрексон",
+        "atc": "N07BB04"
+      },
+      {
+        "kind": "who_atc_identity",
+        "sourceUrl": "https://atcddd.fhi.no/atc_ddd_index/?code=N07BB04",
+        "name": "naltrexone",
+        "atc": "N07BB04",
+        "sha256": "c2ce4d78043bc180bb7334085db99686e043d85807c536b836b8c91f1d45186b"
+      },
+      {
+        "kind": "provider_exact_name_and_atc",
+        "commit": "7e2bd2c245bd33550ca1b14951d6955767026775",
+        "externalId": "DDInter1263",
+        "name": "Naltrexone",
+        "atc": "N07BB04"
+      }
+    ]
+  },
+  {
+    "nameRu": "Нитразепам",
+    "nameEn": "nitrazepam",
+    "atc": "N05CD02",
+    "providerId": "DDInter1301",
+    "chemicalForm": "active_moiety",
+    "relation": "reviewed_active_moiety",
+    "evidence": [
+      {
+        "kind": "grls_inn_and_atc",
+        "documentId": "grls-doc:0e5a59204f0065e6c4ed493014409e93",
+        "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2025/06/19/1518323/afb95134-b705-4ebd-a49a-16bdb78725df.pdf",
+        "sha256": "5c6c6a414631c0b52335a5f76d07ef0ab50a03b7db76f5bcb53f64d44322b7d0",
+        "inn": "Нитразепам",
+        "atc": "N05CD02"
+      },
+      {
+        "kind": "who_atc_identity",
+        "sourceUrl": "https://atcddd.fhi.no/atc_ddd_index/?code=N05CD02",
+        "name": "nitrazepam",
+        "atc": "N05CD02",
+        "sha256": "dbe18ebf22e606b3c42f2815f7334be8f5e3e4c7e63feddc5c28393bf7750d32"
+      },
+      {
+        "kind": "provider_exact_name_and_atc",
+        "commit": "7e2bd2c245bd33550ca1b14951d6955767026775",
+        "externalId": "DDInter1301",
+        "name": "Nitrazepam",
+        "atc": "N05CD02"
+      }
+    ]
+  },
+  {
+    "nameRu": "Оксазепам",
+    "nameEn": "oxazepam",
+    "atc": "N05BA04",
+    "providerId": "DDInter1359",
+    "chemicalForm": "active_moiety",
+    "relation": "reviewed_active_moiety",
+    "evidence": [
+      {
+        "kind": "grls_inn_and_atc",
+        "documentId": "grls-doc:81be64bbcdb8e7eaf56511fe0fec2f9e",
+        "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2025/06/03/1517820/ab9fefe4-3758-473b-b495-6809f968eac8.pdf",
+        "sha256": "b9848baf6b9abfe4f1d2b2cbb936eadef882067ec18d5d977316d3ab27236e67",
+        "inn": "Оксазепам",
+        "atc": "N05BA04"
+      },
+      {
+        "kind": "who_atc_identity",
+        "sourceUrl": "https://atcddd.fhi.no/atc_ddd_index/?code=N05BA04",
+        "name": "oxazepam",
+        "atc": "N05BA04",
+        "sha256": "65d159e14754b34d9db65adc442f37f205d4e3c915f6ae1a72fe431f1a92112e"
+      },
+      {
+        "kind": "provider_exact_name_and_atc",
+        "commit": "7e2bd2c245bd33550ca1b14951d6955767026775",
+        "externalId": "DDInter1359",
+        "name": "Oxazepam",
+        "atc": "N05BA04"
+      }
+    ]
+  },
+  {
+    "nameRu": "Палиперидон",
+    "nameEn": "paliperidone",
+    "atc": "N05AX13",
+    "providerId": "DDInter1381",
+    "chemicalForm": "active_moiety",
+    "relation": "reviewed_active_moiety",
+    "evidence": [
+      {
+        "kind": "grls_inn_and_atc",
+        "documentId": "grls-doc:ea6b7f984182715d3097f73c290d8c89",
+        "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2025/05/19/1517388/c5aab5f2-a5b0-422c-96a2-b308c0c1f154.pdf",
+        "sha256": "2c778c7bbb091bce1e5b9ccdd338c502cef8a6dccb0949204e1581bebfa51b44",
+        "inn": "Палиперидон",
+        "atc": "N05AX13"
+      },
+      {
+        "kind": "who_atc_identity",
+        "sourceUrl": "https://atcddd.fhi.no/atc_ddd_index/?code=N05AX13",
+        "name": "paliperidone",
+        "atc": "N05AX13",
+        "sha256": "2645e987eef426373ebcb5a535a5f2f58e7424e529df266be90ca188b18199a5"
+      },
+      {
+        "kind": "provider_exact_name_and_atc",
+        "commit": "7e2bd2c245bd33550ca1b14951d6955767026775",
+        "externalId": "DDInter1381",
+        "name": "Paliperidone",
+        "atc": "N05AX13"
+      }
+    ]
+  },
+  {
+    "nameRu": "Промазин",
+    "nameEn": "promazine",
+    "atc": "N05AA03",
+    "providerId": "DDInter1532",
+    "chemicalForm": "active_moiety",
+    "relation": "reviewed_active_moiety",
+    "evidence": [
+      {
+        "kind": "grls_inn_and_atc",
+        "documentId": "grls-doc:922ae5f32988cd5aeb5b9a69f5a7c103",
+        "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2025/09/08/1521096/761df1e1-2c40-414f-a7a6-efbc4e1f3a13.pdf",
+        "sha256": "fdba7aa25daafa468ce9696b26ca97229ab1d4bcfcf520392fb4255314a2efe9",
+        "inn": "Промазин",
+        "atc": "N05AA03"
+      },
+      {
+        "kind": "who_atc_identity",
+        "sourceUrl": "https://atcddd.fhi.no/atc_ddd_index/?code=N05AA03",
+        "name": "promazine",
+        "atc": "N05AA03",
+        "sha256": "12ed3a546c358fbec4f30746433f6b4e9cbaec72850cb1c1b17a9f6bdcda1d8e"
+      },
+      {
+        "kind": "provider_exact_name_and_atc",
+        "commit": "7e2bd2c245bd33550ca1b14951d6955767026775",
+        "externalId": "DDInter1532",
+        "name": "Promazine",
+        "atc": "N05AA03"
+      }
+    ]
+  },
+  {
+    "nameRu": "Топирамат",
+    "nameEn": "topiramate",
+    "atc": "N03AX11",
+    "providerId": "DDInter1834",
+    "chemicalForm": "active_moiety",
+    "relation": "reviewed_active_moiety",
+    "evidence": [
+      {
+        "kind": "grls_inn_and_atc",
+        "documentId": "grls-doc:601ac81252c6b5e9cf92d30eaffc5915",
+        "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2025/12/25/1524705/fbd91c27-a3c6-40f4-8e99-7f2aa0aac5b8.pdf",
+        "sha256": "7c0b3b275ce63055e232e06d0b5213ad4dba5d75712837544788085619fc46f6",
+        "inn": "Топирамат",
+        "atc": "N03AX11"
+      },
+      {
+        "kind": "who_atc_identity",
+        "sourceUrl": "https://atcddd.fhi.no/atc_ddd_index/?code=N03AX11",
+        "name": "topiramate",
+        "atc": "N03AX11",
+        "sha256": "60ac176a37e497b7bbbc70285b74f4bc1a2007d2a82fdab09e1975e65a06805f"
+      },
+      {
+        "kind": "provider_exact_name_and_atc",
+        "commit": "7e2bd2c245bd33550ca1b14951d6955767026775",
+        "externalId": "DDInter1834",
+        "name": "Topiramate",
+        "atc": "N03AX11"
+      }
+    ]
+  },
+  {
+    "nameRu": "Тригексифенидил",
+    "nameEn": "trihexyphenidyl",
+    "atc": "N04AA01",
+    "providerId": "DDInter1870",
+    "chemicalForm": "active_moiety",
+    "relation": "reviewed_active_moiety",
+    "evidence": [
+      {
+        "kind": "grls_inn_and_atc",
+        "documentId": "grls-doc:6fd179246f5f7699d89d6bbcf71cee60",
+        "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/07/10/1531932/2c74c11e-3c62-45ab-9c07-6f5269b4bf11.pdf",
+        "sha256": "e2c4cb91cd846bfc68503f5aa874695055e627a936cc1a4caf01a26962a6365e",
+        "inn": "Тригексифенидил",
+        "atc": "N04AA01"
+      },
+      {
+        "kind": "who_atc_identity",
+        "sourceUrl": "https://atcddd.fhi.no/atc_ddd_index/?code=N04AA01",
+        "name": "trihexyphenidyl",
+        "atc": "N04AA01",
+        "sha256": "3d9b2125ccd7defc8de62e16bab10b82bdd8911799e89c9c9212c3b3a533bb89"
+      },
+      {
+        "kind": "provider_exact_name_and_atc",
+        "commit": "7e2bd2c245bd33550ca1b14951d6955767026775",
+        "externalId": "DDInter1870",
+        "name": "Trihexyphenidyl",
+        "atc": "N04AA01"
+      }
+    ]
+  },
+  {
+    "nameRu": "Трифлуоперазин",
+    "nameEn": "trifluoperazine",
+    "atc": "N05AB06",
+    "providerId": "DDInter1866",
+    "chemicalForm": "active_moiety",
+    "relation": "reviewed_active_moiety",
+    "evidence": [
+      {
+        "kind": "grls_inn_and_atc",
+        "documentId": "grls-doc:d9634c33ed9e88285e27902f43ff356f",
+        "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/04/06/1528301/5c0a82a4-9e15-4740-8995-8024102efdfe.pdf",
+        "sha256": "c7a9e52aba97a605b27bcccc23b82ef71c0dbf9171b10d3eb2a47fd90f8f83f0",
+        "inn": "Трифлуоперазин",
+        "atc": "N05AB06"
+      },
+      {
+        "kind": "who_atc_identity",
+        "sourceUrl": "https://atcddd.fhi.no/atc_ddd_index/?code=N05AB06",
+        "name": "trifluoperazine",
+        "atc": "N05AB06",
+        "sha256": "0188ea107a6f9b0df1369858f8d9aedc9244bf147e7cacc2eea798baf846e774"
+      },
+      {
+        "kind": "provider_exact_name_and_atc",
+        "commit": "7e2bd2c245bd33550ca1b14951d6955767026775",
+        "externalId": "DDInter1866",
+        "name": "Trifluoperazine",
+        "atc": "N05AB06"
+      }
+    ]
+  },
+  {
+    "nameRu": "Фенитоин",
+    "nameEn": "phenytoin",
+    "atc": "N03AB02",
+    "providerId": "DDInter1460",
+    "chemicalForm": "active_moiety",
+    "relation": "reviewed_active_moiety",
+    "evidence": [
+      {
+        "kind": "grls_inn_and_atc",
+        "documentId": "grls-doc:6ce9f913d8c1ab4c04111e8d547c7393",
+        "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/07/02/1531678/3da9d8f4-168d-41b8-b9fb-4162c5551cc6.pdf",
+        "sha256": "5297c406864b085a092aace038d3db805a7f4719f62f251384ae1124f94f9ef4",
+        "inn": "Фенитоин",
+        "atc": "N03AB02"
+      },
+      {
+        "kind": "who_atc_identity",
+        "sourceUrl": "https://atcddd.fhi.no/atc_ddd_index/?code=N03AB02",
+        "name": "phenytoin",
+        "atc": "N03AB02",
+        "sha256": "79eb06b888e1cecd8659648c7ec3cce367ca6b8aa9c816a271f40c5cc32f4b57"
+      },
+      {
+        "kind": "provider_exact_name_and_atc",
+        "commit": "7e2bd2c245bd33550ca1b14951d6955767026775",
+        "externalId": "DDInter1460",
+        "name": "Phenytoin",
+        "atc": "N03AB02"
+      }
+    ]
+  },
+  {
+    "nameRu": "Фенобарбитал",
+    "nameEn": "phenobarbital",
+    "atc": "N03AA02",
+    "providerId": "DDInter1442",
+    "chemicalForm": "active_moiety",
+    "relation": "reviewed_active_moiety",
+    "evidence": [
+      {
+        "kind": "grls_inn_and_atc",
+        "documentId": "grls-doc:00ede8d41f834160b1d22b759638a296",
+        "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/09/03/1533737/cf94b86b-01cc-4071-b0eb-99aa74a63d06.pdf",
+        "sha256": "104d90171f566a770006404a8532a85bbfd1d01b10dd72c8f8f5c5899e9f63ad",
+        "inn": "Фенобарбитал",
+        "atc": "N03AA02"
+      },
+      {
+        "kind": "who_atc_identity",
+        "sourceUrl": "https://atcddd.fhi.no/atc_ddd_index/?code=N03AA02",
+        "name": "phenobarbital",
+        "atc": "N03AA02",
+        "sha256": "620a2722c52492f9a8f6bbff200d22781800671f13e2e7fbd83bb7af3dc5ce71"
+      },
+      {
+        "kind": "provider_exact_name_and_atc",
+        "commit": "7e2bd2c245bd33550ca1b14951d6955767026775",
+        "externalId": "DDInter1442",
+        "name": "Phenobarbital",
+        "atc": "N03AA02"
+      }
+    ]
+  },
+  {
+    "nameRu": "Циталопрам",
+    "nameEn": "citalopram",
+    "atc": "N06AB04",
+    "providerId": "DDInter388",
+    "chemicalForm": "active_moiety",
+    "relation": "reviewed_active_moiety",
+    "evidence": [
+      {
+        "kind": "grls_inn_and_atc",
+        "documentId": "grls-doc:cf1da57d3c8c586555cc2ef6a15b8374",
+        "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2025/09/22/1521684/174d5e00-c464-4b78-886f-2586766bc33d.pdf",
+        "sha256": "1db6e00404188547e998b89a27577769c4b2b020fb8bab80a88134093823d065",
+        "inn": "Циталопрам",
+        "atc": "N06AB04"
+      },
+      {
+        "kind": "who_atc_identity",
+        "sourceUrl": "https://atcddd.fhi.no/atc_ddd_index/?code=N06AB04",
+        "name": "citalopram",
+        "atc": "N06AB04",
+        "sha256": "1c469818c6d1cc1120a67760611cc6a05c1a22334ef752a74b0b221ebf039ad3"
+      },
+      {
+        "kind": "provider_exact_name_and_atc",
+        "commit": "7e2bd2c245bd33550ca1b14951d6955767026775",
+        "externalId": "DDInter388",
+        "name": "Citalopram",
+        "atc": "N06AB04"
+      }
+    ]
+  },
+  {
+    "nameRu": "Этосуксимид",
+    "nameEn": "ethosuximide",
+    "atc": "N03AD01",
+    "providerId": "DDInter695",
+    "chemicalForm": "active_moiety",
+    "relation": "reviewed_active_moiety",
+    "evidence": [
+      {
+        "kind": "grls_inn_and_atc",
+        "documentId": "grls-doc:7f8631e44481859e6a5eeb6ff3ed61f4",
+        "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/09/30/1535051/5e41f2fb-82b8-4fd6-9e96-9e1245211bc5.pdf",
+        "sha256": "dab739f2997aee026424819a4a76800472ef0b812f0cb43404acf17107c4b37a",
+        "inn": "Этосуксимид",
+        "atc": "N03AD01"
+      },
+      {
+        "kind": "who_atc_identity",
+        "sourceUrl": "https://atcddd.fhi.no/atc_ddd_index/?code=N03AD01",
+        "name": "ethosuximide",
+        "atc": "N03AD01",
+        "sha256": "bc3f451ef305523e6417c267bbb87cd3864b873d360d5c36ae557ef44157aa87"
+      },
+      {
+        "kind": "provider_exact_name_and_atc",
+        "commit": "7e2bd2c245bd33550ca1b14951d6955767026775",
+        "externalId": "DDInter695",
+        "name": "Ethosuximide",
+        "atc": "N03AD01"
+      }
+    ]
+  }
+]

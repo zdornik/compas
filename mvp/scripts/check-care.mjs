@@ -1,0 +1,44 @@
+import assert from 'node:assert/strict';
+import {randomUUID} from 'node:crypto';
+const origin='http://127.0.0.1:4174';
+async function session(){const r=await fetch(origin+'/api/session',{method:'POST',headers:{Origin:origin,'X-Compass-Client':'web'}});assert.equal(r.status,201);return{cookie:r.headers.get('set-cookie').split(';')[0],csrf:(await r.json()).csrfToken};}
+async function call(actor,path,body,method=body?'POST':'GET',headers={}){const r=await fetch(origin+path,{method,headers:{Origin:origin,Cookie:actor.cookie,'X-CSRF-Token':actor.csrf,'Content-Type':'application/json',...headers},...(body?{body:JSON.stringify(body)}:{})});return{status:r.status,data:await r.json()};}
+const patient=await session(),doctor=await session(),other=await session();
+const invite=(await call(patient,'/api/care/invites',{name:'Тестовый пациент · API'})).data;
+assert.equal((await call(doctor,'/api/care/claim',{code:invite.code})).status,403);
+assert.equal((await call(doctor,'/api/care/doctor',{name:'Тестовый врач · API'},'POST',{'X-CSRF-Token':'wrong'})).status,403);
+assert.equal((await call(doctor,'/api/care/doctor',{name:'Тестовый врач · API'})).status,200);
+const claim=await call(doctor,'/api/care/claim',{code:invite.code});assert.equal(claim.status,201);const id=claim.data.id;
+assert.equal(claim.data.patientName,'Ожидает подтверждения пациента');
+assert.equal((await call(doctor,'/api/care/patients/'+id)).status,403);
+assert.equal((await call(other,'/api/care/links/'+id,{status:'active'})).status,404);
+assert.equal((await call(patient,'/api/care/links/'+id,{status:'active'})).status,200);
+assert.equal((await call(doctor,'/api/care/claim',{code:invite.code})).status,404);
+assert.equal((await call(other,'/api/care/patients/'+id)).status,404);
+const privateId=randomUUID();await call(patient,'/api/entries/'+privateId,{id:privateId,type:'journal',title:'Личный текст',body:'SYNTHETIC-PRIVATE-NEVER-SHARE',day:new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Moscow'}).format(new Date())},'PUT');
+const profile={id:'medical-profile',type:'medical-profile',expectedRevision:0,medications:[{id:'existing-med',name:'Пимозид',details:'Тестовый пример'}],conditions:[{id:'existing-condition',name:'эпилепсия',details:'Тестовый пример'}]};
+assert.equal((await call(patient,'/api/entries/medical-profile',profile,'PUT')).status,200);
+const record=await call(doctor,'/api/care/patients/'+id);assert.equal(record.status,200);assert.equal(record.data.entries.some(row=>row.id===privateId),false);assert.equal(record.data.entries.find(row=>row.id==='medical-profile').medications[0].name,'Пимозид');
+const productResult=await fetch(origin+'/api/knowledge/products?scope=registry&q='+encodeURIComponent('ЛП-№(012521)-(РГ-RU)'));const product=(await productResult.json()).items.find(row=>row.registrationNumber==='ЛП-№(012521)-(РГ-RU)');assert.ok(product);
+const planId=randomUUID(),day=new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Moscow'}).format(new Date());
+const plan={id:planId,expectedRevision:0,name:product.tradeName,form:'tablet',unit:'мг',strength:50,quantity:1,meal:'unspecified',times:['23:59'],startDate:day,endDate:null,instructions:'SYNTHETIC-TEST-ONLY',archived:false,titration:{enabled:false,after:'maintain',stages:[]}};
+const checkInput={productId:product.id,documentId:'grls-doc:4d3d732616e119b503092209b17d0f82',planId,plan};
+let check=await call(doctor,'/api/care/patients/'+id+'/check',checkInput);assert.equal(check.status,200,JSON.stringify(check.data));assert.equal(check.data.safeToCombine,null);assert.equal(check.data.status,'incomplete');assert.ok(check.data.findings.some(row=>row.name==='Пимозид'&&row.section==='Противопоказания'),JSON.stringify(check.data.findings));assert.ok(check.data.findings.some(row=>row.name==='эпилепсия'&&row.section==='Особые указания'));assert.ok(check.data.findings.every(row=>row.fullContext));assert.doesNotMatch(JSON.stringify(check.data.findings),/StopSel|<\/?b>|__COMPASS_HIT__/);
+
+const submission={plan,productId:product.id,documentId:checkInput.documentId,reviewedFingerprint:check.data.fingerprint,acknowledged:false};
+assert.equal((await call(doctor,'/api/care/patients/'+id+'/prescriptions',submission)).status,422);
+await call(patient,'/api/entries/medical-profile',{...profile,expectedRevision:1,conditions:[...profile.conditions,{id:'added-condition',name:'сахарный диабет',details:''}]},'PUT');
+assert.equal((await call(doctor,'/api/care/patients/'+id+'/prescriptions',{...submission,acknowledged:true})).status,409);
+check=await call(doctor,'/api/care/patients/'+id+'/check',checkInput);
+const send={...submission,reviewedFingerprint:check.data.fingerprint,acknowledged:true};
+assert.equal((await call(doctor,'/api/care/patients/'+id+'/prescriptions',{...send,plan:{...plan,strength:25}})).status,409);
+const prescribed=await call(doctor,'/api/care/patients/'+id+'/prescriptions',send);assert.equal(prescribed.status,200,JSON.stringify(prescribed.data));assert.equal(prescribed.data.origin,'doctor');assert.equal(prescribed.data.delivery.status,'available');
+assert.equal((await call(doctor,'/api/care/patients/'+id+'/prescriptions',send)).data.revision,1);
+const patientState=(await call(patient,'/api/state')).data;assert.equal(patientState.entries.filter(row=>row.id===planId).length,1);assert.equal(patientState.entries.find(row=>row.id===planId).prescriberName,'Тестовый врач · API');
+assert.equal((await call(patient,'/api/entries/'+planId,{...plan,expectedRevision:1,strength:25,type:'medication-plan'},'PUT')).status,403);
+assert.equal((await call(other,'/api/state')).data.entries.some(row=>row.id===planId),false);
+await call(patient,'/api/care/links/'+id,{status:'revoked'});
+assert.equal((await call(doctor,'/api/care/patients/'+id)).status,403);
+assert.equal((await call(doctor,'/api/care/patients/'+id+'/prescriptions',send)).status,403);
+assert.equal((await call(patient,'/api/state')).data.entries.some(row=>row.id===planId),true);
+console.log(JSON.stringify({passed:true,checks:'consent, role capability, isolation, CSRF, private-note exclusion, real GRLS evidence, stale-review rejection, atomic delivery, idempotency, source protection, revocation',sourceFindings:check.data.findings.map(row=>({name:row.name,section:row.section,page:row.page})),syntheticOnly:true},null,2));

@@ -1,0 +1,7 @@
+import csv,json,zipfile,pathlib,re,hashlib
+root=pathlib.Path('knowledge');raw=root/'raw/icd10';rows=list(csv.DictReader((raw/'ru.csv').open(),delimiter=';'));byid={r['ID']:r for r in rows};en={r[6]:r[8] for r in csv.reader(zipfile.ZipFile(raw/'who-2019-en.zip').read('icd102019syst_codes.txt').decode('utf-8-sig').splitlines(),delimiter=';')}
+sha=hashlib.sha256((raw/'ru.csv').read_bytes()).hexdigest();url='https://github.com/ak4nv/mkb10/blob/master/resources/1.2.643.5.1.13.13.11.1005_2.27.csv';out=[]
+for r in rows:
+ code=r['MKB_CODE'];name=r['MKB_NAME'];parent=byid.get(r['ID_PARENT'],{}).get('MKB_CODE')
+ if r['ACTUAL']=='1' and re.fullmatch(r'[A-Z][0-9]{2}(?:\.[0-9A-Za-z]{1,3})?',code):out.append({'code':code,'name_ru':name,'name_en':en.get(code),'parent_code':parent,'source_id':'icd10-ru-nsi','source_version':'2.27','source_url':url,'source_sha256':sha})
+(root/'processed/conditions.json').write_text(json.dumps(out,ensure_ascii=False));(root/'icd10-manifest.json').write_text(json.dumps({'sourceId':'icd10-ru-nsi','sourceVersion':'2.27','oid':'1.2.643.5.1.13.13.11.1005','sourceUrl':url,'sha256':sha,'records':len(out),'englishSource':'https://icdcdn.who.int/icd10/meta/icd102019enMeta.zip','englishVersion':'2019','englishSha256':hashlib.sha256((raw/'who-2019-en.zip').read_bytes()).hexdigest(),'latestVersionVerified':False,'allCodesAreChronic':False},ensure_ascii=False,indent=2));print('Conditions',len(out),'English',sum(bool(x['name_en']) for x in out))

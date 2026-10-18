@@ -1,5 +1,6 @@
+import { MascotFace } from './MascotFace.jsx';
 import { useLayoutEffect, useRef, useState } from 'react';
-import { ContourCanvas } from './ContourCanvas.jsx';
+import { ContourField } from './ContourField.jsx';
 import { contourPlacement } from './contour-placement.js';
 import { moodVisualAt } from './mood-motion.js';
 
@@ -48,10 +49,10 @@ export function MoodComposition({ position, tracking, step, label }) {
   };
   return <div ref={layer} className={`mood-composition ${layout && painted ? 'ready' : ''} ${step > 1 ? 'composition-hidden' : ''}`} style={style} role="img" aria-label={label} aria-hidden={step > 1}>
     <div className="composition-moving" style={layout ? { width: layout.width, height: layout.height, transformOrigin: `${layout.x}px ${layout.y}px`, transform: layout.transform } : undefined}>
-      <ContourCanvas value={position} tracking={tracking} onReady={setPainted} style={layout?.image} src="/art/mood-environment-v4-hq.webp"/>
+      <ContourField value={position} tracking={tracking} onReady={setPainted} placement={layout?.image} viewport={layout ? { left:-layout.width*.4, top:-layout.height*.4, width:layout.width*1.8, height:layout.height*2 } : undefined}/>
       <div className="mascot-figure" style={layout ? { left: layout.x, top: layout.y, width: layout.figureWidth } : undefined}><div className="mascot-breath">
         <img className="mascot-body" src="/art/mascot-rig-v2.webp" alt="" draggable="false"/>
-        <div className="mascot-face">{['brow-left','brow-right','eye-left','eye-right','mouth'].map(part => <img key={part} className={`face-feature ${part}`} src="/art/face-rig-v2.webp" alt="" draggable="false"/>)}</div>
+        <MascotFace value={position} tracking={tracking}/>
       </div></div>
     </div>
   </div>;

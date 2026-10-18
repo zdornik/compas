@@ -5,3 +5,9 @@ qa
 .env
 .env.*
 *.log
+.local-secrets
+.demo-secrets
+.demo-runtime.env
+backups
+
+knowledge

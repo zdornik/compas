@@ -1,0 +1,58 @@
+{
+  "catalogCode": "1016",
+  "sourceUrl": "https://nsi.eaeunion.org/portal/1016",
+  "apiDocs": "https://nsi.eaeunion.org/portal/info/api",
+  "snapshotDate": "2026-10-19",
+  "sourceLastUpdated": "2025-11-26",
+  "retrievedAt": "2026-10-18T21:24:51.687801+00:00",
+  "status": "complete",
+  "records": 9578,
+  "missingLatinNames": 5,
+  "sha256": "25584ff1763d9299ec824bda0e4318ed8a9def2eb719f2c8ef3672883e81f2bf",
+  "pages": [
+    {
+      "file": "1016-00000.json",
+      "url": "https://nsi.eaeunion.org/api/v1/dictionaries/1016/elements?dateActual=2026-10-19&limit=1500&offset=0&code=Code&sortOrder=asc",
+      "sha256": "321c09ca08a379e2b7a71b2f0b5767ade93a96e9db2888b697f21833ea456947",
+      "records": 1500
+    },
+    {
+      "file": "1016-01500.json",
+      "url": "https://nsi.eaeunion.org/api/v1/dictionaries/1016/elements?dateActual=2026-10-19&limit=1500&offset=1500&code=Code&sortOrder=asc",
+      "sha256": "e8706cafb6e686f23013eed9eae555a1a9b47b783feb823be1e012066f3cc5f9",
+      "records": 1500
+    },
+    {
+      "file": "1016-03000.json",
+      "url": "https://nsi.eaeunion.org/api/v1/dictionaries/1016/elements?dateActual=2026-10-19&limit=1500&offset=3000&code=Code&sortOrder=asc",
+      "sha256": "a0cf4d9ca79090eacce78438d62ff625275d53d9b67c3db8d7f74247911748cc",
+      "records": 1500
+    },
+    {
+      "file": "1016-04500.json",
+      "url": "https://nsi.eaeunion.org/api/v1/dictionaries/1016/elements?dateActual=2026-10-19&limit=1500&offset=4500&code=Code&sortOrder=asc",
+      "sha256": "6ce34b1560605897cf5bec43145b1832d2befe60cd3227e1ffe50de234f1184e",
+      "records": 1500
+    },
+    {
+      "file": "1016-06000.json",
+      "url": "https://nsi.eaeunion.org/api/v1/dictionaries/1016/elements?dateActual=2026-10-19&limit=1500&offset=6000&code=Code&sortOrder=asc",
+      "sha256": "587d84297c9fe09c1f590d917001b5fe6a203e845964f586911b9fdf9abbc929",
+      "records": 1500
+    },
+    {
+      "file": "1016-07500.json",
+      "url": "https://nsi.eaeunion.org/api/v1/dictionaries/1016/elements?dateActual=2026-10-19&limit=1500&offset=7500&code=Code&sortOrder=asc",
+      "sha256": "793c42d818fb2c4c1e24ac16c1ee503bbb979906e7878fd9e2c4d405c99bd8fb",
+      "records": 1500
+    },
+    {
+      "file": "1016-09000.json",
+      "url": "https://nsi.eaeunion.org/api/v1/dictionaries/1016/elements?dateActual=2026-10-19&limit=1500&offset=9000&code=Code&sortOrder=asc",
+      "sha256": "db986e3f99273f0c371adbb75ca359673879e294fd90407fdffc3a4076b929fb",
+      "records": 578
+    }
+  ],
+  "purpose": "Official RU/EN/Latin display and search names; not automatic clinical provider identity approval",
+  "clinicalUseApproved": false
+}

@@ -1,0 +1,24 @@
+{
+  "sourceId": "ddinter",
+  "status": "blocked_at_source",
+  "license": "CC BY-NC-SA 4.0",
+  "usageScope": "noncommercial_local_research",
+  "userConfirmedNoncommercial": true,
+  "sourceUrl": "https://ddinter2.scbdd.com/download/",
+  "termsUrl": "https://ddinter2.scbdd.com/terms/",
+  "publishedClasses": [
+    "A",
+    "B",
+    "D",
+    "H",
+    "L",
+    "P",
+    "R",
+    "V"
+  ],
+  "loadedFiles": [],
+  "loadedPairs": 0,
+  "limitation": "Published download page omits some ATC classes. No complete 2.0 interaction corpus has been obtained.",
+  "reason": "Retry 2026-10-18: official download HTML and direct class A CSV requests failed with SSL connection timeout. Official download page remains accessible via research search proxy, but downloadable binary files cannot be retrieved there. No mirror or unverified pairs substituted.",
+  "lastAttemptAt": "2026-10-18T12:50:44.693124+00:00"
+}

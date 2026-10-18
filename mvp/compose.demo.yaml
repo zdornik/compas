@@ -1,0 +1,90 @@
+name: compass-demo
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: compass
+      POSTGRES_USER: compass_admin
+      POSTGRES_PASSWORD_FILE: /run/secrets/admin_db_password
+      POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256
+    secrets: [admin_db_password, app_db_password]
+    volumes:
+      - demo-data:/var/lib/postgresql/data
+      - ./docker/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    networks: [private]
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U compass_admin -d compass]
+      interval: 5s
+      retries: 15
+    security_opt: [no-new-privileges:true]
+    restart: unless-stopped
+  migrate:
+    image: postgres:17-alpine
+    user: postgres
+    command: [sh, -ec, 'export PGPASSWORD="$$(cat /run/secrets/admin_db_password)"; exec psql -h db -U compass_admin -d compass -v ON_ERROR_STOP=1 -f /migrations/001-medications.sql']
+    secrets: [admin_db_password]
+    volumes: [./docker/migrations:/migrations:ro]
+    networks: [private]
+    depends_on:
+      db: { condition: service_healthy }
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: "no"
+  web:
+    image: compass-mvp-web:latest
+    environment:
+      PORT: 8080
+      HOST: 0.0.0.0
+      DB_HOST: db
+      DB_PASSWORD_FILE: /run/secrets/app_db_password
+      DATA_KEY_FILE: /run/secrets/data_key
+      SITE_ORIGIN: ${DEMO_ORIGIN:-https://not-ready.invalid}
+    secrets: [app_db_password, data_key]
+    depends_on:
+      db: { condition: service_healthy }
+      migrate: { condition: service_completed_successfully }
+    networks: [private]
+    read_only: true
+    tmpfs: ["/tmp:size=16m,noexec,nosuid"]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: unless-stopped
+  gate:
+    image: compass-mvp-web:latest
+    command: [node, scripts/serve-demo.mjs]
+    environment:
+      SITE_ORIGIN: ${DEMO_ORIGIN:-https://not-ready.invalid}
+    secrets: [demo_access_code]
+    networks: [private, edge]
+    depends_on: [web]
+    ports: [127.0.0.1:4175:8081]
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    healthcheck:
+      test: [CMD, node, -e, "require('node:http').get('http://127.0.0.1:8081/__demo/health',r=>{r.resume();if(r.statusCode!==200)process.exit(1)}).on('error',()=>process.exit(1))"]
+      interval: 10s
+      retries: 5
+    restart: unless-stopped
+  tunnel:
+    build:
+      context: .
+      dockerfile: Dockerfile.tunnel
+    secrets: [demo_tunnel_client_id]
+    networks: [edge]
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: "no"
+networks:
+  private: { internal: true }
+  edge: {}
+volumes:
+  demo-data:
+secrets:
+  admin_db_password: { file: .demo-secrets/admin_db_password }
+  app_db_password: { file: .demo-secrets/app_db_password }
+  data_key: { file: .demo-secrets/data_key }
+  demo_access_code: { file: .demo-secrets/demo_access_code }
+  demo_tunnel_client_id: { file: .demo-secrets/demo_tunnel_client_id }

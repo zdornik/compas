@@ -1,0 +1,19 @@
+{
+  "sourceId": "openmrs-ddinter",
+  "repository": "https://github.com/pbiondich/openmrs-ddi-knowledge-base",
+  "commit": "7e2bd2c245bd33550ca1b14951d6955767026775",
+  "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+  "gitBlobSha": "021ee454697b20cedfddb0d918737f91f23bd8d2",
+  "retrievedAt": "2026-10-18T18:29:48.935942+00:00",
+  "counts": {
+    "drugs": 2283,
+    "mechanisms": 8234,
+    "interactions": 295184,
+    "disease_notes": 3942,
+    "disease_interactions": 8346,
+    "derived_interactions": 111138
+  },
+  "usage": "noncommercial_local_research",
+  "license": "MPL-2.0 + OpenMRS Healthcare Disclaimer; DDInter upstream CC BY-NC-SA 4.0 retained",
+  "derivedTierImported": false
+}

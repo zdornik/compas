@@ -1,0 +1,32 @@
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import { randomUUID } from 'node:crypto';
+const origin = (await readFile('.demo-runtime.env','utf8')).match(/^DEMO_ORIGIN=(https:\/\/[^\s]+)$/m)?.[1];
+assert.ok(origin);
+const accessCode = (await readFile('.demo-secrets/demo_access_code','utf8')).trim();
+const automationHeaders={};
+assert.equal((await fetch(origin+'/api/state',{headers:automationHeaders})).status,401);
+const login = await fetch(origin+'/__demo/login',{method:'POST',redirect:'manual',headers:{...automationHeaders,Origin:origin,'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({code:accessCode})});
+assert.equal(login.status,303);
+const gateCookie = login.headers.get('set-cookie').split(';')[0];
+const profile = async () => {
+  const response = await fetch(origin+'/api/session',{method:'POST',headers:{...automationHeaders,Origin:origin,Cookie:gateCookie,'X-Compass-Client':'web','Content-Type':'application/json'},body:'{}'});
+  assert.equal(response.status,201); assert.match(response.headers.get('set-cookie'),/; Secure/);
+  return {cookie:gateCookie+'; '+response.headers.get('set-cookie').split(';')[0],csrf:(await response.json()).csrfToken};
+};
+const a=await profile(),b=await profile();
+const request=async(path,profile,body,headers={})=>{
+  const response=await fetch(origin+path,{method:body?'PUT':'GET',headers:{...automationHeaders,Origin:origin,Cookie:profile.cookie,'X-CSRF-Token':profile.csrf,...(body?{'Content-Type':'application/json'}:{}),...headers},...(body?{body:JSON.stringify(body)}:{})});
+  return {response,data:await response.json()};
+};
+const id=randomUUID(),day=new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Moscow'}).format(new Date());
+const note={id,type:'journal',title:'Проверка интернет-демо',body:'Вымышленная запись для проверки отдельной базы и HTTPS-ссылки.',day};
+assert.equal((await request('/api/entries/'+id,a,note,{'X-CSRF-Token':'wrong'})).response.status,403);
+assert.equal((await request('/api/entries/'+id,a,note,{Origin:'https://other.invalid'})).response.status,403);
+assert.equal((await request('/api/entries/'+id,a,note)).response.status,200);
+assert.equal((await request('/api/entries/'+id,a,{...note,body:note.body+' Повторное сохранение.'})).response.status,200);
+const first=await request('/api/state',a),second=await request('/api/state',b);
+assert.equal(first.data.entries.filter(entry=>entry.id===id).length,1);
+assert.equal(second.data.entries.some(entry=>entry.id===id),false);
+assert.equal(first.response.headers.get('cache-control'),'private, no-store');
+console.log('Internet demo checks passed: gate, Secure cookies, persistent edit, independent profiles, CSRF/Origin and no-store.');

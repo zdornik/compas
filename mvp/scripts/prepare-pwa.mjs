@@ -3,7 +3,9 @@ import { createHash } from 'node:crypto';
 import { securityHeaders } from './security-headers.mjs';
 const root = 'dist/client';
 const assets = (await readdir(`${root}/assets`)).filter(f => /\.(js|css)$/.test(f)).map(f => `/assets/${f}`);
-const art = (await readdir(`${root}/art`)).filter(f => /\.(webp|png)$/.test(f)).map(f => `/art/${f}`);
+// Preserve source explorations in the repository, but never prefetch rejected
+// full-size backgrounds or unused drafts onto each visitor's phone.
+const art = ['mood-environment-v4-hq.webp', 'mascot-rig-v2.webp', 'mood-sage.webp', 'mood-blue.webp', 'mood-yellow.webp', 'physician.png', 'icon-192.png', 'icon-512.png'].map(f => `/art/${f}`);
 const files = ['/index.html', '/manifest.webmanifest', ...assets, ...art];
 const hash = createHash('sha256');
 for (const file of files) { hash.update(file); hash.update(await readFile(root + file)); }

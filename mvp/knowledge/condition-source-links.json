@@ -1,0 +1,6 @@
+[
+  {"code":"E10","englishLabel":"Type 1 diabetes mellitus","sourceCondition":"Diabetes Mellitus, Type 1","relation":"exact","basis":"Same complete diagnosis label, reordered terminology"},
+  {"code":"E11","englishLabel":"Type 2 diabetes mellitus","sourceCondition":"Diabetes Mellitus, Type 2","relation":"exact","basis":"Same complete diagnosis label, reordered terminology"},
+  {"code":"I10","englishLabel":"Essential (primary) hypertension","sourceCondition":"Hypertension","relation":"broader_group","basis":"Primary hypertension belongs to the broader hypertension category; source warning requires clinician review"},
+  {"code":"F31","englishLabel":"Bipolar affective disorder","sourceCondition":"Bipolar Disorder","relation":"broader_group","basis":"ICD F31 label associated with the broader named source category; not a diagnosis or contraindication inference"}
+]
