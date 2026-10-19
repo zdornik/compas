@@ -86,17 +86,22 @@ async function importInstructions() {
  await client.query(`UPDATE knowledge.products p SET instruction_document_id=x.document_id FROM
   (SELECT product_id,min(document_id) document_id FROM knowledge.product_documents GROUP BY product_id) x
   WHERE p.id=x.product_id AND p.instruction_document_id IS DISTINCT FROM x.document_id`);
+ const readProgress=async file=>{
  let progress={status:'not_started'};
  try {
-  const item=await jsonFile('instructions-manifest.json');
+  const item=await jsonFile(file);
   progress={status:item.status,scope:item.scope,registryNames:item.scopeRegistryNames,targets:item.allTargetRegistrations,queued:item.targetRegistrations,
    processed:item.results.length+item.errors.length,errors:item.errors.length,
    downloadedRegistrations:item.results.filter(x=>x.status==='downloaded').length,
    unavailableRegistrations:item.results.filter(x=>x.status!=='downloaded').length};
  }catch(error){if(error.code!=='ENOENT')throw error;}
- await client.query("UPDATE knowledge.sources SET metadata=jsonb_set(metadata,'{instructionProgress}',$1::jsonb) WHERE id='grls'",[JSON.stringify(progress)]);
- const signature=JSON.stringify({progress,links:links.length});
- if(added||signature!==lastPublicationSignature)await refreshReferenceCatalog(client);
+ return progress;};
+ const psychiatryProgress=await readProgress('instructions-manifest.json'),chronicProgress=await readProgress('instructions-chronic-manifest.json');
+ const progress=process.argv.includes('--chronic')?chronicProgress:psychiatryProgress;
+ await client.query("UPDATE knowledge.sources SET metadata=jsonb_set(metadata,'{instructionProgress}',$1::jsonb) WHERE id='grls'",[JSON.stringify(psychiatryProgress)]);
+ if(chronicProgress.status!=='not_started')await client.query("UPDATE knowledge.sources SET metadata=jsonb_set(metadata,'{chronicInstructionProgress}',$1::jsonb) WHERE id='grls'",[JSON.stringify(chronicProgress)]);
+ const signature=JSON.stringify({psychiatryProgress,chronicProgress,links:links.length});
+ if(added||signature!==lastPublicationSignature)await refreshReferenceCatalog(client,{instructionsOnly:true});
  await client.query('COMMIT');lastPublicationSignature=signature;
  return {added,progress};
  }catch(error){await client.query('ROLLBACK');throw error;}
@@ -106,6 +111,7 @@ try {
  await client.query('SELECT pg_advisory_lock(2026101802)');
  await client.query('SELECT pg_advisory_lock($1)',[REFERENCE_WRITE_LOCK]);rootCatalogLock=true;
  await client.query(`INSERT INTO knowledge.import_runs(id,started_at,status) VALUES($1,now(),'running')`,[run]);
+ if(!process.argv.includes('--instructions-only')){
  for(const source of sources) await client.query(`INSERT INTO knowledge.sources(id,name,url,license,coverage,retrieved_at) VALUES($1,$2,$3,$4,$5,now()) ON CONFLICT(id) DO UPDATE SET name=EXCLUDED.name,url=EXCLUDED.url,license=EXCLUDED.license,coverage=EXCLUDED.coverage,retrieved_at=now()`,[source.id,source.name,source.url,source.license,source.coverage]);
  const clinical=await jsonFile('clinical-manifest.json');
  if(clinical.errors.length || clinical.completed.length!==clinical.selectedTotal)throw new Error('Clinical corpus incomplete; fix manifest before import');
@@ -151,9 +157,10 @@ try {
  try{ddi=await jsonFile('ddinter-manifest.json');}catch(error){if(error.code!=='ENOENT')throw error;}
  await client.query('UPDATE knowledge.sources SET metadata=$2::jsonb WHERE id=$1',['ddinter',JSON.stringify(ddi)]);
  await importPsychiatryScope();
+ }
  await importInstructions();
  await client.query(`UPDATE knowledge.import_runs SET finished_at=now(),status='completed',counts=$2::jsonb WHERE id=$1`,[run,JSON.stringify(counts)]);
- await refreshReferenceCatalog(client);
+ if(!process.argv.includes('--instructions-only'))await refreshReferenceCatalog(client);
  await client.query('SELECT pg_advisory_unlock($1)',[REFERENCE_WRITE_LOCK]);rootCatalogLock=false;
  console.log(JSON.stringify({run,counts,clinicalUseApproved:false}));
  if(process.argv.includes('--follow')) {

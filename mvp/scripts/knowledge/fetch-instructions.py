@@ -122,14 +122,17 @@ def archive_one(target):
  atomic(result_path,result);return result
 
 def main():
- parser=argparse.ArgumentParser();parser.add_argument('--limit',type=int);parser.add_argument('--workers',type=int,default=2,choices=[1,2]);args=parser.parse_args()
- targets=json.loads((OUT/'processed/instruction-targets.json').read_text())
- scope=json.loads((OUT/'psychiatry-scope.json').read_text())
- if scope.get('scope')!='psychiatry' or any(item.get('collectionScope')!='psychiatry' for item in targets):raise ValueError('Only the explicit psychiatry download scope is allowed')
+ parser=argparse.ArgumentParser();parser.add_argument('--scope',choices=['psychiatry','chronic'],default='psychiatry');parser.add_argument('--limit',type=int);parser.add_argument('--workers',type=int,default=2,choices=[1,2]);args=parser.parse_args()
+ targets_path=OUT/('processed/instruction-targets-chronic.json' if args.scope=='chronic' else 'processed/instruction-targets.json')
+ manifest_path=OUT/('instructions-chronic-manifest.json' if args.scope=='chronic' else 'instructions-manifest.json')
+ targets=json.loads(targets_path.read_text())
+ scope=json.loads((OUT/(args.scope+'-scope.json')).read_text())
+ if scope.get('scope')!=args.scope or any(item.get('collectionScope')!=args.scope for item in targets):raise ValueError('Only an explicit matching collection scope is allowed')
+ if args.limit is not None and args.limit<1:raise ValueError('Limit must be positive')
  def sort_date(item):
   try:return datetime.datetime.strptime(item['registeredAt'],'%d.%m.%Y')
   except ValueError:return datetime.datetime.min
- targets.sort(key=sort_date,reverse=True)
+ if args.scope=='psychiatry':targets.sort(key=sort_date,reverse=True)
  # First registration for every INN is processed before additional brands/forms, without claiming equivalence.
  first={};rest=[]
  for target in targets:
@@ -137,10 +140,11 @@ def main():
   else:rest.append(target)
  targets=list(first.values())+rest
  if args.limit is not None:targets=targets[:args.limit]
- manifest={'source':'grls','scope':'psychiatry','scopeId':scope['id'],'scopeRegistryNames':scope['registryNames'],
-  'targetRegistrations':len(targets),'allTargetRegistrations':len(json.loads((OUT/'processed/instruction-targets.json').read_text())),
+ manifest={'source':'grls','scope':args.scope,'scopeId':scope['id'],'scopeRegistryNames':scope['registryNames'],
+  'targetRegistrations':len(targets),'allTargetRegistrations':len(json.loads(targets_path.read_text())),
   'startedAt':datetime.datetime.now(datetime.timezone.utc).isoformat(),'status':'running','results':[],'errors':[]}
- print('Queued registrations',len(targets),flush=True)
+ atomic(manifest_path,manifest)
+ print('Queued registrations',len(targets),'scope',args.scope,flush=True)
  with concurrent.futures.ThreadPoolExecutor(max_workers=args.workers) as pool:
   # executor.map keeps memory bounded to a small future window on Python 3.14+; this corpus has only ~6k small targets.
   pending={pool.submit(archive_one,item):item for item in targets}
@@ -150,9 +154,10 @@ def main():
     result=future.result();manifest['results'].append(result)
    except Exception as error:manifest['errors'].append({'registrationNumber':target['registrationNumber'],'error':str(error)})
    finished=len(manifest['results'])+len(manifest['errors'])
-   if finished%10==0 or finished==len(targets):
-    print('Processed',finished,'of',len(targets),'errors',len(manifest['errors']),flush=True);atomic(OUT/'instructions-manifest.json',manifest)
+   atomic(manifest_path,manifest)
+   if finished<=8 or finished%10==0 or finished==len(targets):
+    print('Processed',finished,'of',len(targets),'errors',len(manifest['errors']),flush=True);atomic(manifest_path,manifest)
  manifest['status']='completed' if not manifest['errors'] else 'partial';manifest['finishedAt']=datetime.datetime.now(datetime.timezone.utc).isoformat()
- atomic(OUT/'instructions-manifest.json',manifest)
+ atomic(manifest_path,manifest)
  print(manifest['status'],len(manifest['results']),'registrations',flush=True)
 if __name__=='__main__':main()

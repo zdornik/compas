@@ -11,6 +11,7 @@ export function catalogCandidates(q){
  UNION SELECT id FROM knowledge.catalog_products WHERE inn ILIKE $2
  UNION SELECT id FROM knowledge.catalog_products WHERE registration_search ILIKE $2
  UNION SELECT p.id FROM knowledge.catalog_products p JOIN (SELECT DISTINCT substance_id FROM knowledge.catalog_terms WHERE kind<>'registry_ru' AND term ILIKE $2) t ON t.substance_id=p.substance_id
+ UNION SELECT p.id FROM knowledge.catalog_products p JOIN knowledge.substance_search_aliases a ON a.substance_id=p.substance_id WHERE a.alias=lower($1)
  ${isEsklpCode(q)?'UNION SELECT id FROM knowledge.catalog_products WHERE '+esklpCodeSearch('id'):''}`;
 }
 export async function searchCatalogProducts(db,p){
@@ -25,7 +26,7 @@ export async function catalogSuggestions(db,q){
  if(q.length<2)return {substances:[],products:[]};
  const values=[q,like(q)];
  const results=await Promise.all([
-  db.query(`SELECT s.id,s.name_ru AS name,s.name_en AS "nameEn",s.product_count AS "productCount",s.ready_count AS "readyCount" FROM knowledge.catalog_substances s WHERE s.product_count>0 AND s.id IN (SELECT substance_id FROM knowledge.catalog_terms WHERE term ILIKE $2) ORDER BY (lower(s.name_ru)=lower($1) OR lower(s.name_en)=lower($1)) DESC,s.ready_count DESC,s.name_ru LIMIT 6`,values),
+  db.query(`SELECT s.id,s.name_ru AS name,s.name_en AS "nameEn",s.product_count AS "productCount",s.ready_count AS "readyCount" FROM knowledge.catalog_substances s WHERE s.product_count>0 AND (s.id IN (SELECT substance_id FROM knowledge.catalog_terms WHERE term ILIKE $2) OR s.id IN (SELECT substance_id FROM knowledge.substance_search_aliases WHERE alias=lower($1))) ORDER BY coalesce(lower(s.name_ru)=lower($1) OR lower(s.name_en)=lower($1),false) DESC,s.ready_count DESC,s.name_ru LIMIT 6`,values),
   db.query(`SELECT ${catalogSuggestionFields} FROM knowledge.catalog_products p WHERE p.selectable AND (p.trade_name ILIKE $2 OR p.registration_search ILIKE $2 ${isEsklpCode(q)?'OR '+esklpCodeSearch('p.id'):''}) ORDER BY p.has_instruction DESC,(lower(p.trade_name)=lower($1)) DESC,p.trade_name,p.registration_number,p.id LIMIT 8`,values)
  ]);
  return {substances:results[0].rows,products:results[1].rows};

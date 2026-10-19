@@ -16,3 +16,10 @@ test('missing publication returns unavailable rather than an empty successful ca
 test('short autocomplete does not occupy the database pool',async()=>{
  assert.deepEqual(await catalogSuggestions({query(){throw new Error('Unexpected query');}},'a'),{substances:[],products:[]});
 });
+test('source group aliases only expand an explicit whole search phrase',async()=>{
+ const calls=[],db={async query(sql,values){calls.push({sql,values});return {rows:[]};}};
+ await catalogSuggestions(db,'Статины');
+ assert.ok(calls[0].sql.includes('substance_search_aliases WHERE alias=lower($1)'));
+ assert.equal(calls[0].values[0],'Статины');assert.ok(!calls[0].sql.includes('Статины'));
+ assert.ok(!calls[1].sql.includes('substance_search_aliases'),'A group cannot select a specific product automatically');
+});
