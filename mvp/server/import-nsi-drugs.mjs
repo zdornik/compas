@@ -1,3 +1,4 @@
+import {lockReferenceWrite,refreshReferenceCatalog} from './refresh-reference-catalog.mjs';
 // Public nomenclature and strictly verified identities; no patient reads/writes.
 import pg from 'pg';
 import {readFile} from 'node:fs/promises';
@@ -10,7 +11,7 @@ const previous=await read('eaeu-provider-crosswalk.json'),manual=await read('man
 if(JSON.stringify(result.links)!==JSON.stringify(catalog.links))throw new Error('NSI provider decisions changed');
 const pool=new pg.Pool({host:process.env.DB_HOST||'db',database:'compass',user:'compass_admin',password:(await readFile(process.env.DB_PASSWORD_FILE,'utf8')).trim(),max:1}),db=await pool.connect();let added=0;
 try{
- await db.query('BEGIN');await db.query('SELECT pg_advisory_xact_lock(2026101909)');
+ await db.query('BEGIN');await lockReferenceWrite(db);await db.query('SELECT pg_advisory_xact_lock(2026101909)');
  await db.query(`INSERT INTO knowledge.nsi_drug_snapshots(id,oid,version,manifest) VALUES($1,$2,$3,$4) ON CONFLICT DO NOTHING`,[m.archiveSha256,m.oid,m.version,m]);
  for(let i=0;i<terms.length;i+=1500)await db.query(`INSERT INTO knowledge.nsi_drug_terms SELECT $1,x.code,$2,x.name_ru,x.name_en,x.name_la,x.name_la_genitive,x.alternatives,x."group",x.inn_rf,x.atc,x.sctid,x."sourceRow" FROM jsonb_to_recordset($3::jsonb) AS x(code text,name_ru text,name_en text,name_la text,name_la_genitive text,alternatives text[],"group" text,inn_rf text,atc text[],sctid text,"sourceRow" int) ON CONFLICT DO NOTHING`,[m.archiveSha256,m.version,JSON.stringify(terms.slice(i,i+1500))]);
  await db.query('DELETE FROM knowledge.nsi_substance_terms WHERE snapshot_id=$1',[m.archiveSha256]);
@@ -28,5 +29,5 @@ try{
  }
  await db.query('UPDATE knowledge.nsi_drug_snapshots SET active=false WHERE active');await db.query('UPDATE knowledge.nsi_drug_snapshots SET active=true WHERE id=$1',[m.archiveSha256]);
  await db.query(`INSERT INTO knowledge.sources(id,name,url,license,coverage,metadata,retrieved_at) VALUES('nsi-drug-ingredients','Действующие вещества · НСИ Минздрава',$1,'Официальная пользовательская выгрузка; исходные идентификаторы и атрибуция сохранены.','Русские, английские и латинские имена; явные синонимы, АТХ и SNOMED. Соответствие DDI проверяется отдельно.',$2,now()) ON CONFLICT(id) DO UPDATE SET metadata=EXCLUDED.metadata,retrieved_at=now()`,[m.sourceUrl,JSON.stringify({...m,addedExactProviderIdentities:added})]);
- await db.query('COMMIT');console.log(JSON.stringify({terms:terms.length,version:m.version,englishNames:m.englishNames,latinNames:m.latinNames,registryEnglishNamesAdded:naming.rowCount,providerIdentitiesAdded:added,patientDataRead:false,patientDataWritten:false}));
+ await refreshReferenceCatalog(db);await db.query('COMMIT');console.log(JSON.stringify({terms:terms.length,version:m.version,englishNames:m.englishNames,latinNames:m.latinNames,registryEnglishNamesAdded:naming.rowCount,providerIdentitiesAdded:added,patientDataRead:false,patientDataWritten:false}));
 }catch(error){await db.query('ROLLBACK');throw error;}finally{db.release();await pool.end();}

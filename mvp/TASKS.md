@@ -348,3 +348,8 @@ The following items are functional local research workflows tested with syntheti
 - [x] Wire source IDs/versions/Latin labels into shared product/interaction mapping, catalog forms/codes into product cards, Latin/official aliases into suggestions, full KLP/SMNN code search into product search.
 - [x] Verify running no-PDF example (potassium iodide), new caffeine/theophylline source pair, Paroxetinum suggestions, KLP code lookup, preserved galantamine conflict and visible NSI RU/EN/Latin/source IDs plus ESKLP card. 99 tests pass. Source commit/push follows verification.
 - [ ] For future automated ESKLP refreshes, use the officially recommended XML format. No XML file is claimed imported.
+
+## Shared database and reference performance · 19 October 2026
+- [x] One shared PostgreSQL catalog with original GRLS IDs, indexed multilingual terms, normalized registrations, precomputed counts and ordered browsing. Original source/identity/provenance tables remain authoritative.
+- [x] Import-side publication hooks, serialized dictionary writes, atomic read-model publication and rollback verification; runtime remains read-only. No patient-data cache.
+- [x] Build and 102 tests pass; eight baseline plus 18 edge responses match. Search median falls from 315–830 ms to 2–8 ms locally. Public smoke load: 32 reads, eight workers, zero errors, p95 55.1 ms. Evidence and reproduction: REFERENCE-PERFORMANCE.md.

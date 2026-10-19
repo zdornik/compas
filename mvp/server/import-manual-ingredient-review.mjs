@@ -1,3 +1,4 @@
+import {lockReferenceWrite,refreshReferenceCatalog} from './refresh-reference-catalog.mjs';
 import pg from 'pg';
 import {readFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
@@ -13,7 +14,7 @@ for(const row of catalog.reviews){
 }
 const pool=new pg.Pool({host:process.env.DB_HOST||'db',database:'compass',user:'compass_admin',password:(await readFile(process.env.DB_PASSWORD_FILE,'utf8')).trim(),max:1}),db=await pool.connect();let added=0;
 try{
- await db.query('BEGIN');await db.query('SELECT pg_advisory_xact_lock(2026101905)');
+ await db.query('BEGIN');await lockReferenceWrite(db);await db.query('SELECT pg_advisory_xact_lock(2026101905)');
  for(const row of catalog.reviews){
   const stored=(await db.query('SELECT name_ru FROM knowledge.substances WHERE id=$1',[row.substanceId])).rows[0];if(stored?.name_ru!==row.nameRu)throw new Error('Registry source changed');
   for(const e of row.evidence)if(e.documentId){const original=(await db.query('SELECT sha256 FROM knowledge.documents WHERE id=$1',[e.documentId])).rows[0];if(original?.sha256!==e.sha256)throw new Error('GRLS composition checksum mismatch');}
@@ -32,5 +33,5 @@ try{
   }
   await db.query("UPDATE knowledge.substances SET mapping_status='source_verified' WHERE id=$1",[row.substanceId]);added++;
  }
- await db.query('COMMIT');console.log(JSON.stringify({reviewedNames:67,addedCompleteCompositions:added,decisions:catalog.counts,clinicalUseApproved:false}));
+ await refreshReferenceCatalog(db);await db.query('COMMIT');console.log(JSON.stringify({reviewedNames:67,addedCompleteCompositions:added,decisions:catalog.counts,clinicalUseApproved:false}));
 }catch(error){await db.query('ROLLBACK');throw error;}finally{db.release();await pool.end();}

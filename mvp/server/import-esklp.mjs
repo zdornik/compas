@@ -1,3 +1,4 @@
+import {lockReferenceWrite,refreshReferenceCatalog} from './refresh-reference-catalog.mjs';
 // Offline public-reference import. No account/health tables and no DDI writes.
 import pg from 'pg';
 import {readFile} from 'node:fs/promises';
@@ -17,7 +18,7 @@ async function load(kind,sql){
  await flush();if(count!==manifest.files[kind].rows)throw new Error('Incomplete ESKLP file');console.log(JSON.stringify({loaded:kind,rows:count}));
 }
 try{
- await db.query('BEGIN');await db.query('SELECT pg_advisory_xact_lock(2026101907)');
+ await db.query('BEGIN');await lockReferenceWrite(db);await db.query('SELECT pg_advisory_xact_lock(2026101907)');
  const existing=(await db.query('SELECT active FROM knowledge.esklp_snapshots WHERE id=$1',[id])).rows[0];
  if(!existing){
   await db.query('INSERT INTO knowledge.esklp_snapshots(id,snapshot_date,manifest) VALUES($1,$2,$3)',[id,manifest.snapshotDate,manifest]);
@@ -34,5 +35,5 @@ try{
  const links=(await db.query(`SELECT count(*)::int links,count(DISTINCT product_id)::int "linkedProducts",count(DISTINCT product_id) FILTER(WHERE match_status='name_difference')::int "productsWithNameDifference" FROM knowledge.esklp_product_links WHERE snapshot_id=$1`,[id])).rows[0];
  const noPdf=(await db.query(`SELECT count(DISTINCT l.product_id)::int n FROM knowledge.esklp_product_links l JOIN knowledge.products p ON p.id=l.product_id WHERE l.snapshot_id=$1 AND p.instruction_document_id IS NULL`,[id])).rows[0].n;
  await db.query(`INSERT INTO knowledge.sources(id,name,url,license,coverage,metadata,retrieved_at) VALUES('esklp','ЕСКЛП · СМНН и КЛП',$1,'Официальная пользовательская выгрузка; исходные документы и атрибуция сохранены.','Русская номенклатура, РУ, формы, дозировки и коды упаковок; не база взаимодействий и не двуязычный справочник.',$2,now()) ON CONFLICT(id) DO UPDATE SET coverage=EXCLUDED.coverage,metadata=EXCLUDED.metadata,retrieved_at=now()`,[manifest.url,JSON.stringify({...manifest,links:{...links,withoutPdf:noPdf},status:'loaded_excel_research'})]);
- await db.query('COMMIT');console.log(JSON.stringify({snapshot:manifest.snapshotDate,sourceCounts:manifest.counts,...links,linkedWithoutPdf:noPdf,englishTerms:0,ddiIdentitiesChanged:0,patientDataRead:false,patientDataWritten:false}));
+ await refreshReferenceCatalog(db);await db.query('COMMIT');console.log(JSON.stringify({snapshot:manifest.snapshotDate,sourceCounts:manifest.counts,...links,linkedWithoutPdf:noPdf,englishTerms:0,ddiIdentitiesChanged:0,patientDataRead:false,patientDataWritten:false}));
 }catch(error){await db.query('ROLLBACK');throw error;}finally{db.release();await pool.end();}

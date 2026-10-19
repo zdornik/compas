@@ -1,3 +1,4 @@
+import {lockReferenceWrite,refreshReferenceCatalog} from './refresh-reference-catalog.mjs';
 // Offline enrichment importer. Public source documents only; never handles a patient record.
 import pg from 'pg';
 import { readFile,readdir,stat } from 'node:fs/promises';
@@ -23,6 +24,7 @@ async function importOne(path) {
   assets.push({...asset,bytes});
  }
  await client.query('BEGIN');
+ await lockReferenceWrite(client);
  try {
   await client.query(`UPDATE knowledge.pages p SET text_content=x.text,layout=x.layout FROM jsonb_to_recordset($2::jsonb) AS x(page integer,text text,layout jsonb) WHERE p.document_id=$1 AND p.page=x.page`,[item.documentId,JSON.stringify(item.pages)]);
   for(const asset of assets)await client.query(`INSERT INTO knowledge.page_assets(document_id,page,id,mime_type,sha256,original) VALUES($1,$2,$3,'image/png',$4,$5) ON CONFLICT(document_id,id) DO NOTHING`,[item.documentId,asset.page,asset.id,asset.sha256,asset.bytes]);
@@ -39,7 +41,9 @@ try {
  const expected=instructions?Infinity:JSON.parse(await readFile(resolve(root,'clinical-manifest.json'),'utf8')).selectedTotal;
  do {
   let names=[];try{names=(await readdir(resolve(root,'processed/layout'))).filter(name=>(instructions?/^[a-f0-9]{32}\.json$/:/^\d+_\d+\.json$/).test(name));}catch(error){if(error.code!=='ENOENT')throw error;}
-  for(const name of names){const path=resolve(root,'processed/layout',name),modified=(await stat(path)).mtimeMs;if(seen.get(name)===modified)continue;if(await importOne(path))seen.set(name,modified);}
+  let changed=false;
+  for(const name of names){const path=resolve(root,'processed/layout',name),modified=(await stat(path)).mtimeMs;if(seen.get(name)===modified)continue;if(await importOne(path)){seen.set(name,modified);changed=true;}}
+  if(changed)await refreshReferenceCatalog(client,{statusOnly:true});
   if(!process.argv.includes('--follow')||seen.size>=expected)break;
   await new Promise(resolve=>setTimeout(resolve,5000));
  }while(true);

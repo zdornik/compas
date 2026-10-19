@@ -1,3 +1,4 @@
+import {REFERENCE_WRITE_LOCK,refreshReferenceCatalog} from './refresh-reference-catalog.mjs';
 // Offline CLI importer. Never imported by the web API. The admin secret is CLI-only.
 import pg from 'pg';
 import { readFile, readdir } from 'node:fs/promises';
@@ -11,6 +12,7 @@ const password = (await readFile(process.env.DB_PASSWORD_FILE, 'utf8')).trim();
 const pool = new pg.Pool({ host: process.env.DB_HOST || 'db', database: 'compass', user: 'compass_admin', password, max: 1 });
 const client = await pool.connect();
 const run = randomUUID(), counts = {};
+let rootCatalogLock=false,lastPublicationSignature;
 const sources = [
  { id: 'minzdrav-cr', name: 'Рубрикатор клинических рекомендаций Минздрава России', url:'https://cr.minzdrav.gov.ru/clin-rec', license:'Официальные опубликованные документы; условия коммерческого распространения отдельно не подтверждены', coverage:'Действующие документы каталога с любым кодом F00–F99; взрослые и дети, включая смежные специальности' },
  { id: 'grls', name: 'Государственный реестр лекарственных средств', url:'https://grls.minzdrav.gov.ru/grls.aspx', license:'Официальная общедоступная выгрузка для локального исследования; сведения о регистрации не являются инструкциями', coverage:'Полная выгрузка реестра, все опубликованные статусы; инструкции учитываются отдельно' },
@@ -60,6 +62,8 @@ async function importPsychiatryScope() {
  }catch(error){await client.query('ROLLBACK');throw error;}
 }
 async function importInstructions() {
+ await client.query('SELECT pg_advisory_lock($1)',[REFERENCE_WRITE_LOCK]);
+ try {
  const existing=new Map((await client.query("SELECT id,sha256 FROM knowledge.documents WHERE kind='drug_instruction'")).rows.map(row=>[row.id,row.sha256]));
  let names=[];try{names=await readdir(resolve(root,'processed/instructions'));}catch(error){if(error.code!=='ENOENT')throw error;}
  let added=0;
@@ -74,6 +78,7 @@ async function importInstructions() {
   const item=await jsonFile('raw/instructions/results/'+name);
   for(const document of item.documents||[])links.push({reg:item.registrationNumber,document});
  }
+ await client.query('BEGIN');
  if(links.length)await client.query(`INSERT INTO knowledge.product_documents(product_id,document_id)
   SELECT p.id,x.document FROM jsonb_to_recordset($1::jsonb) AS x(reg text,document text)
   JOIN knowledge.products p ON p.registration_number=x.reg JOIN knowledge.documents d ON d.id=x.document
@@ -90,10 +95,16 @@ async function importInstructions() {
    unavailableRegistrations:item.results.filter(x=>x.status!=='downloaded').length};
  }catch(error){if(error.code!=='ENOENT')throw error;}
  await client.query("UPDATE knowledge.sources SET metadata=jsonb_set(metadata,'{instructionProgress}',$1::jsonb) WHERE id='grls'",[JSON.stringify(progress)]);
+ const signature=JSON.stringify({progress,links:links.length});
+ if(added||signature!==lastPublicationSignature)await refreshReferenceCatalog(client);
+ await client.query('COMMIT');lastPublicationSignature=signature;
  return {added,progress};
+ }catch(error){await client.query('ROLLBACK');throw error;}
+ finally{await client.query('SELECT pg_advisory_unlock($1)',[REFERENCE_WRITE_LOCK]);}
 }
 try {
  await client.query('SELECT pg_advisory_lock(2026101802)');
+ await client.query('SELECT pg_advisory_lock($1)',[REFERENCE_WRITE_LOCK]);rootCatalogLock=true;
  await client.query(`INSERT INTO knowledge.import_runs(id,started_at,status) VALUES($1,now(),'running')`,[run]);
  for(const source of sources) await client.query(`INSERT INTO knowledge.sources(id,name,url,license,coverage,retrieved_at) VALUES($1,$2,$3,$4,$5,now()) ON CONFLICT(id) DO UPDATE SET name=EXCLUDED.name,url=EXCLUDED.url,license=EXCLUDED.license,coverage=EXCLUDED.coverage,retrieved_at=now()`,[source.id,source.name,source.url,source.license,source.coverage]);
  const clinical=await jsonFile('clinical-manifest.json');
@@ -142,6 +153,8 @@ try {
  await importPsychiatryScope();
  await importInstructions();
  await client.query(`UPDATE knowledge.import_runs SET finished_at=now(),status='completed',counts=$2::jsonb WHERE id=$1`,[run,JSON.stringify(counts)]);
+ await refreshReferenceCatalog(client);
+ await client.query('SELECT pg_advisory_unlock($1)',[REFERENCE_WRITE_LOCK]);rootCatalogLock=false;
  console.log(JSON.stringify({run,counts,clinicalUseApproved:false}));
  if(process.argv.includes('--follow')) {
   await client.query("UPDATE knowledge.import_runs SET status='following_instructions',finished_at=NULL WHERE id=$1",[run]);
@@ -158,4 +171,4 @@ try {
 } catch(error) {
  await client.query(`UPDATE knowledge.import_runs SET finished_at=now(),status='failed',errors=$2::jsonb WHERE id=$1`,[run,JSON.stringify([{message:error.message}])]).catch(()=>{});
  console.error('Knowledge import failed:',error.message);process.exitCode=1;
-} finally {await client.query('SELECT pg_advisory_unlock(2026101802)').catch(()=>{});client.release();await pool.end();}
+} finally {if(rootCatalogLock)await client.query('SELECT pg_advisory_unlock($1)',[REFERENCE_WRITE_LOCK]).catch(()=>{});await client.query('SELECT pg_advisory_unlock(2026101802)').catch(()=>{});client.release();await pool.end();}

@@ -1,3 +1,4 @@
+import {lockReferenceWrite,refreshReferenceCatalog} from './refresh-reference-catalog.mjs';
 // Offline public-reference importer. No patient data, no network, no runtime writes.
 import pg from 'pg';
 import {readFile} from 'node:fs/promises';
@@ -30,7 +31,7 @@ async function bulk(table,rows,types,conflict){
  for(let i=0;i<rows.length;i+=4000)await db.query(`INSERT INTO knowledge.${table}(${columns}) SELECT ${columns} FROM jsonb_to_recordset($1::jsonb) AS x(${defs}) ON CONFLICT ${conflict}`,[JSON.stringify(rows.slice(i,i+4000))]);
 }
 try{
- await db.query('BEGIN');await db.query('SELECT pg_advisory_xact_lock(2026101807)');
+ await db.query('BEGIN');await lockReferenceWrite(db);await db.query('SELECT pg_advisory_xact_lock(2026101807)');
  for(const item of [{id:source,name:'OpenMRS DDI knowledge base · DDInter 2.0',url:manifest.repository,license:manifest.license,coverage:'Прямые пары и исходные сведения о заболеваниях. Производный уровень не импортирован.',metadata:{...manifest,importedPairs:interactions.length,importedDiseaseRecords:diseases.length,quarantinedSelfPairs:quarantined,deduplicatedDiseaseRecords:kb.disease_interactions.length-diseases.length}},{id:'icd10-ru-nsi',name:'МКБ-10 · НСИ, версия 2.27 (зеркало)',url:icd.sourceUrl,license:'Классификатор НСИ; зеркало ak4nv/mkb10. Условия исходного классификатора сохраняются.',coverage:'Коды диагнозов, включая острые и хронические; актуальность последней версии не подтверждена.',metadata:icd}])await db.query(`INSERT INTO knowledge.sources(id,name,url,license,coverage,metadata,retrieved_at) VALUES($1,$2,$3,$4,$5,$6,now()) ON CONFLICT(id) DO UPDATE SET name=EXCLUDED.name,license=EXCLUDED.license,coverage=EXCLUDED.coverage,metadata=EXCLUDED.metadata,retrieved_at=now()`,[item.id,item.name,item.url,item.license,item.coverage,JSON.stringify(item.metadata)]);
  await bulk('source_drugs',kb.drugs.map(row=>({source_id:source,id:row.id,name:row.name,rxcui:row.rxcui,atc:row.atc||[],metadata:row})),{source_id:'text',id:'text',name:'text',rxcui:'text',atc:'text[]',metadata:'jsonb'},'(source_id,id) DO UPDATE SET metadata=EXCLUDED.metadata');
  await bulk('interactions',interactions,{id:'text',source_id:'text',source_drug_a_id:'text',source_drug_b_id:'text',drug_a_name:'text',drug_b_name:'text',source_severity:'text',mechanism:'text',source_url:'text',source_sha256:'text',metadata:'jsonb'},'(id) DO UPDATE SET mechanism=EXCLUDED.mechanism,source_severity=EXCLUDED.source_severity,source_sha256=EXCLUDED.source_sha256,metadata=EXCLUDED.metadata');
@@ -55,5 +56,5 @@ try{
   await db.query("INSERT INTO knowledge.provider_ingredients(ingredient_id,provider,external_id,external_name,review_status,evidence) VALUES($1,'ddinter',$2,$3,'reviewed',$4) ON CONFLICT DO NOTHING",[id,link.providerId,drug.name,evidence]);
   await db.query("UPDATE knowledge.substances SET name_en=$2,mapping_status='source_verified' WHERE id=$1",[substance,link.nameEn]);
  }
- await db.query('COMMIT');console.log(JSON.stringify({interactions:interactions.length,diseaseInteractions:diseases.length,conditions:conditions.length,quarantinedSelfPairs:quarantined.length,deduplicatedDiseaseRecords:kb.disease_interactions.length-diseases.length,derivedImported:0,ingredientSourceLinks:links.length,clinicalUseApproved:false}));
+ await refreshReferenceCatalog(db);await db.query('COMMIT');console.log(JSON.stringify({interactions:interactions.length,diseaseInteractions:diseases.length,conditions:conditions.length,quarantinedSelfPairs:quarantined.length,deduplicatedDiseaseRecords:kb.disease_interactions.length-diseases.length,derivedImported:0,ingredientSourceLinks:links.length,clinicalUseApproved:false}));
 }catch(error){await db.query('ROLLBACK');throw error;}finally{db.release();await pool.end();}

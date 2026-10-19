@@ -1,3 +1,4 @@
+import {lockReferenceWrite,refreshReferenceCatalog} from './refresh-reference-catalog.mjs';
 // Offline, public knowledge only. Recompute every match before accepting the artifact.
 import pg from 'pg';
 import {readFile} from 'node:fs/promises';
@@ -10,7 +11,7 @@ const result=buildInnCrosswalk(JSON.parse(substanceBytes),JSON.parse(termsBytes)
 if(JSON.stringify(result.links)!==JSON.stringify(catalog.links))throw new Error('Crosswalk differs from exact verified source chain');
 const pool=new pg.Pool({host:process.env.DB_HOST||'db',database:'compass',user:'compass_admin',password:(await readFile(process.env.DB_PASSWORD_FILE,'utf8')).trim(),max:1}),db=await pool.connect();let imported=0,skipped=0;
 try{
- await db.query('BEGIN');await db.query('SELECT pg_advisory_xact_lock(2026101903)');
+ await db.query('BEGIN');await lockReferenceWrite(db);await db.query('SELECT pg_advisory_xact_lock(2026101903)');
  for(const row of catalog.links){
   const original=(await db.query('SELECT name_ru FROM knowledge.substances WHERE id=$1',[row.substanceId])).rows[0];if(original?.name_ru!==row.nameRu)throw new Error('GRLS identity changed');
   const previous=(await db.query('SELECT review_status FROM knowledge.registry_compositions WHERE substance_id=$1',[row.substanceId])).rows[0];
@@ -25,5 +26,5 @@ try{
   await db.query("UPDATE knowledge.substances SET name_en=$2,mapping_status='source_verified' WHERE id=$1",[row.substanceId,row.nameEn]);imported++;
  }
  await db.query(`INSERT INTO knowledge.sources(id,name,url,license,coverage,metadata,retrieved_at) VALUES('eaeu-identity-crosswalk','МНН ЕАЭС → DDInter / RxNorm',$1,'Условия исходных ЕАЭС и OpenMRS/DDInter сохраняются.','Точное одно-компонентное МНН, однозначное имя провайдера и такое же каноническое имя RxNorm; без подмены солей и без зависимости от PDF.',$2,now()) ON CONFLICT(id) DO UPDATE SET metadata=EXCLUDED.metadata,retrieved_at=now()`,[catalog.sources.eaeu.url,JSON.stringify({identityCoverage:catalog.counts,sources:catalog.sources,method:catalog.method,clinicalUseApproved:false})]);
- await db.query('COMMIT');console.log(JSON.stringify({imported,skippedExisting:skipped,identityCoverage:catalog.counts,clinicalUseApproved:false}));
+ await refreshReferenceCatalog(db);await db.query('COMMIT');console.log(JSON.stringify({imported,skippedExisting:skipped,identityCoverage:catalog.counts,clinicalUseApproved:false}));
 }catch(error){await db.query('ROLLBACK');throw error;}finally{db.release();await pool.end();}

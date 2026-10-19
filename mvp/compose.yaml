@@ -22,7 +22,7 @@ services:
   migrate:
     image: postgres:17-alpine
     user: postgres
-    command: [sh, -ec, 'export PGPASSWORD="$$(cat /run/secrets/admin_db_password)"; exec psql -h db -U compass_admin -d compass -v ON_ERROR_STOP=1 -f /migrations/001-medications.sql -f /migrations/002-knowledge.sql -f /migrations/003-knowledge-layout.sql -f /migrations/004-care.sql -f /migrations/005-ingredient-identities.sql -f /migrations/006-reference-catalogs.sql -f /migrations/007-eaeu-inn.sql -f /migrations/008-auth.sql -f /migrations/009-care-chat.sql -f /migrations/010-manual-ingredient-reviews.sql -f /migrations/011-esklp.sql -f /migrations/012-nsi-drug-terms.sql']
+    command: [sh, -ec, 'export PGPASSWORD="$$(cat /run/secrets/admin_db_password)"; exec psql -h db -U compass_admin -d compass -v ON_ERROR_STOP=1 -f /migrations/001-medications.sql -f /migrations/002-knowledge.sql -f /migrations/003-knowledge-layout.sql -f /migrations/004-care.sql -f /migrations/005-ingredient-identities.sql -f /migrations/006-reference-catalogs.sql -f /migrations/007-eaeu-inn.sql -f /migrations/008-auth.sql -f /migrations/009-care-chat.sql -f /migrations/010-manual-ingredient-reviews.sql -f /migrations/011-esklp.sql -f /migrations/012-nsi-drug-terms.sql -f /migrations/013-reference-catalog.sql']
     secrets: [admin_db_password]
     volumes: [./docker/migrations:/migrations:ro]
     networks: [private]
