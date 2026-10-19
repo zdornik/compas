@@ -8,7 +8,7 @@
     "build": "node scripts/prepare-pdf-assets.mjs && vite build && node scripts/prepare-pwa.mjs && node scripts/compress-static.mjs",
     "preview": "vite preview",
     "start": "node scripts/serve.mjs",
-    "test": "node --test tests/domain.test.mjs tests/calendar.test.mjs tests/medications.test.mjs tests/assessments.test.mjs tests/security.test.mjs tests/server.test.mjs tests/demo-gate.test.mjs tests/knowledge.test.mjs tests/guidelines.test.mjs tests/doctor-care.test.mjs tests/care.test.mjs tests/ingredient-identities.test.mjs tests/medication-management.test.mjs tests/auth.test.mjs tests/care-chat.test.mjs tests/auth-motion.test.mjs tests/ingredient-crosswalk.test.mjs tests/manual-ingredient-review.test.mjs",
+    "test": "node --test tests/domain.test.mjs tests/calendar.test.mjs tests/medications.test.mjs tests/assessments.test.mjs tests/security.test.mjs tests/server.test.mjs tests/demo-gate.test.mjs tests/knowledge.test.mjs tests/guidelines.test.mjs tests/doctor-care.test.mjs tests/care.test.mjs tests/ingredient-identities.test.mjs tests/medication-management.test.mjs tests/auth.test.mjs tests/care-chat.test.mjs tests/auth-motion.test.mjs tests/ingredient-crosswalk.test.mjs tests/manual-ingredient-review.test.mjs tests/nsi-crosswalk.test.mjs",
     "docker:up": "node scripts/init-local-secrets.mjs && docker compose up -d --build",
     "docker:stop": "docker compose stop",
     "demo:share": "node scripts/share-demo.mjs",

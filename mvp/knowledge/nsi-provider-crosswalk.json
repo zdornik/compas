@@ -1,0 +1,1077 @@
+{
+  "method": "exact_nsi_primary_name_provider_and_canonical_rxnorm",
+  "nsi": {
+    "oid": "1.2.643.5.1.13.13.11.1367",
+    "version": "5.18",
+    "sha256": "782e17ce54b4c84d52d8cbf1bf0f8a45d952365f7b26c4d7442d8ac23a102279",
+    "archiveSha256": "3b7f254e5a9720db38c24ced8e2f3f630e78ef303e66d9209e04c056fc863329"
+  },
+  "providerSha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+  "grlsSha256": "1355659f9116c7e92bbe680bcdc84dcde4e53c747e87d983cc159802abad7783",
+  "clinicalUseApproved": false,
+  "links": [
+    {
+      "substanceId": "inn:993e137743696600c1653465",
+      "nameRu": "Кальция хлорид",
+      "nameEn": "calcium chloride",
+      "termCodes": [
+        "1544"
+      ],
+      "providerId": "DDInter272",
+      "providerName": "Calcium chloride",
+      "rxcui": "1901",
+      "rxnormName": "calcium chloride",
+      "relation": "exact",
+      "nsiCodes": [
+        "1544"
+      ]
+    },
+    {
+      "substanceId": "inn:c2045a7ff2a03cf702b73a5a",
+      "nameRu": "Салициловая кислота",
+      "nameEn": "salicylic acid",
+      "termCodes": [
+        "2615"
+      ],
+      "providerId": "DDInter2085",
+      "providerName": "Salicylic acid",
+      "rxcui": "9525",
+      "rxnormName": "salicylic acid",
+      "relation": "exact",
+      "nsiCodes": [
+        "2615"
+      ]
+    },
+    {
+      "substanceId": "inn:c535d7f2000468805f75d5af",
+      "nameRu": "Кофеин",
+      "nameEn": "caffeine",
+      "termCodes": [
+        "1691"
+      ],
+      "providerId": "DDInter263",
+      "providerName": "Caffeine",
+      "rxcui": "1886",
+      "rxnormName": "caffeine",
+      "relation": "exact",
+      "nsiCodes": [
+        "1691"
+      ]
+    },
+    {
+      "substanceId": "inn:36703b11334ee1543f2a231a",
+      "nameRu": "Теофиллин",
+      "nameEn": "theophylline",
+      "termCodes": [
+        "2769"
+      ],
+      "providerId": "DDInter1791",
+      "providerName": "Theophylline",
+      "rxcui": "10438",
+      "rxnormName": "theophylline",
+      "relation": "exact",
+      "nsiCodes": [
+        "2769"
+      ]
+    },
+    {
+      "substanceId": "inn:73262fbc3c5e6dc7e5fed5a4",
+      "nameRu": "Калия йодид",
+      "nameEn": "potassium iodide",
+      "termCodes": [
+        "1503"
+      ],
+      "providerId": "DDInter1500",
+      "providerName": "Potassium Iodide",
+      "rxcui": "8597",
+      "rxnormName": "potassium iodide",
+      "relation": "exact",
+      "nsiCodes": [
+        "1503"
+      ]
+    },
+    {
+      "substanceId": "inn:94d5c14c05a6c17ead451186",
+      "nameRu": "Калия хлорид",
+      "nameEn": "potassium chloride",
+      "termCodes": [
+        "1509"
+      ],
+      "providerId": "DDInter1497",
+      "providerName": "Potassium chloride",
+      "rxcui": "8591",
+      "rxnormName": "potassium chloride",
+      "relation": "exact",
+      "nsiCodes": [
+        "1509"
+      ]
+    },
+    {
+      "substanceId": "inn:b56e922d0bea338ee68c259a",
+      "nameRu": "Кальция глюконат",
+      "nameEn": "calcium gluconate",
+      "termCodes": [
+        "1528"
+      ],
+      "providerId": "DDInter276",
+      "providerName": "Calcium gluconate",
+      "rxcui": "1908",
+      "rxnormName": "calcium gluconate",
+      "relation": "exact",
+      "nsiCodes": [
+        "1528"
+      ]
+    },
+    {
+      "substanceId": "inn:f92d96c4c7719af8c8025149",
+      "nameRu": "Селена сульфид",
+      "nameEn": "selenium sulfide",
+      "termCodes": [
+        "2635"
+      ],
+      "providerId": "DDInter1655",
+      "providerName": "Selenium Sulfide",
+      "rxcui": "36345",
+      "rxnormName": "selenium sulfide",
+      "relation": "exact",
+      "nsiCodes": [
+        "2635"
+      ]
+    },
+    {
+      "substanceId": "inn:40792f691a9ca4bbaed155a3",
+      "nameRu": "Этанол",
+      "nameEn": "ethanol",
+      "termCodes": [
+        "3322"
+      ],
+      "providerId": "DDInter690",
+      "providerName": "Ethanol",
+      "rxcui": "448",
+      "rxnormName": "ethanol",
+      "relation": "exact",
+      "nsiCodes": [
+        "3322"
+      ]
+    },
+    {
+      "substanceId": "inn:c3a87f6472a773729bb51f7a",
+      "nameRu": "Маннитол",
+      "nameEn": "mannitol",
+      "termCodes": [
+        "1883"
+      ],
+      "providerId": "DDInter1123",
+      "providerName": "Mannitol",
+      "rxcui": "6628",
+      "rxnormName": "mannitol",
+      "relation": "exact",
+      "nsiCodes": [
+        "1883"
+      ]
+    },
+    {
+      "substanceId": "inn:e35938e452824bbd45d7da15",
+      "nameRu": "Аминосалициловая кислота",
+      "nameEn": "aminosalicylic acid",
+      "termCodes": [
+        "166"
+      ],
+      "providerId": "DDInter75",
+      "providerName": "Aminosalicylic acid",
+      "rxcui": "7833",
+      "rxnormName": "aminosalicylic acid",
+      "relation": "exact",
+      "nsiCodes": [
+        "166"
+      ]
+    },
+    {
+      "substanceId": "inn:7325650e2b6efc6dd1a0c1de",
+      "nameRu": "Кислород",
+      "nameEn": "oxygen",
+      "termCodes": [
+        "1620"
+      ],
+      "providerId": "DDInter1367",
+      "providerName": "Oxygen",
+      "rxcui": "7806",
+      "rxnormName": "oxygen",
+      "relation": "exact",
+      "nsiCodes": [
+        "1620"
+      ]
+    },
+    {
+      "substanceId": "inn:072b5e618fee62b84039f87d",
+      "nameRu": "Интерферон бета-1a",
+      "nameEn": "interferon beta-1a",
+      "termCodes": [
+        "20413"
+      ],
+      "providerId": "DDInter947",
+      "providerName": "Interferon beta-1a",
+      "rxcui": "75917",
+      "rxnormName": "interferon beta-1a",
+      "relation": "exact",
+      "nsiCodes": [
+        "20413"
+      ]
+    },
+    {
+      "substanceId": "inn:3dd828c82f8522e566fd035d",
+      "nameRu": "Морфин",
+      "nameEn": "morphine",
+      "termCodes": [
+        "2049"
+      ],
+      "providerId": "DDInter1244",
+      "providerName": "Morphine",
+      "rxcui": "7052",
+      "rxnormName": "morphine",
+      "relation": "exact",
+      "nsiCodes": [
+        "2049"
+      ]
+    },
+    {
+      "substanceId": "inn:48879d2e27b4d5d66eae6675",
+      "nameRu": "Нирматрелвир",
+      "nameEn": "nirmatrelvir",
+      "termCodes": [
+        "21342"
+      ],
+      "providerId": "DDInter2231",
+      "providerName": "Nirmatrelvir",
+      "rxcui": "2587892",
+      "rxnormName": "nirmatrelvir",
+      "relation": "exact",
+      "nsiCodes": [
+        "21342"
+      ]
+    },
+    {
+      "substanceId": "inn:729ab61fc9726644d0ae717a",
+      "nameRu": "Микофенолата мофетил",
+      "nameEn": "mycophenolate mofetil",
+      "termCodes": [
+        "2010"
+      ],
+      "providerId": "DDInter1251",
+      "providerName": "Mycophenolate mofetil",
+      "rxcui": "68149",
+      "rxnormName": "mycophenolate mofetil",
+      "relation": "exact",
+      "nsiCodes": [
+        "2010"
+      ]
+    },
+    {
+      "substanceId": "inn:e34a3f0001527af86f201f58",
+      "nameRu": "Магния сульфат",
+      "nameEn": "magnesium sulfate",
+      "termCodes": [
+        "1872"
+      ],
+      "providerId": "DDInter1120",
+      "providerName": "Magnesium sulfate",
+      "rxcui": "6585",
+      "rxnormName": "magnesium sulfate",
+      "relation": "exact",
+      "nsiCodes": [
+        "1872"
+      ]
+    },
+    {
+      "substanceId": "inn:5b7081f96ffd5a7a039b64f3",
+      "nameRu": "Цинка сульфат",
+      "nameEn": "zinc sulfate",
+      "termCodes": [
+        "3211"
+      ],
+      "providerId": "DDInter1966",
+      "providerName": "Zinc sulfate",
+      "rxcui": "39954",
+      "rxnormName": "zinc sulfate",
+      "relation": "exact",
+      "nsiCodes": [
+        "3211"
+      ]
+    },
+    {
+      "substanceId": "inn:0dbf5c0c9706e3ad2636d566",
+      "nameRu": "Натрия хлорид",
+      "nameEn": "sodium chloride",
+      "termCodes": [
+        "2121"
+      ],
+      "providerId": "DDInter1685",
+      "providerName": "Sodium chloride",
+      "rxcui": "9863",
+      "rxnormName": "sodium chloride",
+      "relation": "exact",
+      "nsiCodes": [
+        "2121"
+      ]
+    },
+    {
+      "substanceId": "inn:1eef5dbde9e602d306e5f785",
+      "nameRu": "Интерферон альфа-2b",
+      "nameEn": "interferon alfa-2b",
+      "termCodes": [
+        "20412"
+      ],
+      "providerId": "DDInter943",
+      "providerName": "Interferon alfa-2b",
+      "rxcui": "5880",
+      "rxnormName": "interferon alfa-2b",
+      "relation": "exact",
+      "nsiCodes": [
+        "20412"
+      ]
+    },
+    {
+      "substanceId": "inn:7763b4274681bf11b31a16b7",
+      "nameRu": "Аброцитиниб",
+      "nameEn": "abrocitinib",
+      "termCodes": [
+        "20053"
+      ],
+      "providerId": "DDInter2023",
+      "providerName": "Abrocitinib",
+      "rxcui": "2591476",
+      "rxnormName": "abrocitinib",
+      "relation": "exact",
+      "nsiCodes": [
+        "20053"
+      ]
+    },
+    {
+      "substanceId": "inn:c0693c180bb5becfabbe0caf",
+      "nameRu": "Трастузумаб дерукстекан",
+      "nameEn": "trastuzumab deruxtecan",
+      "termCodes": [
+        "18870"
+      ],
+      "providerId": "DDInter1847",
+      "providerName": "Trastuzumab deruxtecan",
+      "rxcui": "2267582",
+      "rxnormName": "trastuzumab deruxtecan",
+      "relation": "exact",
+      "nsiCodes": [
+        "18870"
+      ]
+    },
+    {
+      "substanceId": "inn:2e1670fb7b865adb8bd0b5fa",
+      "nameRu": "Изатуксимаб",
+      "nameEn": "isatuximab",
+      "termCodes": [
+        "13494"
+      ],
+      "providerId": "DDInter979",
+      "providerName": "Isatuximab",
+      "rxcui": "2282018",
+      "rxnormName": "isatuximab",
+      "relation": "exact",
+      "nsiCodes": [
+        "13494"
+      ]
+    },
+    {
+      "substanceId": "inn:323dd1cacbfed3c95554bad4",
+      "nameRu": "Онасемноген абепарвовек",
+      "nameEn": "onasemnogene abeparvovec",
+      "termCodes": [
+        "19484"
+      ],
+      "providerId": "DDInter1341",
+      "providerName": "Onasemnogene abeparvovec",
+      "rxcui": "2170226",
+      "rxnormName": "onasemnogene abeparvovec",
+      "relation": "exact",
+      "nsiCodes": [
+        "19484"
+      ]
+    },
+    {
+      "substanceId": "inn:99060d5f0403f0aaeb3d7cc2",
+      "nameRu": "Пилокарпин",
+      "nameEn": "pilocarpine",
+      "termCodes": [
+        "2362"
+      ],
+      "providerId": "DDInter1465",
+      "providerName": "Pilocarpine",
+      "rxcui": "8328",
+      "rxnormName": "pilocarpine",
+      "relation": "exact",
+      "nsiCodes": [
+        "2362"
+      ]
+    },
+    {
+      "substanceId": "inn:3363108e88f6697d392c73d8",
+      "nameRu": "Нитроглицерин",
+      "nameEn": "nitroglycerin",
+      "termCodes": [
+        "2169"
+      ],
+      "providerId": "DDInter1304",
+      "providerName": "Nitroglycerin",
+      "rxcui": "4917",
+      "rxnormName": "nitroglycerin",
+      "relation": "exact",
+      "nsiCodes": [
+        "2169"
+      ]
+    },
+    {
+      "substanceId": "inn:e074860a71106a7ceecc540d",
+      "nameRu": "Равулизумаб",
+      "nameEn": "ravulizumab",
+      "termCodes": [
+        "19567"
+      ],
+      "providerId": "DDInter1574",
+      "providerName": "Ravulizumab",
+      "rxcui": "2107301",
+      "rxnormName": "ravulizumab",
+      "relation": "exact",
+      "nsiCodes": [
+        "19567"
+      ]
+    },
+    {
+      "substanceId": "inn:c96dc346a5a03b4ad64242bc",
+      "nameRu": "Апоморфин",
+      "nameEn": "apomorphine",
+      "termCodes": [
+        "253"
+      ],
+      "providerId": "DDInter109",
+      "providerName": "Apomorphine",
+      "rxcui": "1043",
+      "rxnormName": "apomorphine",
+      "relation": "exact",
+      "nsiCodes": [
+        "253"
+      ]
+    },
+    {
+      "substanceId": "inn:3e3ca7dc86b2dfa49ab437df",
+      "nameRu": "Тисагенлеклейцел",
+      "nameEn": "tisagenlecleucel",
+      "termCodes": [
+        "19692"
+      ],
+      "providerId": "DDInter1819",
+      "providerName": "Tisagenlecleucel",
+      "rxcui": "1986438",
+      "rxnormName": "tisagenlecleucel",
+      "relation": "exact",
+      "nsiCodes": [
+        "19692"
+      ]
+    },
+    {
+      "substanceId": "inn:29a02b7d66d522cb47a38c2d",
+      "nameRu": "Пэгцетакоплан",
+      "nameEn": "pegcetacoplan",
+      "termCodes": [
+        "23210"
+      ],
+      "providerId": "DDInter2252",
+      "providerName": "Pegcetacoplan",
+      "rxcui": "2557372",
+      "rxnormName": "pegcetacoplan",
+      "relation": "exact",
+      "nsiCodes": [
+        "23210"
+      ]
+    },
+    {
+      "substanceId": "inn:4e1a93fc1bfe4b8f7f25adde",
+      "nameRu": "Селперкатиниб",
+      "nameEn": "selpercatinib",
+      "termCodes": [
+        "20147"
+      ],
+      "providerId": "DDInter1658",
+      "providerName": "Selpercatinib",
+      "rxcui": "2370147",
+      "rxnormName": "selpercatinib",
+      "relation": "exact",
+      "nsiCodes": [
+        "20147"
+      ]
+    },
+    {
+      "substanceId": "inn:10312ceddcb9c0accbd0c0bd",
+      "nameRu": "Соторасиб",
+      "nameEn": "sotorasib",
+      "termCodes": [
+        "20891"
+      ],
+      "providerId": "DDInter2115",
+      "providerName": "Sotorasib",
+      "rxcui": "2550714",
+      "rxnormName": "sotorasib",
+      "relation": "exact",
+      "nsiCodes": [
+        "20891"
+      ]
+    },
+    {
+      "substanceId": "inn:0a7c3889bebb137466380df7",
+      "nameRu": "Мосунетузумаб",
+      "nameEn": "mosunetuzumab",
+      "termCodes": [
+        "19402"
+      ],
+      "providerId": "DDInter2016",
+      "providerName": "Mosunetuzumab",
+      "rxcui": "2625122",
+      "rxnormName": "mosunetuzumab",
+      "relation": "exact",
+      "nsiCodes": [
+        "19402"
+      ]
+    },
+    {
+      "substanceId": "inn:62a33f087a9d1ac74efdcd17",
+      "nameRu": "Колхицин",
+      "nameEn": "colchicine",
+      "termCodes": [
+        "1683"
+      ],
+      "providerId": "DDInter431",
+      "providerName": "Colchicine",
+      "rxcui": "2683",
+      "rxnormName": "colchicine",
+      "relation": "exact",
+      "nsiCodes": [
+        "1683"
+      ]
+    },
+    {
+      "substanceId": "inn:803b5bc5f86acb7972de493f",
+      "nameRu": "Берактант",
+      "nameEn": "beractant",
+      "termCodes": [
+        "20366"
+      ],
+      "providerId": "DDInter2180",
+      "providerName": "Beractant",
+      "rxcui": "46967",
+      "rxnormName": "beractant",
+      "relation": "exact",
+      "nsiCodes": [
+        "20366"
+      ]
+    },
+    {
+      "substanceId": "inn:de57146fbb72d2f41bef6427",
+      "nameRu": "Атогепант",
+      "nameEn": "atogepant",
+      "termCodes": [
+        "18777"
+      ],
+      "providerId": "DDInter2043",
+      "providerName": "Atogepant",
+      "rxcui": "2571813",
+      "rxnormName": "atogepant",
+      "relation": "exact",
+      "nsiCodes": [
+        "18777"
+      ]
+    },
+    {
+      "substanceId": "inn:2926a1516ab3c6b40c612b78",
+      "nameRu": "Интерферон бета-1b",
+      "nameEn": "interferon beta-1b",
+      "termCodes": [
+        "20414"
+      ],
+      "providerId": "DDInter948",
+      "providerName": "Interferon beta-1b",
+      "rxcui": "72257",
+      "rxnormName": "interferon beta-1b",
+      "relation": "exact",
+      "nsiCodes": [
+        "20414"
+      ]
+    },
+    {
+      "substanceId": "inn:2698197fb9db9f66cf371705",
+      "nameRu": "Железа карбоксимальтозат",
+      "nameEn": "ferric carboxymaltose",
+      "termCodes": [
+        "12743"
+      ],
+      "providerId": "DDInter723",
+      "providerName": "Ferric carboxymaltose",
+      "rxcui": "1433693",
+      "rxnormName": "ferric carboxymaltose",
+      "relation": "exact",
+      "nsiCodes": [
+        "12743"
+      ]
+    },
+    {
+      "substanceId": "inn:1bf744e41dc4d191086dfd89",
+      "nameRu": "Натрия циркония циклосиликат",
+      "nameEn": "sodium zirconium cyclosilicate",
+      "termCodes": [
+        "20480"
+      ],
+      "providerId": "DDInter1694",
+      "providerName": "Sodium zirconium cyclosilicate",
+      "rxcui": "2047628",
+      "rxnormName": "sodium zirconium cyclosilicate",
+      "relation": "exact",
+      "nsiCodes": [
+        "20480"
+      ]
+    },
+    {
+      "substanceId": "inn:17d5f3c08a0970ced73fe337",
+      "nameRu": "Тедизолид",
+      "nameEn": "tedizolid",
+      "termCodes": [
+        "16420"
+      ],
+      "providerId": "DDInter1752",
+      "providerName": "Tedizolid",
+      "rxcui": "1540825",
+      "rxnormName": "tedizolid",
+      "relation": "exact",
+      "nsiCodes": [
+        "16420"
+      ]
+    },
+    {
+      "substanceId": "inn:672dd33de39305f64d314366",
+      "nameRu": "Бедаквилин",
+      "nameEn": "bedaquiline",
+      "termCodes": [
+        "10752"
+      ],
+      "providerId": "DDInter170",
+      "providerName": "Bedaquiline",
+      "rxcui": "1364504",
+      "rxnormName": "bedaquiline",
+      "relation": "exact",
+      "nsiCodes": [
+        "10752"
+      ]
+    },
+    {
+      "substanceId": "inn:d8f8fc1c7d4a1a0548183a28",
+      "nameRu": "Тирзепатид",
+      "nameEn": "tirzepatide",
+      "termCodes": [
+        "20043"
+      ],
+      "providerId": "DDInter2144",
+      "providerName": "Tirzepatide",
+      "rxcui": "2601723",
+      "rxnormName": "tirzepatide",
+      "relation": "exact",
+      "nsiCodes": [
+        "20043"
+      ]
+    },
+    {
+      "substanceId": "inn:c929b0227d063cfe180bd80b",
+      "nameRu": "Рисдиплам",
+      "nameEn": "risdiplam",
+      "termCodes": [
+        "20731"
+      ],
+      "providerId": "DDInter1603",
+      "providerName": "Risdiplam",
+      "rxcui": "2390935",
+      "rxnormName": "risdiplam",
+      "relation": "exact",
+      "nsiCodes": [
+        "20731"
+      ]
+    },
+    {
+      "substanceId": "inn:837e6ec01ad8eac08b7a2c39",
+      "nameRu": "Белумосудил",
+      "nameEn": "belumosudil",
+      "termCodes": [
+        "20776"
+      ],
+      "providerId": "DDInter2052",
+      "providerName": "Belumosudil",
+      "rxcui": "2564025",
+      "rxnormName": "belumosudil",
+      "relation": "exact",
+      "nsiCodes": [
+        "20776"
+      ]
+    },
+    {
+      "substanceId": "inn:3b9a6d959f3ec94e6f2c2008",
+      "nameRu": "Аминолевулиновая кислота",
+      "nameEn": "aminolevulinic acid",
+      "termCodes": [
+        "163"
+      ],
+      "providerId": "DDInter72",
+      "providerName": "Aminolevulinic acid",
+      "rxcui": "683",
+      "rxnormName": "aminolevulinic acid",
+      "relation": "exact",
+      "nsiCodes": [
+        "163"
+      ]
+    },
+    {
+      "substanceId": "inn:9f871a48c04ca07f5809fe0e",
+      "nameRu": "Одевиксибат",
+      "nameEn": "odevixibat",
+      "termCodes": [
+        "20002"
+      ],
+      "providerId": "DDInter2128",
+      "providerName": "Odevixibat",
+      "rxcui": "2563966",
+      "rxnormName": "odevixibat",
+      "relation": "exact",
+      "nsiCodes": [
+        "20002"
+      ]
+    },
+    {
+      "substanceId": "inn:c9c4eba7f8b8cd8e2b35bd3d",
+      "nameRu": "Пемигатиниб",
+      "nameEn": "pemigatinib",
+      "termCodes": [
+        "23212"
+      ],
+      "providerId": "DDInter1415",
+      "providerName": "Pemigatinib",
+      "rxcui": "2359268",
+      "rxnormName": "pemigatinib",
+      "relation": "exact",
+      "nsiCodes": [
+        "23212"
+      ]
+    },
+    {
+      "substanceId": "inn:cdca9e58e4ad4130446a04ef",
+      "nameRu": "Занубрутиниб",
+      "nameEn": "zanubrutinib",
+      "termCodes": [
+        "19183"
+      ],
+      "providerId": "DDInter1959",
+      "providerName": "Zanubrutinib",
+      "rxcui": "2262435",
+      "rxnormName": "zanubrutinib",
+      "relation": "exact",
+      "nsiCodes": [
+        "19183"
+      ]
+    },
+    {
+      "substanceId": "inn:cf9e02043f6b8af336a643a0",
+      "nameRu": "Тригептаноин",
+      "nameEn": "triheptanoin",
+      "termCodes": [
+        "20166"
+      ],
+      "providerId": "DDInter1869",
+      "providerName": "Triheptanoin",
+      "rxcui": "1313234",
+      "rxnormName": "triheptanoin",
+      "relation": "exact",
+      "nsiCodes": [
+        "20166"
+      ]
+    },
+    {
+      "substanceId": "inn:6c6ac97e6356d872f7b9ba0d",
+      "nameRu": "Магния цитрат",
+      "nameEn": "magnesium citrate",
+      "termCodes": [
+        "1874"
+      ],
+      "providerId": "DDInter1115",
+      "providerName": "Magnesium citrate",
+      "rxcui": "52356",
+      "rxnormName": "magnesium citrate",
+      "relation": "exact",
+      "nsiCodes": [
+        "1874"
+      ]
+    },
+    {
+      "substanceId": "inn:9680288b002837a64e3d511f",
+      "nameRu": "Тафаситамаб",
+      "nameEn": "tafasitamab",
+      "termCodes": [
+        "20035"
+      ],
+      "providerId": "DDInter1738",
+      "providerName": "Tafasitamab",
+      "rxcui": "2387211",
+      "rxnormName": "tafasitamab",
+      "relation": "exact",
+      "nsiCodes": [
+        "20035"
+      ]
+    },
+    {
+      "substanceId": "inn:8f3909eddba700e79562151e",
+      "nameRu": "Кодеин",
+      "nameEn": "codeine",
+      "termCodes": [
+        "1656"
+      ],
+      "providerId": "DDInter429",
+      "providerName": "Codeine",
+      "rxcui": "2670",
+      "rxnormName": "codeine",
+      "relation": "exact",
+      "nsiCodes": [
+        "1656"
+      ]
+    },
+    {
+      "substanceId": "inn:3918eee225f2cd4448cea3a7",
+      "nameRu": "Кальция карбонат",
+      "nameEn": "calcium carbonate",
+      "termCodes": [
+        "1532"
+      ],
+      "providerId": "DDInter271",
+      "providerName": "Calcium carbonate",
+      "rxcui": "1897",
+      "rxnormName": "calcium carbonate",
+      "relation": "exact",
+      "nsiCodes": [
+        "1532"
+      ]
+    },
+    {
+      "substanceId": "inn:1cd8cfa517d8ddf3610b9d1d",
+      "nameRu": "Сорбитол",
+      "nameEn": "sorbitol",
+      "termCodes": [
+        "2678"
+      ],
+      "providerId": "DDInter1703",
+      "providerName": "Sorbitol",
+      "rxcui": "9945",
+      "rxnormName": "sorbitol",
+      "relation": "exact",
+      "nsiCodes": [
+        "2678"
+      ]
+    },
+    {
+      "substanceId": "inn:635ec402037281ee64b6cb96",
+      "nameRu": "Натрия цитрат",
+      "nameEn": "sodium citrate",
+      "termCodes": [
+        "2124"
+      ],
+      "providerId": "DDInter1686",
+      "providerName": "Sodium citrate",
+      "rxcui": "56466",
+      "rxnormName": "sodium citrate",
+      "relation": "exact",
+      "nsiCodes": [
+        "2124"
+      ]
+    },
+    {
+      "substanceId": "inn:a361e88c1aa61874d824971c",
+      "nameRu": "Магния оксид",
+      "nameEn": "magnesium oxide",
+      "termCodes": [
+        "1869"
+      ],
+      "providerId": "DDInter1119",
+      "providerName": "Magnesium oxide",
+      "rxcui": "6582",
+      "rxnormName": "magnesium oxide",
+      "relation": "exact",
+      "nsiCodes": [
+        "1869"
+      ]
+    },
+    {
+      "substanceId": "inn:9ab355b60c66d7091281a6e0",
+      "nameRu": "Висмута субгаллат",
+      "nameEn": "bismuth subgallate",
+      "termCodes": [
+        "702"
+      ],
+      "providerId": "DDInter214",
+      "providerName": "Bismuth subgallate",
+      "rxcui": "19476",
+      "rxnormName": "bismuth subgallate",
+      "relation": "exact",
+      "nsiCodes": [
+        "702"
+      ]
+    },
+    {
+      "substanceId": "inn:31210d531da2bfa14cfa95d8",
+      "nameRu": "Железа фумарат",
+      "nameEn": "ferrous fumarate",
+      "termCodes": [
+        "1255"
+      ],
+      "providerId": "DDInter725",
+      "providerName": "Ferrous fumarate",
+      "rxcui": "24941",
+      "rxnormName": "ferrous fumarate",
+      "relation": "exact",
+      "nsiCodes": [
+        "1255"
+      ]
+    },
+    {
+      "substanceId": "inn:1324526ec18f93b7ba2f679d",
+      "nameRu": "Кальция фосфат",
+      "nameEn": "calcium phosphate",
+      "termCodes": [
+        "1543"
+      ],
+      "providerId": "DDInter279",
+      "providerName": "Calcium Phosphate",
+      "rxcui": "1919",
+      "rxnormName": "calcium phosphate",
+      "relation": "exact",
+      "nsiCodes": [
+        "1543"
+      ]
+    },
+    {
+      "substanceId": "inn:ac38f37901b9312ce7bd8b07",
+      "nameRu": "Антиингибиторный коагулянтный комплекс",
+      "nameEn": "anti-inhibitor coagulant complex",
+      "termCodes": [
+        "241"
+      ],
+      "providerId": "DDInter101",
+      "providerName": "Anti-inhibitor coagulant complex",
+      "rxcui": "314504",
+      "rxnormName": "anti-inhibitor coagulant complex",
+      "relation": "exact",
+      "nsiCodes": [
+        "241"
+      ]
+    },
+    {
+      "substanceId": "inn:23b2ddde479295ec4471763a",
+      "nameRu": "Кальция глицерофосфат",
+      "nameEn": "calcium glycerophosphate",
+      "termCodes": [
+        "1526"
+      ],
+      "providerId": "DDInter277",
+      "providerName": "Calcium glycerophosphate",
+      "rxcui": "1909",
+      "rxnormName": "calcium glycerophosphate",
+      "relation": "exact",
+      "nsiCodes": [
+        "1526"
+      ]
+    },
+    {
+      "substanceId": "inn:132e858dfc0bb36b11646ef4",
+      "nameRu": "Магния карбонат",
+      "nameEn": "magnesium carbonate",
+      "termCodes": [
+        "1868"
+      ],
+      "providerId": "DDInter1113",
+      "providerName": "Magnesium carbonate",
+      "rxcui": "29155",
+      "rxnormName": "magnesium carbonate",
+      "relation": "exact",
+      "nsiCodes": [
+        "1868"
+      ]
+    },
+    {
+      "substanceId": "inn:07d6009f3eee43bb369c4a03",
+      "nameRu": "Висмута субсалицилат",
+      "nameEn": "bismuth subsalicylate",
+      "termCodes": [
+        "706"
+      ],
+      "providerId": "DDInter215",
+      "providerName": "Bismuth subsalicylate",
+      "rxcui": "19478",
+      "rxnormName": "bismuth subsalicylate",
+      "relation": "exact",
+      "nsiCodes": [
+        "706"
+      ]
+    },
+    {
+      "substanceId": "inn:340f3211e4239bb50ad271c9",
+      "nameRu": "Магния гидроксид",
+      "nameEn": "magnesium hydroxide",
+      "termCodes": [
+        "1865"
+      ],
+      "providerId": "DDInter1118",
+      "providerName": "Magnesium hydroxide",
+      "rxcui": "6581",
+      "rxnormName": "magnesium hydroxide",
+      "relation": "exact",
+      "nsiCodes": [
+        "1865"
+      ]
+    },
+    {
+      "substanceId": "inn:9cf9fbd42dab6acdecc6180a",
+      "nameRu": "Магния хлорид",
+      "nameEn": "magnesium chloride",
+      "termCodes": [
+        "18007"
+      ],
+      "providerId": "DDInter1114",
+      "providerName": "Magnesium chloride",
+      "rxcui": "6579",
+      "rxnormName": "magnesium chloride",
+      "relation": "exact",
+      "nsiCodes": [
+        "18007"
+      ]
+    },
+    {
+      "substanceId": "inn:951aa1a99f1c8e03692897c6",
+      "nameRu": "Метоксален",
+      "nameEn": "methoxsalen",
+      "termCodes": [
+        "1981"
+      ],
+      "providerId": "DDInter1177",
+      "providerName": "Methoxsalen",
+      "rxcui": "6854",
+      "rxnormName": "methoxsalen",
+      "relation": "exact",
+      "nsiCodes": [
+        "1981"
+      ]
+    }
+  ],
+  "gapCounts": {
+    "provider_ingredient_missing": 762,
+    "provider_canonical_identity_disagrees": 54,
+    "official_translation_ambiguous": 70,
+    "composition_requires_component_review": 1157,
+    "official_translation_missing": 716
+  }
+}

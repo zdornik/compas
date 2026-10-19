@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+const base=process.env.COMPASS_TEST_ORIGIN||'http://127.0.0.1:4174';
+const get=async path=>{const start=Date.now(),r=await fetch(base+path,{signal:AbortSignal.timeout(30000)});assert.equal(r.status,200,path);return {data:await r.json(),ms:Date.now()-start};};
+const products=async name=>(await get('/api/knowledge/products?allStatuses=1&limit=100&q='+encodeURIComponent(name))).data.items.filter(p=>p.inn===name);
+const status=(await get('/api/knowledge/status')).data;assert.equal(status.counts.nsiDrugTerms,14244);assert.equal(status.counts.esklpKlpPositions,589326);assert.ok(status.counts.mappedSubstances>=927);
+const candidates=await products('Калия йодид'),chosen=candidates.find(p=>!p.instructionDocumentId&&/йодомарин/i.test(p.tradeName))||candidates.find(p=>!p.instructionDocumentId);assert.ok(chosen);
+const detail=(await get('/api/knowledge/products/'+chosen.id)).data,mapping=detail.identityMappings[0];assert.equal(mapping.status,'mapped');assert.ok(mapping.officialNames.some(t=>t.nameEn==='Potassium iodide'&&t.nameLa&&t.version==='5.18'));assert.equal(detail.instructions.length,0);
+assert.ok(detail.esklp?.records.length);const code=detail.esklp.records[0].klpCode;
+const byCode=await get('/api/knowledge/products?allStatuses=1&limit=100&q='+encodeURIComponent(code));assert.ok(byCode.data.items.some(p=>p.id===chosen.id));
+const latin=await get('/api/knowledge/suggestions?q=Paroxetinum');assert.ok(latin.data.substances.some(row=>row.name==='Пароксетин'));
+const galantamine=(await products('Галантамин'))[0],gap=(await get('/api/knowledge/products/'+galantamine.id)).data.identityMappings[0];assert.equal(gap.status,'unmapped');assert.equal(gap.reason,'source_conflict');assert.ok(gap.officialNames.some(t=>t.code==='725'));
+const caffeine=(await products('Кофеин'))[0],theophylline=(await products('Теофиллин'))[0];assert.ok(caffeine&&theophylline);
+const pair=(await get('/api/knowledge/interactions?id='+caffeine.id+'&id='+theophylline.id)).data;assert.equal(pair.safeToCombine,null);assert.ok(pair.items.length);assert.equal(pair.identityMappings.filter(row=>row.status==='mapped').length,2);
+console.log(JSON.stringify({nsiTerms:status.counts.nsiDrugTerms,esklpKlpPositions:status.counts.esklpKlpPositions,mappedRegistryNames:status.counts.mappedSubstances,nsiEnglishLatinAndSourceIdsVerified:true,noPdfProductVerified:true,esklpRegistrationLinkVerified:true,klpCodeSearchMs:byCode.ms,latinSuggestionMs:latin.ms,sourceConflictStillBlocked:true,newNsiProviderPairFound:true,safeToCombine:null,patientDataRead:false,patientDataWritten:false}));

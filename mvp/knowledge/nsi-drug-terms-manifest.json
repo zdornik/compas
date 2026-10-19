@@ -1,0 +1,21 @@
+{
+  "id": "nsi-drug-ingredients",
+  "oid": "1.2.643.5.1.13.13.11.1367",
+  "version": "5.18",
+  "sourceUrl": "https://nsi.rosminzdrav.ru/#!/refbook/1.2.643.5.1.13.13.11.1367",
+  "archiveName": "1.2.643.5.1.13.13.11.1367_5.18_csv.zip",
+  "archiveSha256": "3b7f254e5a9720db38c24ced8e2f3f630e78ef303e66d9209e04c056fc863329",
+  "csvFile": "1.2.643.5.1.13.13.11.1367_5.18.csv",
+  "csvSha256": "998e1007d9fe1d33c4fa56d88cd662ceb2beca8af37e51b36eabacf2e336b6d7",
+  "preparedFile": "processed/nsi-drug-terms.json",
+  "preparedSha256": "782e17ce54b4c84d52d8cbf1bf0f8a45d952365f7b26c4d7442d8ac23a102279",
+  "records": 14244,
+  "englishNames": 12911,
+  "latinNames": 12886,
+  "alternativeNameRecords": 138,
+  "receivedAt": "2026-10-19T07:46:51.929008+00:00",
+  "acquisition": "user_supplied_official_named_export",
+  "status": "complete_file",
+  "clinicalUseApproved": false,
+  "limitation": "Source fields preserved, including empty names and group codes. Names and SNOMED/ATC codes do not themselves approve a DDI provider identity."
+}

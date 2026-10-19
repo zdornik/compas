@@ -1,3 +1,4 @@
+import {isEsklpCode,esklpCodeSearch,nsiNameSearch,esklpProduct} from './esklp.mjs';
 import {referenceSearch} from './reference-search.mjs';
 import {resolveIngredientMappings,providerPairs,findProviderInteractions} from './ingredient-identities.mjs';
 // Public reference corpus only. No patient data or prescribing actions are handled here.
@@ -30,6 +31,8 @@ export function createKnowledgeApi(pool) {
       (SELECT count(*)::int FROM knowledge.registry_compositions WHERE review_status='reviewed') "mappedSubstances",
       (SELECT count(*)::int FROM knowledge.substances WHERE name_en IS NOT NULL) "translatedSubstances",
       (SELECT count(*)::int FROM knowledge.inn_terms) "officialInnTerms",
+      (SELECT count(*)::int FROM knowledge.nsi_drug_terms t JOIN knowledge.nsi_drug_snapshots z ON z.id=t.snapshot_id AND z.active) "nsiDrugTerms",
+      (SELECT (manifest->'counts'->>'uniqueKlpCodes')::int FROM knowledge.esklp_snapshots WHERE active) "esklpKlpPositions",
       (SELECT count(DISTINCT d.id)::int FROM knowledge.documents d JOIN knowledge.product_documents x ON x.document_id=d.id JOIN knowledge.products p ON p.id=x.product_id WHERE p.metadata->>'collectionScope'='psychiatry') "psychiatryInstructions",
       (SELECT count(DISTINCT p.registration_number)::int FROM knowledge.products p WHERE p.metadata->>'collectionScope'='psychiatry') "psychiatryRegistrations",
       (SELECT count(DISTINCT p.registration_number)::int FROM knowledge.products p WHERE p.metadata->>'collectionScope'='psychiatry' AND p.instruction_document_id IS NOT NULL) "psychiatryRegistrationsReady"`),
@@ -75,7 +78,7 @@ export function createKnowledgeApi(pool) {
     json(res,result.rows.length?200:404,result.rows[0]||{error:'Документ не найден'});return true;
    }
    if(pathname==='/api/knowledge/products'){
-    const where=`($1='' OR search_vector @@ plainto_tsquery('russian',$1) OR trade_name ILIKE $2 OR inn ILIKE $2 OR EXISTS(SELECT 1 FROM knowledge.substances s WHERE s.id=substance_id AND s.name_en ILIKE $2) OR normalize(registration_number,NFKC) ILIKE $2) AND (NOT $4 OR metadata->>'collectionScope'='psychiatry') AND ($3 OR source_status IN ('Действующий','Выдано по правилам ЕАЭС','Действует на подтверждении государственной регистрации','Действует в иностранных упаковках'))`;
+    const where=`($1='' OR search_vector @@ plainto_tsquery('russian',$1) OR trade_name ILIKE $2 OR inn ILIKE $2 OR EXISTS(SELECT 1 FROM knowledge.substances s WHERE s.id=substance_id AND s.name_en ILIKE $2) OR normalize(registration_number,NFKC) ILIKE $2 OR ${nsiNameSearch('substance_id')} ${isEsklpCode(p.q)?'OR '+esklpCodeSearch('id'):''}) AND (NOT $4 OR metadata->>'collectionScope'='psychiatry') AND ($3 OR source_status IN ('Действующий','Выдано по правилам ЕАЭС','Действует на подтверждении государственной регистрации','Действует в иностранных упаковках'))`;
     const values=[p.q,like(p.q),p.allStatuses,p.psychiatryOnly,p.limit,p.offset];
     const [rows,total]=await Promise.all([pool.query(`SELECT id,registration_number AS "registrationNumber",trade_name AS "tradeName",inn,form,source_status AS "sourceStatus",substance_id AS "substanceId",instruction_document_id AS "instructionDocumentId" FROM knowledge.products WHERE ${where} ORDER BY (instruction_document_id IS NOT NULL) DESC,trade_name,registration_number,id LIMIT $5 OFFSET $6`,values),pool.query(`SELECT count(*)::int n FROM knowledge.products WHERE ${where}`,values.slice(0,4))]);
     json(res,200,{items:rows.rows,total:total.rows[0].n,limit:p.limit,offset:p.offset});return true;
@@ -86,7 +89,7 @@ export function createKnowledgeApi(pool) {
     if(!row.rows.length){json(res,404,{error:'Препарат не найден'});return true;}
     const item=row.rows[0];
     const [docs,mentions]=await Promise.all([pool.query(`SELECT ${fields},(SELECT count(*)::int FROM knowledge.pages k WHERE k.document_id=d.id) AS "pageCount" FROM knowledge.documents d JOIN knowledge.product_documents x ON x.document_id=d.id WHERE x.product_id=$1 ORDER BY d.title,d.version`,[item.id]),pool.query(`SELECT DISTINCT d.id,d.title,m.page,m.context,m.review_status AS "reviewStatus" FROM knowledge.mentions m JOIN knowledge.documents d ON d.id=m.document_id WHERE m.substance_id=$1 ORDER BY d.title,m.page LIMIT 15`,[item.substanceId])]);
-    json(res,200,{...item,instructions:docs.rows,mentions:mentions.rows,identityMappings:await resolveIngredientMappings(pool,[item.substanceId])});return true;
+    json(res,200,{...item,instructions:docs.rows,mentions:mentions.rows,identityMappings:await resolveIngredientMappings(pool,[item.substanceId]),esklp:await esklpProduct(pool,item.id)});return true;
    }
    if(pathname==='/api/knowledge/interactions'){
     const ids=[...new Set(url.searchParams.getAll('id'))];
