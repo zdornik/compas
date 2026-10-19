@@ -11,3 +11,18 @@
 .cp-safety-compact>header{padding:13px 15px}.cp-safety-compact>header h3{font-size:15px}.cp-safety-compact>header p{font-size:11px}.cp-safety-compact .cp-risk{padding:12px 15px;margin:10px 0}.cp-safety-compact .cp-risk>p{font-size:13px;line-height:1.65;margin:0}.cp-safety-compact .cp-risk>small{font-size:10px;margin:0 0 6px}.cp-safety-compact .cp-risk details{margin-top:7px;font-size:11px}.cp-safety-compact .cp-risk details p{font-size:12px;line-height:1.7}.cp-safety-compact .cp-safety-limits{margin-top:15px}.cp-safety-compact .cp-risk .cp-evidence{white-space:normal}
 .account-preferences{display:grid;gap:14px}.account-preferences .settings-intro{align-items:center}.account-preferences .settings-intro h3{margin:0}.account-preferences .input-hint{margin:0;line-height:1.65}.account-consent{display:flex;gap:12px;align-items:flex-start;font-size:14px;line-height:1.65}.account-consent input{appearance:auto;accent-color:var(--ui-accent);width:18px;height:18px;flex:none;margin-top:4px}.account-consent:has(input:disabled){opacity:.6}
 .cp-patient-chat-entry{display:flex;align-items:center;gap:18px;padding:24px;margin-bottom:24px}.cp-patient-chat-entry>div{flex:1;min-width:0}.cp-patient-chat-entry h2{font-size:19px;margin:0 0 7px}.cp-patient-chat-entry p{color:var(--ui-muted);font-size:13px;line-height:1.6}.cp-patient-chat-entry button{display:flex;align-items:center;gap:10px}@media(max-width:650px){.cp-patient-chat-entry{flex-wrap:wrap;padding:20px}.cp-patient-chat-entry button{width:100%;justify-content:space-between}}
+
+.cp-record-tabs{max-width:660px;margin:0 0 28px}
+.cp-profile-toolbar{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:26px 0 18px}
+.cp-profile-toolbar h2{font-size:18px;line-height:1.5}
+.doctor-app .cp-edit-profile{white-space:normal;text-align:left;justify-content:flex-start;flex-shrink:0}
+.cp-edit-profile>span{min-width:0}
+.cp-profile-overview .cp-medical-summary{margin:0 0 28px}
+.cp-linked-patient{display:grid;grid-template-columns:44px minmax(0,1fr) 36px;gap:17px;min-height:104px;padding:23px;border-radius:24px;border:1px solid var(--ui-line);background:var(--ui-paper);transition:background-color .2s,border-color .2s,box-shadow .2s}
+.cp-linked-patient>.workspace-icon{width:44px;height:44px;border-radius:15px}
+.cp-linked-patient>svg:last-child{width:36px;height:36px;padding:8px;border-radius:50%;background:var(--ui-soft);color:var(--ui-accent)}
+.cp-linked-patient:not(:disabled):hover{background:var(--ui-surface);border-color:var(--ui-accent)}
+.cp-linked-patient:active{transform:none}
+@media(max-width:760px){.cp-profile-toolbar{flex-wrap:wrap;gap:12px}.cp-profile-toolbar h2{font-size:17px}.doctor-app .cp-edit-profile{width:100%;justify-content:center;text-align:center;min-height:48px;padding:11px 16px}.cp-linked-patient{padding:19px;gap:13px;grid-template-columns:40px minmax(0,1fr) 32px}.cp-linked-patient>.workspace-icon{width:40px;height:40px}.cp-linked-patient>svg:last-child{width:32px;height:32px}.cp-record-tabs{margin-bottom:24px}}
+@media(prefers-reduced-motion:reduce){.cp-linked-patient{transition:none}}
+@media(max-width:360px){.cp-connected-care .cp-record-tabs>button{font-size:11px;padding-inline:4px}}

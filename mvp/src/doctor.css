@@ -48,3 +48,11 @@
 .dw-calendar-day h2{font-size:22px;margin:15px 0 12px}
 .dw-calendar-day .section-kicker{margin-top:20px}
 @media(max-width:1100px){.dw-shared-calendar{grid-template-columns:1fr}}
+
+/* Action controls follow the patient's rounded, consistently sized buttons. */
+.doctor-app .dw-primary,.doctor-app .dw-outline-button{min-height:46px;border-radius:99px;padding:11px 18px;font-size:13px;line-height:1.5;gap:9px}
+.doctor-app .dw-primary>svg,.doctor-app .dw-outline-button>svg,.doctor-app .dw-text-button>svg{flex-shrink:0}
+.doctor-app .dw-outline-button:hover{background:var(--ui-soft);border-color:var(--ui-accent)}
+.doctor-app .dw-text-button{min-height:44px;line-height:1.5;font-size:12px;gap:8px}
+.doctor-app .dw-page-heading>.dw-primary{align-self:center;margin-top:0}
+@media(max-width:600px){.doctor-app .dw-page-heading>.dw-primary{min-height:44px;font-size:12px}.doctor-app .dw-page-heading{gap:18px}}

@@ -9,9 +9,10 @@ import {SlidingTabs} from './SlidingTabs.jsx';
 import {normalizeReferenceText} from './reference-text.js';
 const TABS=[{id:'clinical',label:'Рекомендации',icon:BookOpen},{id:'products',label:'Препараты',icon:Pill},{id:'interactions',label:'Взаимодействия',icon:ShieldCheck}];
 function useReference(path) {
- const [state,setState]=useState({data:null,error:'',loading:true});const [retry,setRetry]=useState(0);
- useEffect(()=>{if(!path){setState({data:null,error:'',loading:false});return;}const controller=new AbortController();setState({data:null,error:'',loading:true});readReference(path,controller.signal).then(data=>setState({data,error:'',loading:false})).catch(error=>{if(!controller.signal.aborted)setState({data:null,error:error.message,loading:false});});return()=>controller.abort();},[path,retry]);
- return {...state,reload:()=>setRetry(value=>value+1)};
+ const [state,setState]=useState({path,data:null,error:'',loading:Boolean(path)});const [retry,setRetry]=useState(0);
+ useEffect(()=>{if(!path){setState({path,data:null,error:'',loading:false});return;}const controller=new AbortController();setState({path,data:null,error:'',loading:true});readReference(path,controller.signal).then(data=>{if(!controller.signal.aborted)setState({path,data,error:'',loading:false});}).catch(error=>{if(!controller.signal.aborted)setState({path,data:null,error:error.message,loading:false});});return()=>controller.abort();},[path,retry]);
+ // A new tab renders before effects run. Never give it another resource's rows.
+ return {...(state.path===path?state:{data:null,error:'',loading:Boolean(path)}),reload:()=>setRetry(value=>value+1)};
 }
 function LoadingError({state}) {return state.loading ? <div className="kb-loading" role="status"><span/>Загружаем справочник…</div> : state.error ? <div className="kb-error" role="alert"><p>{state.error}</p><button className="dw-outline-button" onClick={state.reload}><ArrowsClockwise size={16}/>Повторить</button></div> : null;}
 function Pagination({total,offset,onChange}) {return total>20 && <div className="kb-pagination"><span>{offset+1}–{Math.min(total,offset+20)} из {total.toLocaleString('ru-RU')}</span><div><button className="dw-icon-button" aria-label="Предыдущая страница результатов" disabled={offset===0} onClick={()=>onChange(offset-20)}><CaretLeft size={18}/></button><button className="dw-icon-button" aria-label="Следующая страница результатов" disabled={offset+20>=total} onClick={()=>onChange(offset+20)}><CaretRight size={18}/></button></div></div>;}
@@ -22,7 +23,7 @@ export function KnowledgeLibrary() {
  useEffect(()=>{const timer=setTimeout(()=>{setSearch(query);setOffset(0);},350);return()=>clearTimeout(timer);},[query]);
  const base=tab==='clinical' ? '/api/knowledge/documents?kind=clinical_recommendation' : '/api/knowledge/products?';
  const list=useReference(`${base}&q=${encodeURIComponent(search)}&offset=${offset}&allStatuses=${allStatuses?'1':'0'}&scope=${wholeRegistry?'all':'psychiatry'}`);
- const selectTab=next=>{setTab(next);setQuery('');setSearch('');setOffset(0);setSelected(null);setCheck(null);};
+ const selectTab=next=>{if(next===tab)return;setTab(next);setQuery('');setSearch('');setOffset(0);setSelected(null);setCheck(null);};
  const addDrug=drug=>{if(drugs.length>=10||drugs.some(item=>item.id===drug.id))return;setDrugs(old=>[...old,drug]);setCheck(null);};
  const checkInteractions=async()=>{setCheck({loading:true});try{setCheck({data:await readReference('/api/knowledge/interactions?'+drugs.map(item=>'id='+encodeURIComponent(item.id)).join('&'))});}catch(error){setCheck({error:error.message});}};
  if(selected?.kind==='document')return <DocumentReader id={selected.id} initialQuery={selected.query} initialPage={selected.page||1} onBack={()=>setSelected(selected.parent||null)}/>;

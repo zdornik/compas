@@ -1,0 +1,282 @@
+{
+  "format": "postgresql-custom-data-v1",
+  "state": "ready",
+  "repository": "zdornik/compas",
+  "release": "reference-db-2026-10-19",
+  "schema": "knowledge",
+  "containsPatientData": false,
+  "containsSecrets": false,
+  "postgresMajor": 17,
+  "capturedAt": "2026-10-19T19:55:50.475019+00:00",
+  "serverVersion": "17.11",
+  "requiredMigrations": [
+    "001-medications",
+    "002-knowledge",
+    "003-knowledge-layout",
+    "004-care",
+    "005-ingredient-identities",
+    "006-reference-catalogs",
+    "007-eaeu-inn",
+    "008-auth",
+    "009-care-chat",
+    "010-manual-ingredient-reviews",
+    "011-esklp",
+    "012-nsi-drug-terms",
+    "013-reference-catalog",
+    "014-chronic-search",
+    "015-instruction-publication",
+    "016-composition-dependencies"
+  ],
+  "tables": {
+    "catalog_products": 126861,
+    "catalog_substances": 3745,
+    "catalog_terms": 12070,
+    "composition_dependencies": 127,
+    "condition_mappings": 62,
+    "conditions": 14641,
+    "disease_interactions": 8268,
+    "documents": 2640,
+    "esklp_klp": 589326,
+    "esklp_product_links": 2438882,
+    "esklp_smnn": 7645,
+    "esklp_snapshots": 1,
+    "esklp_trade_names": 42393,
+    "import_runs": 8,
+    "ingredient_entities": 925,
+    "inn_terms": 9578,
+    "interactions": 295183,
+    "manual_ingredient_reviews": 67,
+    "mentions": 2437,
+    "nsi_drug_snapshots": 1,
+    "nsi_drug_terms": 14244,
+    "nsi_substance_terms": 2237,
+    "page_assets": 10934,
+    "pages": 30173,
+    "product_documents": 10803,
+    "products": 126861,
+    "provider_ingredients": 925,
+    "registry_components": 1056,
+    "registry_compositions": 986,
+    "source_drugs": 2283,
+    "sources": 10,
+    "substance_search_aliases": 1056,
+    "substances": 3745
+  },
+  "excludedTables": [
+    "catalog_state"
+  ],
+  "parts": [
+    {
+      "index": 1,
+      "name": "reference-db-20261019-195547.part-0001",
+      "bytes": 536870912,
+      "sha256": "cf94fdd4c0a1480944b7825e089d600f6b28ab6251776d7b30175c72d8ad5ef7",
+      "assetId": 657279586
+    },
+    {
+      "index": 2,
+      "name": "reference-db-20261019-195547.part-0002",
+      "bytes": 536870912,
+      "sha256": "0a8102aa1d5d79773272206d2a57eabb62da2f4137726aed4be7d28e8f3d9099",
+      "assetId": 657282885
+    },
+    {
+      "index": 3,
+      "name": "reference-db-20261019-195547.part-0003",
+      "bytes": 536870912,
+      "sha256": "46a83a9d9b9b334111ee90aa6a8a3c01fffd7938035e06768e3dc9a51bd99b54",
+      "assetId": 657285845
+    },
+    {
+      "index": 4,
+      "name": "reference-db-20261019-195547.part-0004",
+      "bytes": 536870912,
+      "sha256": "883b4be224830e9cbd6c752773001b27d78052fc5ea886c6620d1dc908e264d9",
+      "assetId": 657288548
+    },
+    {
+      "index": 5,
+      "name": "reference-db-20261019-195547.part-0005",
+      "bytes": 536870912,
+      "sha256": "906446f30b82917882dacd15eb896fd7a38bdeac9b70c1145b29ab6152e81d52",
+      "assetId": 657290960
+    },
+    {
+      "index": 6,
+      "name": "reference-db-20261019-195547.part-0006",
+      "bytes": 536870912,
+      "sha256": "00608821003a9dee8a3c30487992177c6d2ed5848d5d66321fdf8b587981fc91",
+      "assetId": 657293346
+    },
+    {
+      "index": 7,
+      "name": "reference-db-20261019-195547.part-0007",
+      "bytes": 536870912,
+      "sha256": "050579d31406e42f2ac127102135ca1152e9a2784659deae7f2130f86b4fe2a9",
+      "assetId": 657295545
+    },
+    {
+      "index": 8,
+      "name": "reference-db-20261019-195547.part-0008",
+      "bytes": 536870912,
+      "sha256": "60ac3fbe3937b781ceeb4fe7b82520dd34d3b2004d7f411901cb8b50ae39f09d",
+      "assetId": 657297908
+    },
+    {
+      "index": 9,
+      "name": "reference-db-20261019-195547.part-0009",
+      "bytes": 536870912,
+      "sha256": "653044952affc28f11cc1425d6deb92ddad6f1fba05179bae90bdc9e7e282e94",
+      "assetId": 657300288
+    },
+    {
+      "index": 10,
+      "name": "reference-db-20261019-195547.part-0010",
+      "bytes": 536870912,
+      "sha256": "bb20830e598448761cd86baf3c488961ed81575dd21091c046bf79e9aa2fe8bd",
+      "assetId": 657302464
+    },
+    {
+      "index": 11,
+      "name": "reference-db-20261019-195547.part-0011",
+      "bytes": 536870912,
+      "sha256": "0fb8d73a73b3a9dc4560d547fdf412133ce6df34d36a513446c552b7facba141",
+      "assetId": 657304551
+    },
+    {
+      "index": 12,
+      "name": "reference-db-20261019-195547.part-0012",
+      "bytes": 536870912,
+      "sha256": "faebd1e5ca5fbf5ec3f59eb0863a481708ee4770c7092751be4194673f3d9439",
+      "assetId": 657306999
+    },
+    {
+      "index": 13,
+      "name": "reference-db-20261019-195547.part-0013",
+      "bytes": 536870912,
+      "sha256": "3c92e082c471beefd7eb24d3f698e14ddc2f29afb1ebb9f80da113158c8a7aca",
+      "assetId": 657309464
+    },
+    {
+      "index": 14,
+      "name": "reference-db-20261019-195547.part-0014",
+      "bytes": 536870912,
+      "sha256": "d23b3d57705052f39b93f033773cf15cac72a12f9f16eae7e9efaa25d6a626ad",
+      "assetId": 657311748
+    },
+    {
+      "index": 15,
+      "name": "reference-db-20261019-195547.part-0015",
+      "bytes": 536870912,
+      "sha256": "e551a8ea0d406f4f4c160af9a0b035b57d68290f58e3087f9b55b13c297287b1",
+      "assetId": 657313667
+    },
+    {
+      "index": 16,
+      "name": "reference-db-20261019-195547.part-0016",
+      "bytes": 536870912,
+      "sha256": "7826b5ad867f3e81934189ac013ea5267b2a03d124fa9a280fb221fc84c40054",
+      "assetId": 657315893
+    },
+    {
+      "index": 17,
+      "name": "reference-db-20261019-195547.part-0017",
+      "bytes": 536870912,
+      "sha256": "933ad45c06a0976cf853fb662a075eff367b2ce91bb65c46101f43d45ccfb20f",
+      "assetId": 657318332
+    },
+    {
+      "index": 18,
+      "name": "reference-db-20261019-195547.part-0018",
+      "bytes": 536870912,
+      "sha256": "bbf7cb5a551442d5c93ccd41b203833a138b3a4b03e68bece83ddb98eedc3c4d",
+      "assetId": 657320592
+    },
+    {
+      "index": 19,
+      "name": "reference-db-20261019-195547.part-0019",
+      "bytes": 536870912,
+      "sha256": "16e1197798cc15fec2d8a8afb92d7054da5e8dcffead7ea0a1b60f3df27596ad",
+      "assetId": 657322769
+    },
+    {
+      "index": 20,
+      "name": "reference-db-20261019-195547.part-0020",
+      "bytes": 536870912,
+      "sha256": "5ac8ac4715e69bee2aba958142747e7fa086f361daf276f75d0938298f90a769",
+      "assetId": 657325629
+    },
+    {
+      "index": 21,
+      "name": "reference-db-20261019-195547.part-0021",
+      "bytes": 536870912,
+      "sha256": "fe4923ae2bdbe15bdb126c37ccc6f5b2739fee7f6371897a7828bae26eb4f287",
+      "assetId": 657328024
+    },
+    {
+      "index": 22,
+      "name": "reference-db-20261019-195547.part-0022",
+      "bytes": 536870912,
+      "sha256": "4d2f574b400140f07a610fc371f69abea18fe701a8ec342262847f916c9782f3",
+      "assetId": 657330769
+    },
+    {
+      "index": 23,
+      "name": "reference-db-20261019-195547.part-0023",
+      "bytes": 536870912,
+      "sha256": "74a4f876890acfe18447c5c5c90310489505be985596e31ed579ac332b402d3e",
+      "assetId": 657332983
+    },
+    {
+      "index": 24,
+      "name": "reference-db-20261019-195547.part-0024",
+      "bytes": 536870912,
+      "sha256": "c58abc4545af118e5fdd1de380957542980f36e9736bdc80e0a9f6def9365a3c",
+      "assetId": 657335092
+    },
+    {
+      "index": 25,
+      "name": "reference-db-20261019-195547.part-0025",
+      "bytes": 536870912,
+      "sha256": "7e04ef28b661ccb67b1dbf4139dc6420bdd60763b7ac2c8aaad81f83209a6079",
+      "assetId": 657337831
+    },
+    {
+      "index": 26,
+      "name": "reference-db-20261019-195547.part-0026",
+      "bytes": 536870912,
+      "sha256": "aa27e738d754b695f094abebcbce6c130c06bdaef93e9c15f24f7b430e37b34f",
+      "assetId": 657340137
+    },
+    {
+      "index": 27,
+      "name": "reference-db-20261019-195547.part-0027",
+      "bytes": 536870912,
+      "sha256": "bb08127a9bf63c808cb644d579b8565c628972d48c9de1e7ca2e55bc4e9fb823",
+      "assetId": 657341919
+    },
+    {
+      "index": 28,
+      "name": "reference-db-20261019-195547.part-0028",
+      "bytes": 536870912,
+      "sha256": "2878d48615b331eba1d79148d3b70d40d4adeee9cf602670fca2c9ed66391bb5",
+      "assetId": 657343977
+    },
+    {
+      "index": 29,
+      "name": "reference-db-20261019-195547.part-0029",
+      "bytes": 536870912,
+      "sha256": "e316a52c9796412f1d622c02d4fa434ec639951042f4fad067584bd634799a7b",
+      "assetId": 657345900
+    },
+    {
+      "index": 30,
+      "name": "reference-db-20261019-195547.part-0030",
+      "bytes": 353544051,
+      "sha256": "e55b54308e60cf6d8e7e18c442a3bea5e1da7cdfcffd8aa98e58a156e16fa8de",
+      "assetId": 657348340
+    }
+  ],
+  "bytes": 15922800499,
+  "sha256": "e3a78569add2b83cf06600e2f2434d9190d01fb0115c194f8e211ec7893a4f78"
+}
