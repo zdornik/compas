@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+const base=process.env.COMPASS_TEST_ORIGIN||'http://127.0.0.1:4174';
+const get=async path=>{const response=await fetch(base+path,{headers:{Accept:'application/json'},signal:AbortSignal.timeout(20000)});assert.equal(response.status,200,path);return response.json();};
+const products=async name=>(await get('/api/knowledge/products?scope=psychiatry&q='+encodeURIComponent(name)+'&limit=100&allStatuses=1')).items.filter(row=>row.inn===name);
+const status=await get('/api/knowledge/status');assert.ok(status.counts.mappedSubstances>=853);
+const left=(await products('Флувоксамин'))[0],right=(await products('Пароксетин'))[0];assert.ok(left&&right);
+const detail=await get('/api/knowledge/products/'+left.id),mapping=detail.identityMappings[0];assert.equal(mapping.status,'mapped');assert.equal(mapping.nameEn,'fluvoxamine');assert.equal(mapping.components[0].providerId,'DDInter770');assert.ok(mapping.officialTermCode);
+const pair=await get('/api/knowledge/interactions?id='+left.id+'&id='+right.id);assert.equal(pair.safeToCombine,null);assert.equal(pair.identityMappings.filter(row=>row.status==='mapped').length,2);assert.ok(pair.items.some(row=>[row.drugAId,row.drugBId].includes('DDInter770')));
+const absent=(await products('Пипофезин'))[0];assert.ok(absent);const gap=(await get('/api/knowledge/products/'+absent.id)).identityMappings[0];assert.equal(gap.nameEn,'pipofezine');assert.equal(gap.status,'unmapped');
+const withoutDocument=(await products('Флувоксамин')).find(row=>!row.instructionDocumentId);assert.ok(withoutDocument,'Expected historical no-PDF GRLS registration');const noPdf=await get('/api/knowledge/products/'+withoutDocument.id);assert.equal(noPdf.identityMappings[0].status,'mapped');assert.equal(noPdf.instructions.length,0);
+console.log(JSON.stringify({mappedRegistryInns:status.counts.mappedSubstances,translatedRegistryInns:status.counts.translatedSubstances,example:{ru:left.inn,en:mapping.nameEn,providerId:mapping.components[0].providerId},realSourcePairFound:true,noPdfMappingVerified:true,unmappedEnglishLabelVerified:true,safeToCombine:pair.safeToCombine,patientDataRead:false,patientDataWritten:false}));

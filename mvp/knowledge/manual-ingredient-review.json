@@ -1,0 +1,1504 @@
+{
+  "reviewDate": "2026-10-19",
+  "reviewScope": "67 remaining psychiatry registry names after exact EAEU crosswalk",
+  "reviewType": "manual_source_identity_review_not_clinical_expert_certification",
+  "sourceSnapshotSha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+  "clinicalUseApproved": false,
+  "counts": {
+    "absent_from_snapshot": 33,
+    "composition_incomplete": 15,
+    "form_unresolved": 10,
+    "linked": 8,
+    "source_conflict": 1
+  },
+  "reviews": [
+    {
+      "substanceId": "inn:b28be10ace5f4e0bd3403dbd",
+      "nameRu": "Валерианы лекарственной корневища с корнями",
+      "nameEn": "Valerian rhizomes and roots",
+      "reason": "official_translation_missing",
+      "translationKind": "descriptive",
+      "providerStatus": "form_unresolved",
+      "components": [],
+      "note": "В базе есть общее растительное название, но оно не подтверждает именно эту форму, часть растения и состав. Сырьё, настойка и экстракт не объявлены одинаковыми.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "manual_display_description",
+          "source": "Exact GRLS grouping name; descriptive translation only, not an INN identity decision"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:0467bdfbb797af7f475f5642",
+      "nameRu": "Бромкамфора",
+      "nameEn": "bromocamphor",
+      "reason": "official_translation_missing",
+      "translationKind": "reviewed_synonym",
+      "providerStatus": "absent_from_snapshot",
+      "components": [],
+      "note": "В закреплённой выгрузке нет подтверждённого ID для этого МНН или проверенного синонима.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "primary_synonym_reference",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/camphor_-monobromated"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:bf003f2e4eb8c19bef7f7d88",
+      "nameRu": "Пипофезин",
+      "nameEn": "pipofezine",
+      "reason": "provider_ingredient_missing",
+      "translationKind": "official_inn",
+      "providerStatus": "absent_from_snapshot",
+      "components": [],
+      "note": "В закреплённой выгрузке нет подтверждённого ID для этого МНН или проверенного синонима.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:e5f96eeda252c6acfa89c546",
+      "nameRu": "Валерианы лекарственной корневищ с корнями настойка+Ландыша травы настойка",
+      "nameEn": "Valerian rhizome and root tincture + Lily-of-the-valley herb tincture",
+      "reason": "composition_requires_component_review",
+      "translationKind": "descriptive",
+      "providerStatus": "form_unresolved",
+      "components": [],
+      "note": "В базе есть общее растительное название, но оно не подтверждает именно эту форму, часть растения и состав. Сырьё, настойка и экстракт не объявлены одинаковыми.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "manual_display_description",
+          "source": "Exact GRLS grouping name; descriptive translation only, not an INN identity decision"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:b5544cd48f898ef4659d19d0",
+      "nameRu": "Аминофенилмасляная кислота",
+      "nameEn": "aminophenylbutyric acid (phenibut)",
+      "reason": "official_translation_missing",
+      "translationKind": "reviewed_synonym",
+      "providerStatus": "absent_from_snapshot",
+      "components": [],
+      "note": "В закреплённой выгрузке нет подтверждённого ID для этого МНН или проверенного синонима.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "primary_synonym_reference",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/14113"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:e2ec6c478e82d074bdc6d54f",
+      "nameRu": "Пирлиндол",
+      "nameEn": "pirlindole",
+      "reason": "provider_ingredient_missing",
+      "translationKind": "official_inn",
+      "providerStatus": "absent_from_snapshot",
+      "components": [],
+      "note": "В закреплённой выгрузке нет подтверждённого ID для этого МНН или проверенного синонима.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:d1560aa9562207b2381ad513",
+      "nameRu": "Бромдигидрохлорфенилбензодиазепин",
+      "nameEn": "phenazepam",
+      "reason": "official_translation_missing",
+      "translationKind": "reviewed_synonym",
+      "providerStatus": "absent_from_snapshot",
+      "components": [],
+      "note": "В закреплённой выгрузке нет подтверждённого ID для этого МНН или проверенного синонима.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "primary_synonym_reference",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/40113"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:790b16ef23f5a59050438cab",
+      "nameRu": "Вальпроевая кислота",
+      "nameEn": "valproic acid",
+      "reason": "provider_canonical_identity_disagrees",
+      "translationKind": "reviewed_synonym",
+      "providerStatus": "linked",
+      "components": [
+        {
+          "nameRu": "Вальпроевая кислота",
+          "nameEn": "valproic acid",
+          "providerId": "DDInter1913",
+          "providerName": "Valproic acid",
+          "relation": "reviewed_active_moiety"
+        }
+      ],
+      "note": "Ручная проверка полного МНН, оригинальной инструкции и исходного ID; это справочная идентичность, не клинический допуск. Сверено исходное имя DDInter; солевая/анионная подпись RxNorm сохранена отдельно, без пересчёта доз.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "grls_full_composition",
+          "documentId": "grls-doc:43d92620fdceab6e2ee3364d27b314e0",
+          "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/07/17/1532328/0c24dbe6-efd5-4395-b16f-6eb2ba130057.pdf",
+          "sha256": "40688fee9731ada525b91b3f7554affefb3ca43c87986ed26f6eb0d2d8d0d3c0"
+        },
+        {
+          "kind": "primary_identity_reference",
+          "url": "https://atcddd.fhi.no/atc_ddd_index/?code=N03AG01",
+          "file": "valproic-acid.source",
+          "sha256": "4c79fd47e3ad92efefb1b229a9b44db0efef4fae77f5467077229896ed64fb1c",
+          "bytes": 11059
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:6356afc4d0b2d6bc3e876beb",
+      "nameRu": "Пустырника трава",
+      "nameEn": "Motherwort herb",
+      "reason": "official_translation_missing",
+      "translationKind": "descriptive",
+      "providerStatus": "absent_from_snapshot",
+      "components": [],
+      "note": "В закреплённой выгрузке нет подтверждённого ID для этого МНН или проверенного синонима.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "manual_display_description",
+          "source": "Exact GRLS grouping name; descriptive translation only, not an INN identity decision"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:1d153379cad6027c0bb82504",
+      "nameRu": "Сульпирид",
+      "nameEn": "sulpiride",
+      "reason": "provider_ingredient_missing",
+      "translationKind": "official_inn",
+      "providerStatus": "absent_from_snapshot",
+      "components": [],
+      "note": "В закреплённой выгрузке нет подтверждённого ID для этого МНН или проверенного синонима.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:55879a8d55cef3874183d312",
+      "nameRu": "Галантамин",
+      "nameEn": "galantamine",
+      "reason": "provider_canonical_identity_disagrees",
+      "translationKind": "official_inn",
+      "providerStatus": "source_conflict",
+      "components": [],
+      "note": "Конфликт upstream: DDInter802 назван Galantamine, но RxNorm указывает benzgalantamine и ATC N06DA06. Для galantamine официальный ATC N06DA04. Автоматическое соответствие заблокировано.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "primary_identity_conflict",
+          "url": "https://atcddd.fhi.no/atc_ddd_index/?code=N06DA04",
+          "sha256": "4f251f96a65ef5ee5c38b0b4061cdf4124d00d99da2d5494ee4a53d12d574f7e"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:698d6ba3745e9d98c1aa7cbb",
+      "nameRu": "Левомепромазин",
+      "nameEn": "levomepromazine",
+      "reason": "provider_ingredient_missing",
+      "translationKind": "reviewed_synonym",
+      "providerStatus": "linked",
+      "components": [
+        {
+          "nameRu": "Левомепромазин",
+          "nameEn": "levomepromazine",
+          "providerId": "DDInter1175",
+          "providerName": "Methotrimeprazine",
+          "relation": "exact"
+        }
+      ],
+      "note": "Ручная проверка полного МНН, оригинальной инструкции и исходного ID; это справочная идентичность, не клинический допуск.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "grls_full_composition",
+          "documentId": "grls-doc:05cdf923f9a159d80af6154b97355b12",
+          "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2024/11/26/1511289/c352ab86-adfe-4ada-b549-057038ca232c.pdf",
+          "sha256": "fc5bfc987bbff2ce1bc3db4513f4e22874e5873788e8f919d0d0aadbdc9279ff"
+        },
+        {
+          "kind": "primary_identity_reference",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/72287/synonyms/JSON",
+          "file": "levomepromazine.source",
+          "sha256": "bdf2ab3a7460054fc7ba47ebb35b102887419e41f0c6695fea33dc8aa07158cb",
+          "bytes": 4478
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:69c5059b08f924a944705e25",
+      "nameRu": "Тофизопам",
+      "nameEn": "tofisopam",
+      "reason": "provider_ingredient_missing",
+      "translationKind": "official_inn",
+      "providerStatus": "absent_from_snapshot",
+      "components": [],
+      "note": "В закреплённой выгрузке нет подтверждённого ID для этого МНН или проверенного синонима.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:5dd7225c7fd790b221f2d773",
+      "nameRu": "Гинкго двулопастного листьев экстракт",
+      "nameEn": "ginkgo biloba leaf extract",
+      "reason": "official_translation_missing",
+      "translationKind": "descriptive",
+      "providerStatus": "linked",
+      "components": [
+        {
+          "nameRu": "Гинкго двулопастного листьев экстракт",
+          "nameEn": "ginkgo biloba leaf extract",
+          "providerId": "DDInter819",
+          "providerName": "Ginkgo biloba",
+          "relation": "exact"
+        }
+      ],
+      "note": "Ручная проверка полного МНН, оригинальной инструкции и исходного ID; это справочная идентичность, не клинический допуск. Соответствие растительному компоненту не утверждает одинаковую стандартизацию экстрактов; её проверяют по инструкции.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "manual_display_description",
+          "source": "Exact GRLS grouping name; descriptive translation only, not an INN identity decision"
+        },
+        {
+          "kind": "grls_full_composition",
+          "documentId": "grls-doc:3281a9ccc874ef7aeeafb14dd3b57b91",
+          "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2025/06/10/1518094/b7b1fd9f-f91f-4fca-a0c8-57f0b1430c4f.pdf",
+          "sha256": "8497d05b8a707a8e9dbddb3f0223559fe2f9d2a2562a0b7c8834c486f7d81bb3"
+        },
+        {
+          "kind": "primary_identity_reference",
+          "url": "https://www.ema.europa.eu/en/medicines/herbal/ginkgo-folium",
+          "file": "ginkgo.source",
+          "sha256": "9a211ad576456ea2b96789f8c5677fa0003967268e9c25591c98479bdf52b86b",
+          "bytes": 132241
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:cdf97ce366f0cb5af57c94a8",
+      "nameRu": "Хлорпротиксен",
+      "nameEn": "chlorprothixene",
+      "reason": "provider_ingredient_missing",
+      "translationKind": "official_inn",
+      "providerStatus": "absent_from_snapshot",
+      "components": [],
+      "note": "В закреплённой выгрузке нет подтверждённого ID для этого МНН или проверенного синонима.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:3dcbeba54302025e3b97e85d",
+      "nameRu": "Валерианы лекарственной корневищ с корнями экстракт",
+      "nameEn": "valerian root and rhizome extract",
+      "reason": "official_translation_missing",
+      "translationKind": "descriptive",
+      "providerStatus": "linked",
+      "components": [
+        {
+          "nameRu": "Валерианы лекарственной корневищ с корнями экстракт",
+          "nameEn": "valerian root extract",
+          "providerId": "DDInter1911",
+          "providerName": "Valerian",
+          "relation": "exact"
+        }
+      ],
+      "note": "Ручная проверка полного МНН, оригинальной инструкции и исходного ID; это справочная идентичность, не клинический допуск. Соответствие растительному компоненту не утверждает одинаковую стандартизацию экстрактов; её проверяют по инструкции.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "manual_display_description",
+          "source": "Exact GRLS grouping name; descriptive translation only, not an INN identity decision"
+        },
+        {
+          "kind": "grls_full_composition",
+          "documentId": "grls-doc:a9568cb93be42d0ac90715c2c6eb2438",
+          "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/07/30/1532748/1dc9b386-b350-43d8-9050-c3a0e322fb82.pdf",
+          "sha256": "db16b82f7b7d4b86e7e0e47b5691f671526a832a6053da0dff1bebdec8bef438"
+        },
+        {
+          "kind": "primary_identity_reference",
+          "url": "https://www.ema.europa.eu/en/medicines/herbal/valerianae-radix",
+          "file": "valerian.source",
+          "sha256": "910d4a1fbed391e9595fe828c655b93249e931ab696c251fcaee45b168d04db9",
+          "bytes": 122290
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:d0b21789c278f2cb6080d10e",
+      "nameRu": "Агомелатин",
+      "nameEn": "agomelatine",
+      "reason": "provider_ingredient_missing",
+      "translationKind": "official_inn",
+      "providerStatus": "absent_from_snapshot",
+      "components": [],
+      "note": "В закреплённой выгрузке нет подтверждённого ID для этого МНН или проверенного синонима.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:f666e5700006a89882a8bc1f",
+      "nameRu": "Тиаприд",
+      "nameEn": "tiapride",
+      "reason": "provider_ingredient_missing",
+      "translationKind": "official_inn",
+      "providerStatus": "absent_from_snapshot",
+      "components": [],
+      "note": "В закреплённой выгрузке нет подтверждённого ID для этого МНН или проверенного синонима.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:632cf80761299b5a19efc52b",
+      "nameRu": "Цитизин",
+      "nameEn": "cytisine",
+      "reason": "official_translation_missing",
+      "translationKind": "reviewed_synonym",
+      "providerStatus": "absent_from_snapshot",
+      "components": [],
+      "note": "В закреплённой выгрузке нет подтверждённого ID для этого МНН или проверенного синонима.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "primary_synonym_reference",
+          "url": "https://atcddd.fhi.no/atc_ddd_index/?code=N07BA04"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:b64667780779d15d8da3c4d0",
+      "nameRu": "Пустырника травы настойка",
+      "nameEn": "Motherwort herb tincture",
+      "reason": "official_translation_missing",
+      "translationKind": "descriptive",
+      "providerStatus": "absent_from_snapshot",
+      "components": [],
+      "note": "В закреплённой выгрузке нет подтверждённого ID для этого МНН или проверенного синонима.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "manual_display_description",
+          "source": "Exact GRLS grouping name; descriptive translation only, not an INN identity decision"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:fddda3e675de0d30ea641010",
+      "nameRu": "Валерианы лекарственной корневищ с корнями настойка",
+      "nameEn": "Valerian rhizome and root tincture",
+      "reason": "official_translation_missing",
+      "translationKind": "descriptive",
+      "providerStatus": "form_unresolved",
+      "components": [],
+      "note": "В базе есть общее растительное название, но оно не подтверждает именно эту форму, часть растения и состав. Сырьё, настойка и экстракт не объявлены одинаковыми.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "manual_display_description",
+          "source": "Exact GRLS grouping name; descriptive translation only, not an INN identity decision"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:96415cb75972da147de408d5",
+      "nameRu": "Дифенгидрамин+Мелатонин",
+      "nameEn": "diphenhydramine + melatonin",
+      "reason": "composition_requires_component_review",
+      "translationKind": "reviewed_synonym",
+      "providerStatus": "linked",
+      "components": [
+        {
+          "nameRu": "Дифенгидрамин",
+          "nameEn": "diphenhydramine",
+          "providerId": "DDInter569",
+          "providerName": "Diphenhydramine",
+          "relation": "reviewed_active_moiety"
+        },
+        {
+          "nameRu": "Мелатонин",
+          "nameEn": "melatonin",
+          "providerId": "DDInter1142",
+          "providerName": "Melatonin",
+          "relation": "exact"
+        }
+      ],
+      "note": "Ручная проверка полного МНН, оригинальной инструкции и исходного ID; это справочная идентичность, не клинический допуск.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "grls_full_composition",
+          "documentId": "grls-doc:e5d753bd615cc6d245b9a5cca33dcb03",
+          "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2024/12/24/1512281/b1474be3-253c-4da2-8fae-3abf93f283f2.pdf",
+          "sha256": "8d63e51221a7933e020c7657ca82f4a9f9b871a25e87490ee67e73878e1f6654"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:daeb848fc20abb1ac3b3f380",
+      "nameRu": "Пустырника травы экстракт",
+      "nameEn": "Motherwort herb extract",
+      "reason": "official_translation_missing",
+      "translationKind": "descriptive",
+      "providerStatus": "absent_from_snapshot",
+      "components": [],
+      "note": "В закреплённой выгрузке нет подтверждённого ID для этого МНН или проверенного синонима.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "manual_display_description",
+          "source": "Exact GRLS grouping name; descriptive translation only, not an INN identity decision"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:733db2b6bfee7d516ec7c2d2",
+      "nameRu": "Цианамид",
+      "nameEn": "cyanamide",
+      "reason": "official_translation_missing",
+      "translationKind": "reviewed_synonym",
+      "providerStatus": "absent_from_snapshot",
+      "components": [],
+      "note": "В закреплённой выгрузке нет подтверждённого ID для этого МНН или проверенного синонима.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "primary_synonym_reference",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/Cyanamide"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:e901fc5cdf2d54910dfdca89",
+      "nameRu": "Гидразинокарбонилметилбромфенилдигидробенздиазепин",
+      "nameEn": "gidazepam",
+      "reason": "official_translation_missing",
+      "translationKind": "reviewed_synonym",
+      "providerStatus": "absent_from_snapshot",
+      "components": [],
+      "note": "В закреплённой выгрузке нет подтверждённого ID для этого МНН или проверенного синонима.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "primary_synonym_reference",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/121919"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:7e3441890202fb5f02787de5",
+      "nameRu": "Пиона уклоняющегося травы, корневищ и корней настойка",
+      "nameEn": "Paeonia anomala herb, rhizome and root tincture",
+      "reason": "official_translation_missing",
+      "translationKind": "descriptive",
+      "providerStatus": "absent_from_snapshot",
+      "components": [],
+      "note": "В закреплённой выгрузке нет подтверждённого ID для этого МНН или проверенного синонима.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "manual_display_description",
+          "source": "Exact GRLS grouping name; descriptive translation only, not an INN identity decision"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:196f0f83454c6eed892dc4fe",
+      "nameRu": "Мелиссы лекарственной листьев экстракт+Мяты перечной листьев масло+Пустырника травы экстракт",
+      "nameEn": "Lemon balm leaf extract + Peppermint leaf oil + Motherwort herb extract",
+      "reason": "composition_requires_component_review",
+      "translationKind": "descriptive",
+      "providerStatus": "composition_incomplete",
+      "components": [],
+      "note": "Английское описание сохраняет весь заявленный состав. Полного соответствия всех компонентов в базе нет; состав не подменяется одним веществом.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "manual_display_description",
+          "source": "Exact GRLS grouping name; descriptive translation only, not an INN identity decision"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:f14a2cec4452fab1b9464c93",
+      "nameRu": "Маритупирдин",
+      "nameEn": "maritupirdine",
+      "reason": "official_translation_missing",
+      "translationKind": "reviewed_synonym",
+      "providerStatus": "absent_from_snapshot",
+      "components": [],
+      "note": "В закреплённой выгрузке нет подтверждённого ID для этого МНН или проверенного синонима.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "primary_synonym_reference",
+          "url": "https://pubmed.ncbi.nlm.nih.gov/41255319/"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:b2048b820867ab51b15c89c8",
+      "nameRu": "Мяты перечной листьев масло+Фенобарбитал+Этилбромизовалерианат",
+      "nameEn": "Peppermint leaf oil + Phenobarbital + Ethyl bromisovalerate",
+      "reason": "composition_requires_component_review",
+      "translationKind": "descriptive",
+      "providerStatus": "composition_incomplete",
+      "components": [],
+      "note": "Английское описание сохраняет весь заявленный состав. Полного соответствия всех компонентов в базе нет; состав не подменяется одним веществом.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "manual_display_description",
+          "source": "Exact GRLS grouping name; descriptive translation only, not an INN identity decision"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:5e01f0d33db5b30f4b1e4ee3",
+      "nameRu": "Валерианы лекарственной корневищ с корнями экстракт+Мелиссы лекарственной листьев экстракт+Мяты перечной листьев экстракт",
+      "nameEn": "Valerian rhizome and root extract + Lemon balm leaf extract + Peppermint leaf extract",
+      "reason": "composition_requires_component_review",
+      "translationKind": "descriptive",
+      "providerStatus": "form_unresolved",
+      "components": [],
+      "note": "В базе есть общее растительное название, но оно не подтверждает именно эту форму, часть растения и состав. Сырьё, настойка и экстракт не объявлены одинаковыми.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "manual_display_description",
+          "source": "Exact GRLS grouping name; descriptive translation only, not an INN identity decision"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:9f036978865bf7784c8d8bb4",
+      "nameRu": "Мяты перечной листьев масло+Пустырника травы настойка+Этилбромизовалерианат",
+      "nameEn": "Peppermint leaf oil + Motherwort herb tincture + Ethyl bromisovalerate",
+      "reason": "composition_requires_component_review",
+      "translationKind": "descriptive",
+      "providerStatus": "composition_incomplete",
+      "components": [],
+      "note": "Английское описание сохраняет весь заявленный состав. Полного соответствия всех компонентов в базе нет; состав не подменяется одним веществом.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "manual_display_description",
+          "source": "Exact GRLS grouping name; descriptive translation only, not an INN identity decision"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:0aa2289a5419acaa5bede29c",
+      "nameRu": "Лития карбонат",
+      "nameEn": "lithium carbonate",
+      "reason": "official_translation_missing",
+      "translationKind": "reviewed_synonym",
+      "providerStatus": "linked",
+      "components": [
+        {
+          "nameRu": "Лития карбонат",
+          "nameEn": "lithium carbonate",
+          "providerId": "DDInter1081",
+          "providerName": "Lithium carbonate",
+          "relation": "exact"
+        }
+      ],
+      "note": "Ручная проверка полного МНН, оригинальной инструкции и исходного ID; это справочная идентичность, не клинический допуск.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "grls_full_composition",
+          "documentId": "grls-doc:42912a3667514c9ec41b57d5354903f4",
+          "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/02/13/1526475/481497a2-7fdf-4451-bc87-8ec500689c8c.pdf",
+          "sha256": "d614436c755adc0cc7e5824883e886647f342104eb017b4ab7704511843b3257"
+        },
+        {
+          "kind": "primary_identity_reference",
+          "url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=203386e3-718f-7c84-e063-6394a90aed34",
+          "file": "lithium-carbonate.source",
+          "sha256": "f09aecaa24a7049c8ba9d0c095e6070ed2f6299212c6664a0388735a042d8916",
+          "bytes": 223005
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:5152efd49b212ed751b11e7e",
+      "nameRu": "Амид N-(6-фенилгексаноил)глицил-L-триптофана",
+      "nameEn": "N-(6-phenylhexanoyl)glycyl-L-tryptophanamide (composition description)",
+      "reason": "official_translation_missing",
+      "translationKind": "descriptive",
+      "providerStatus": "absent_from_snapshot",
+      "components": [],
+      "note": "В закреплённой выгрузке нет подтверждённого ID для этого МНН или проверенного синонима.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "manual_display_description",
+          "source": "Exact GRLS grouping name; descriptive translation only, not an INN identity decision"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:0c52c7539c254f4505bb371e",
+      "nameRu": "Фабомотизол",
+      "nameEn": "fabomotizole",
+      "reason": "provider_ingredient_missing",
+      "translationKind": "official_inn",
+      "providerStatus": "absent_from_snapshot",
+      "components": [],
+      "note": "В закреплённой выгрузке нет подтверждённого ID для этого МНН или проверенного синонима.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:7f691d63af1215e3b92fba22",
+      "nameRu": "Пиона уклоняющегося трава, корневища и корни",
+      "nameEn": "Paeonia anomala herb, rhizomes and roots",
+      "reason": "official_translation_missing",
+      "translationKind": "descriptive",
+      "providerStatus": "absent_from_snapshot",
+      "components": [],
+      "note": "В закреплённой выгрузке нет подтверждённого ID для этого МНН или проверенного синонима.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "manual_display_description",
+          "source": "Exact GRLS grouping name; descriptive translation only, not an INN identity decision"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:25317b56cd932dc5018f197b",
+      "nameRu": "Перициазин",
+      "nameEn": "periciazine",
+      "reason": "provider_ingredient_missing",
+      "translationKind": "official_inn",
+      "providerStatus": "absent_from_snapshot",
+      "components": [],
+      "note": "В закреплённой выгрузке нет подтверждённого ID для этого МНН или проверенного синонима.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:3498098157dfc700e9fd9e43",
+      "nameRu": "Фенобарбитал+Этилбромизовалерианат",
+      "nameEn": "Phenobarbital + Ethyl bromisovalerate",
+      "reason": "composition_requires_component_review",
+      "translationKind": "descriptive",
+      "providerStatus": "composition_incomplete",
+      "components": [],
+      "note": "Английское описание сохраняет весь заявленный состав. Полного соответствия всех компонентов в базе нет; состав не подменяется одним веществом.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "manual_display_description",
+          "source": "Exact GRLS grouping name; descriptive translation only, not an INN identity decision"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:aff8de4923eb0a2b52102595",
+      "nameRu": "Дифенгидрамин+Мяты перечной листьев масло+Пустырника травы настойка+Этилбромизовалерианат",
+      "nameEn": "Diphenhydramine + Peppermint leaf oil + Motherwort herb tincture + Ethyl bromisovalerate",
+      "reason": "composition_requires_component_review",
+      "translationKind": "descriptive",
+      "providerStatus": "composition_incomplete",
+      "components": [],
+      "note": "Английское описание сохраняет весь заявленный состав. Полного соответствия всех компонентов в базе нет; состав не подменяется одним веществом.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "manual_display_description",
+          "source": "Exact GRLS grouping name; descriptive translation only, not an INN identity decision"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:f5bbba352a190b87222a3b80",
+      "nameRu": "Донепезил+Мемантин",
+      "nameEn": "donepezil + memantine",
+      "reason": "composition_requires_component_review",
+      "translationKind": "reviewed_synonym",
+      "providerStatus": "linked",
+      "components": [
+        {
+          "nameRu": "Донепезил",
+          "nameEn": "donepezil",
+          "providerId": "DDInter583",
+          "providerName": "Donepezil",
+          "relation": "reviewed_active_moiety"
+        },
+        {
+          "nameRu": "Мемантин",
+          "nameEn": "memantine",
+          "providerId": "DDInter1146",
+          "providerName": "Memantine",
+          "relation": "reviewed_active_moiety"
+        }
+      ],
+      "note": "Ручная проверка полного МНН, оригинальной инструкции и исходного ID; это справочная идентичность, не клинический допуск.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "grls_full_composition",
+          "documentId": "grls-doc:44ac3bc8e18d084093caed63efecb1cf",
+          "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/08/18/1533502/82cfc96a-0433-49f6-ac78-cb07af66305c.pdf",
+          "sha256": "f8b1e04e3a5bf4c000d24ba9325906edd917065fdbf0e54bb679cb42ab07c1f6"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:b57f3277989bba222254dd4d",
+      "nameRu": "Мелатонин+Мяты перечной листьев масло+Пустырника травы экстракт",
+      "nameEn": "Melatonin + Peppermint leaf oil + Motherwort herb extract",
+      "reason": "composition_requires_component_review",
+      "translationKind": "descriptive",
+      "providerStatus": "composition_incomplete",
+      "components": [],
+      "note": "Английское описание сохраняет весь заявленный состав. Полного соответствия всех компонентов в базе нет; состав не подменяется одним веществом.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "manual_display_description",
+          "source": "Exact GRLS grouping name; descriptive translation only, not an INN identity decision"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:c4b3618ba3547d407b1c98b4",
+      "nameRu": "Пиона уклоняющегося [корневищ и корней + травы] экстракт",
+      "nameEn": "Paeonia anomala rhizome, root and herb extract",
+      "reason": "composition_requires_component_review",
+      "translationKind": "descriptive",
+      "providerStatus": "composition_incomplete",
+      "components": [],
+      "note": "Английское описание сохраняет весь заявленный состав. Полного соответствия всех компонентов в базе нет; состав не подменяется одним веществом.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "manual_display_description",
+          "source": "Exact GRLS grouping name; descriptive translation only, not an INN identity decision"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:e24b78bfcc17cea3cbbfd57b",
+      "nameRu": "Темгиколурил",
+      "nameEn": "temgicoluril (mebicar)",
+      "reason": "official_translation_missing",
+      "translationKind": "reviewed_synonym",
+      "providerStatus": "absent_from_snapshot",
+      "components": [],
+      "note": "В закреплённой выгрузке нет подтверждённого ID для этого МНН или проверенного синонима.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "primary_synonym_reference",
+          "url": "https://gsrs.ncats.nih.gov/ginas/app/ui/substances/ed077ec7-8d79-4a25-ba3c-79a517666139"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:0964245bb3d7cf48c09e84d7",
+      "nameRu": "Глицин+Мелатонин",
+      "nameEn": "Glycine + Melatonin",
+      "reason": "composition_requires_component_review",
+      "translationKind": "descriptive",
+      "providerStatus": "composition_incomplete",
+      "components": [],
+      "note": "Английское описание сохраняет весь заявленный состав. Полного соответствия всех компонентов в базе нет; состав не подменяется одним веществом.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "manual_display_description",
+          "source": "Exact GRLS grouping name; descriptive translation only, not an INN identity decision"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:8a8298a30d55420512e7350a",
+      "nameRu": "Валерианы лекарственной корневища с корнями настойка",
+      "nameEn": "Valerian rhizome and root tincture",
+      "reason": "official_translation_missing",
+      "translationKind": "descriptive",
+      "providerStatus": "form_unresolved",
+      "components": [],
+      "note": "В базе есть общее растительное название, но оно не подтверждает именно эту форму, часть растения и состав. Сырьё, настойка и экстракт не объявлены одинаковыми.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "manual_display_description",
+          "source": "Exact GRLS grouping name; descriptive translation only, not an INN identity decision"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:272ea40503f8037a1531c322",
+      "nameRu": "Этифоксин",
+      "nameEn": "etifoxine",
+      "reason": "provider_ingredient_missing",
+      "translationKind": "official_inn",
+      "providerStatus": "absent_from_snapshot",
+      "components": [],
+      "note": "В закреплённой выгрузке нет подтверждённого ID для этого МНН или проверенного синонима.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:d64eb39d5e5b4ca5efbed977",
+      "nameRu": "Ландыша травы настойка+Пустырника травы настойка",
+      "nameEn": "Lily-of-the-valley herb tincture + Motherwort herb tincture",
+      "reason": "composition_requires_component_review",
+      "translationKind": "descriptive",
+      "providerStatus": "composition_incomplete",
+      "components": [],
+      "note": "Английское описание сохраняет весь заявленный состав. Полного соответствия всех компонентов в базе нет; состав не подменяется одним веществом.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "manual_display_description",
+          "source": "Exact GRLS grouping name; descriptive translation only, not an INN identity decision"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:c898b65131418c8c2acc83e5",
+      "nameRu": "Красавки листьев настойка+Валерианы лекарственной корневищ с корнями настойка+Ландыша травы настойка+[Левоментол]",
+      "nameEn": "Belladonna leaf tincture + Valerian rhizome and root tincture + Lily-of-the-valley herb tincture + Levomenthol",
+      "reason": "composition_requires_component_review",
+      "translationKind": "descriptive",
+      "providerStatus": "form_unresolved",
+      "components": [],
+      "note": "В базе есть общее растительное название, но оно не подтверждает именно эту форму, часть растения и состав. Сырьё, настойка и экстракт не объявлены одинаковыми.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "manual_display_description",
+          "source": "Exact GRLS grouping name; descriptive translation only, not an INN identity decision"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:555b935fd2fb4610c896fa2d",
+      "nameRu": "Мяты перечной листьев масло+Пустырника травы экстракт+Этилбромизовалерианат",
+      "nameEn": "Peppermint leaf oil + Motherwort herb extract + Ethyl bromisovalerate",
+      "reason": "composition_requires_component_review",
+      "translationKind": "descriptive",
+      "providerStatus": "composition_incomplete",
+      "components": [],
+      "note": "Английское описание сохраняет весь заявленный состав. Полного соответствия всех компонентов в базе нет; состав не подменяется одним веществом.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "manual_display_description",
+          "source": "Exact GRLS grouping name; descriptive translation only, not an INN identity decision"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:f95a527350c7e503b69af87e",
+      "nameRu": "Никотин",
+      "nameEn": "nicotine",
+      "reason": "official_translation_missing",
+      "translationKind": "reviewed_synonym",
+      "providerStatus": "linked",
+      "components": [
+        {
+          "nameRu": "Никотин",
+          "nameEn": "nicotine",
+          "providerId": "DDInter1290",
+          "providerName": "Nicotine",
+          "relation": "reviewed_active_moiety"
+        }
+      ],
+      "note": "Ручная проверка полного МНН, оригинальной инструкции и исходного ID; это справочная идентичность, не клинический допуск. Сверено исходное имя DDInter; солевая/анионная подпись RxNorm сохранена отдельно, без пересчёта доз.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "grls_full_composition",
+          "documentId": "grls-doc:5fdec0e7fd4b49d73327074358fa0b9d",
+          "sourceUrl": "https://grls.minzdrav.gov.ru/InstrImg/2026/06/18/1531174/2b69a0f2-0bca-4bde-80a8-163dd1d3b6a4.pdf",
+          "sha256": "c8fb3d507ccd374751a1916993939a5fb4b201721ea3a53426e3609d74920e69"
+        },
+        {
+          "kind": "primary_identity_reference",
+          "url": "https://atcddd.fhi.no/atc_ddd_index/?code=N07BA01",
+          "file": "nicotine.source",
+          "sha256": "fe7b91eca112414cbb18afab5ed637e1a8a6767fcd833264b598dbb188233548",
+          "bytes": 11449
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:4a143ebc51723f39a1d0f52e",
+      "nameRu": "Пассифлоры инкарнатной травы экстракт",
+      "nameEn": "Passiflora incarnata herb extract",
+      "reason": "official_translation_missing",
+      "translationKind": "descriptive",
+      "providerStatus": "absent_from_snapshot",
+      "components": [],
+      "note": "В закреплённой выгрузке нет подтверждённого ID для этого МНН или проверенного синонима.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "manual_display_description",
+          "source": "Exact GRLS grouping name; descriptive translation only, not an INN identity decision"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:39f3121498aa29e30d697ab3",
+      "nameRu": "Пиона уклоняющегося трава, корневища и корни настойка",
+      "nameEn": "Paeonia anomala herb, rhizome and root tincture",
+      "reason": "official_translation_missing",
+      "translationKind": "descriptive",
+      "providerStatus": "absent_from_snapshot",
+      "components": [],
+      "note": "В закреплённой выгрузке нет подтверждённого ID для этого МНН или проверенного синонима.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "manual_display_description",
+          "source": "Exact GRLS grouping name; descriptive translation only, not an INN identity decision"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:9904b5ad29186298b4252778",
+      "nameRu": "Боярышника цветков экстракт+Магния оксид+Эшшольции цветков экстракт",
+      "nameEn": "Hawthorn flower extract + Magnesium oxide + California poppy flower extract",
+      "reason": "composition_requires_component_review",
+      "translationKind": "descriptive",
+      "providerStatus": "composition_incomplete",
+      "components": [],
+      "note": "Английское описание сохраняет весь заявленный состав. Полного соответствия всех компонентов в базе нет; состав не подменяется одним веществом.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "manual_display_description",
+          "source": "Exact GRLS grouping name; descriptive translation only, not an INN identity decision"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:e33cecd6a230e5a364d85c0a",
+      "nameRu": "Валерианы лекарственной корневищ с корнями настойка+Красавки листьев настойка+Ландыша травы настойка+Натрия бромид+[Левоментол]",
+      "nameEn": "Valerian rhizome and root tincture + Belladonna leaf tincture + Lily-of-the-valley herb tincture + Sodium bromide + Levomenthol",
+      "reason": "composition_requires_component_review",
+      "translationKind": "descriptive",
+      "providerStatus": "form_unresolved",
+      "components": [],
+      "note": "В базе есть общее растительное название, но оно не подтверждает именно эту форму, часть растения и состав. Сырьё, настойка и экстракт не объявлены одинаковыми.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "manual_display_description",
+          "source": "Exact GRLS grouping name; descriptive translation only, not an INN identity decision"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:eb5a57bf0b7cee2ad6e042e3",
+      "nameRu": "Красавки листьев и травы сумма алкалоидов+Фенобарбитал+Эрготамин",
+      "nameEn": "Belladonna leaf and herb total alkaloids + Phenobarbital + Ergotamine",
+      "reason": "composition_requires_component_review",
+      "translationKind": "descriptive",
+      "providerStatus": "composition_incomplete",
+      "components": [],
+      "note": "Английское описание сохраняет весь заявленный состав. Полного соответствия всех компонентов в базе нет; состав не подменяется одним веществом.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "manual_display_description",
+          "source": "Exact GRLS grouping name; descriptive translation only, not an INN identity decision"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:c597b51310a5db546d6a70e1",
+      "nameRu": "Боярышника плодов настойка+Валерианы лекарственной корневищ с корнями настойка+Левоментол+Натрия бромид",
+      "nameEn": "Hawthorn fruit tincture + Valerian rhizome and root tincture + Levomenthol + Sodium bromide",
+      "reason": "composition_requires_component_review",
+      "translationKind": "descriptive",
+      "providerStatus": "form_unresolved",
+      "components": [],
+      "note": "В базе есть общее растительное название, но оно не подтверждает именно эту форму, часть растения и состав. Сырьё, настойка и экстракт не объявлены одинаковыми.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "manual_display_description",
+          "source": "Exact GRLS grouping name; descriptive translation only, not an INN identity decision"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:01485843c85fa2874475b097",
+      "nameRu": "фенибут",
+      "nameEn": "phenibut",
+      "reason": "official_translation_missing",
+      "translationKind": "reviewed_synonym",
+      "providerStatus": "absent_from_snapshot",
+      "components": [],
+      "note": "В закреплённой выгрузке нет подтверждённого ID для этого МНН или проверенного синонима.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "primary_synonym_reference",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/14113"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:d88df4c5b744e3e5edc35efa",
+      "nameRu": "Медазепам",
+      "nameEn": "medazepam",
+      "reason": "provider_ingredient_missing",
+      "translationKind": "official_inn",
+      "providerStatus": "absent_from_snapshot",
+      "components": [],
+      "note": "В закреплённой выгрузке нет подтверждённого ID для этого МНН или проверенного синонима.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:7779ff0448be96ce46c1d846",
+      "nameRu": "Зуклопентиксол",
+      "nameEn": "zuclopenthixol",
+      "reason": "provider_ingredient_missing",
+      "translationKind": "official_inn",
+      "providerStatus": "absent_from_snapshot",
+      "components": [],
+      "note": "В закреплённой выгрузке нет подтверждённого ID для этого МНН или проверенного синонима.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:ac044d310488f67b34b0e7d4",
+      "nameRu": "Миансерин",
+      "nameEn": "mianserin",
+      "reason": "provider_ingredient_missing",
+      "translationKind": "official_inn",
+      "providerStatus": "absent_from_snapshot",
+      "components": [],
+      "note": "В закреплённой выгрузке нет подтверждённого ID для этого МНН или проверенного синонима.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:bd450cfa1a01cedc1d79ff26",
+      "nameRu": "Пиона уклоняющегося трава+Пиона уклоняющегося корневища и корни",
+      "nameEn": "Paeonia anomala herb + Paeonia anomala rhizomes and roots",
+      "reason": "composition_requires_component_review",
+      "translationKind": "descriptive",
+      "providerStatus": "composition_incomplete",
+      "components": [],
+      "note": "Английское описание сохраняет весь заявленный состав. Полного соответствия всех компонентов в базе нет; состав не подменяется одним веществом.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "manual_display_description",
+          "source": "Exact GRLS grouping name; descriptive translation only, not an INN identity decision"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:f18dfea7313cdb4aa180f537",
+      "nameRu": "Флупентиксол",
+      "nameEn": "flupentixol",
+      "reason": "provider_ingredient_missing",
+      "translationKind": "official_inn",
+      "providerStatus": "absent_from_snapshot",
+      "components": [],
+      "note": "В закреплённой выгрузке нет подтверждённого ID для этого МНН или проверенного синонима.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:de5bb60bc7f40392b1cb0672",
+      "nameRu": "Белладонны настойка+Валерианы лекарственной корневищ с корнями настойка+Ландыша травы настойка+[Левоментол]",
+      "nameEn": "Belladonna tincture + Valerian rhizome and root tincture + Lily-of-the-valley herb tincture + Levomenthol",
+      "reason": "composition_requires_component_review",
+      "translationKind": "descriptive",
+      "providerStatus": "form_unresolved",
+      "components": [],
+      "note": "В базе есть общее растительное название, но оно не подтверждает именно эту форму, часть растения и состав. Сырьё, настойка и экстракт не объявлены одинаковыми.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "manual_display_description",
+          "source": "Exact GRLS grouping name; descriptive translation only, not an INN identity decision"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:cb4985ebbf6e6b1062ea24d7",
+      "nameRu": "Пиона уклоняющегося [корневищ и корней+травы] настойка",
+      "nameEn": "Paeonia anomala rhizome, root and herb tincture",
+      "reason": "composition_requires_component_review",
+      "translationKind": "descriptive",
+      "providerStatus": "composition_incomplete",
+      "components": [],
+      "note": "Английское описание сохраняет весь заявленный состав. Полного соответствия всех компонентов в базе нет; состав не подменяется одним веществом.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "manual_display_description",
+          "source": "Exact GRLS grouping name; descriptive translation only, not an INN identity decision"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:a4099f42b21b8e429cd24459",
+      "nameRu": "Пустырника травы экстракт+[Магния аспарагинат+Пиридоксин]",
+      "nameEn": "Motherwort herb extract + Magnesium aspartate + Pyridoxine",
+      "reason": "composition_requires_component_review",
+      "translationKind": "descriptive",
+      "providerStatus": "composition_incomplete",
+      "components": [],
+      "note": "Английское описание сохраняет весь заявленный состав. Полного соответствия всех компонентов в базе нет; состав не подменяется одним веществом.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "manual_display_description",
+          "source": "Exact GRLS grouping name; descriptive translation only, not an INN identity decision"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:917c10b198db3e916059f4dc",
+      "nameRu": "Сертиндол",
+      "nameEn": "sertindole",
+      "reason": "provider_ingredient_missing",
+      "translationKind": "official_inn",
+      "providerStatus": "absent_from_snapshot",
+      "components": [],
+      "note": "В закреплённой выгрузке нет подтверждённого ID для этого МНН или проверенного синонима.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:47a578b0d02c74cbc1743ae8",
+      "nameRu": "Тианептин",
+      "nameEn": "tianeptine",
+      "reason": "provider_ingredient_missing",
+      "translationKind": "official_inn",
+      "providerStatus": "absent_from_snapshot",
+      "components": [],
+      "note": "В закреплённой выгрузке нет подтверждённого ID для этого МНН или проверенного синонима.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        }
+      ]
+    },
+    {
+      "substanceId": "inn:e8c1e112732f2f89da2342df",
+      "nameRu": "Зверобоя травы экстракт",
+      "nameEn": "St. John's wort herb extract",
+      "reason": "official_translation_missing",
+      "translationKind": "descriptive",
+      "providerStatus": "form_unresolved",
+      "components": [],
+      "note": "В базе есть общее растительное название, но оно не подтверждает именно эту форму, часть растения и состав. Сырьё, настойка и экстракт не объявлены одинаковыми.",
+      "evidence": [
+        {
+          "kind": "pinned_provider_snapshot",
+          "sha256": "b55f8b147a11a6b394f669f3d007253d595f9016005e42f92a689f249e4f1b2a",
+          "commit": "7e2bd2c245bd33550ca1b14951d6955767026775"
+        },
+        {
+          "kind": "manual_display_description",
+          "source": "Exact GRLS grouping name; descriptive translation only, not an INN identity decision"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+import {readFile,writeFile} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
+import {buildInnCrosswalk} from '../../server/ingredient-crosswalk.mjs';
+const hash=value=>createHash('sha256').update(value).digest('hex'),read=async path=>JSON.parse(await readFile('knowledge/'+path,'utf8'));
+const official=await read('eaeu-inn-manifest.json'),provider=await read('openmrs-manifest.json'),registry=await read('grls-manifest.json');
+const bytes=await readFile('knowledge/processed/eaeu-inn.json'),source=await readFile('knowledge/raw/openmrs/kb.json'),registryBytes=await readFile('knowledge/processed/grls-substances.json');
+if(hash(bytes)!==official.sha256||hash(source)!==provider.sha256||hash(await readFile('knowledge/raw/grls/registry.zip'))!==registry.sha256)throw new Error('Identity source checksum mismatch');
+const substances=JSON.parse(registryBytes),terms=JSON.parse(bytes),drugs=JSON.parse(source).drugs,reviewed=await read('ingredient-source-links.json'),scope=new Set((await read('psychiatry-scope.json')).selectedNames.map(row=>row.name));
+const result=buildInnCrosswalk(substances,terms,drugs,reviewed),counts={registryNames:substances.length,existingReviewed:reviewed.length,newExactLinks:result.links.length,psychiatryNames:scope.size,psychiatryMapped:[...result.links,...reviewed].filter(row=>scope.has(row.nameRu)).length,psychiatryGaps:result.gaps.filter(row=>scope.has(row.nameRu)).length};
+const document={method:'exact_grls_inn_eaeu_ru_en_provider_name_and_rxnorm',sources:{eaeu:{url:official.sourceUrl,sha256:official.sha256,snapshot:official.snapshotDate},provider:{url:provider.repository,commit:provider.commit,sha256:provider.sha256},grls:{url:registry.landingUrl,sha256:registry.sha256,substancesSha256:hash(registryBytes)}},counts,clinicalUseApproved:false,links:result.links,psychiatryGaps:result.gaps.filter(row=>scope.has(row.nameRu))};
+await writeFile('knowledge/eaeu-provider-crosswalk.json',JSON.stringify(document,null,2)+'\n');
+console.log(JSON.stringify({...counts,gapReasons:Object.fromEntries([...new Set(result.gaps.map(row=>row.reason))].map(reason=>[reason,result.gaps.filter(row=>row.reason===reason).length]))}));

@@ -15,10 +15,12 @@ import { DiaryPage, DoctorPage } from './WorkspacePages.jsx';
 import { TreatmentPage } from './Treatment.jsx';
 import { HomeMedicationReminders } from './HomeMedicationReminders.jsx';
 import { MOODS, timeLabel, dateLabel, dayKey, latestMoodForDay, entryTimestamp } from './domain.js';
-import { RoleEntry, DoctorWorkspace } from './DoctorWorkspace.jsx';
+import { DoctorWorkspace } from './DoctorWorkspace.jsx';
 import './doctor.css';
 import { MedicalProfile, PatientConnections } from './MedicalProfile.jsx';
-import {AccountGate,MascotFlight} from './AccountGate.jsx';
+import {AccountGate} from './AccountGate.jsx';
+import {AuthScene,homeSceneTarget} from './AuthScene.jsx';
+import {loginWithRoleDiscovery} from './auth-motion.js';
 import {AccountPreferences} from './AccountPreferences.jsx';
 import {CareChat} from './CareChat.jsx';
 
@@ -26,17 +28,19 @@ const tabs = [{ id: 'today', name: 'Сегодня', icon: House }, { id: 'diary
 
 export function App() {
  const readRole=()=>({'#patient':'patient','#doctor':'doctor'}[window.location.hash]||null);
- const [role,setRole]=useState(readRole),[accounts,setAccounts]=useState({patient:undefined,doctor:undefined}),[guests,setGuests]=useState({patient:false,doctor:false}),[visited,setVisited]=useState({patient:false,doctor:false}),[seeds,setSeeds]=useState({}),[pendingIntake,setPendingIntake]=useState(null),[flight,setFlight]=useState(null),[accountWindow,setAccountWindow]=useState(null),[accountError,setAccountError]=useState('');
+ const [role,setRole]=useState(readRole),[accounts,setAccounts]=useState({patient:undefined,doctor:undefined}),[guests,setGuests]=useState({patient:false,doctor:false}),[visited,setVisited]=useState({patient:false,doctor:false}),[seeds,setSeeds]=useState({}),[pendingIntake,setPendingIntake]=useState(null),[flight,setFlight]=useState(null),[accountWindow,setAccountWindow]=useState(null),[accountError,setAccountError]=useState(''),[gateLeaving,setGateLeaving]=useState(false),[workspaceEpoch,setWorkspaceEpoch]=useState({patient:0,doctor:0});
+ const sharedScene=useRef(null);
  const authWorking=useRef(null),accountRequest=useRef({patient:0,doctor:0}),knownAccounts=useRef({patient:null,doctor:null});
  const allowed=id=>Boolean(accounts[id]||guests[id]);
+ const workingFor=id=>authWorking.current==='all'||authWorking.current===id;
  useLayoutEffect(()=>{for(const id of ['patient','doctor'])if(accounts[id]!==undefined)setAccountOwner(id,accounts[id]?.id||'local');},[accounts]);
- const refreshAccount=async id=>{if(!id||authWorking.current===id)return;const n=++accountRequest.current[id];try{const result=await loadAuthAccount(id);if(n!==accountRequest.current[id]||authWorking.current===id)return;const nextId=result.account?.id||null,previousId=knownAccounts.current[id];if(previousId!==nextId){setGuests(old=>({...old,[id]:false}));setVisited(old=>({...old,[id]:Boolean(nextId)}));if(id==='patient'){setPendingIntake(null);setSeeds({});setFlight(null);}}knownAccounts.current[id]=nextId;setAccounts(old=>({...old,[id]:result.account}));if(result.account)setVisited(old=>({...old,[id]:true}));setAccountError('');}catch(error){if(n===accountRequest.current[id]&&authWorking.current!==id)setAccountError(error.message);}};
+ const refreshAccount=async id=>{if(!id||workingFor(id))return;const n=++accountRequest.current[id];try{const result=await loadAuthAccount(id);if(n!==accountRequest.current[id]||workingFor(id))return;const nextId=result.account?.id||null,previousId=knownAccounts.current[id];if(previousId!==nextId){setGuests(old=>({...old,[id]:false}));setVisited(old=>({...old,[id]:Boolean(nextId)}));if(id==='patient'){setPendingIntake(null);setSeeds({});setFlight(null);}}knownAccounts.current[id]=nextId;setAccounts(old=>({...old,[id]:result.account}));if(result.account)setVisited(old=>({...old,[id]:true}));setAccountError('');}catch(error){if(n===accountRequest.current[id]&&!workingFor(id))setAccountError(error.message);}};
 
- useEffect(()=>{document.title=role==='doctor'?'Компас — кабинет врача':'Компас — забота о себе';refreshAccount(role);},[role]);
+ useEffect(()=>{document.title=role==='doctor'?'Компас — кабинет врача':'Компас — забота о себе';if(role)refreshAccount(role);else{refreshAccount('patient');refreshAccount('doctor');}},[role]);
  useEffect(()=>{const sync=()=>setRole(readRole());window.addEventListener('hashchange',sync);return()=>window.removeEventListener('hashchange',sync);},[]);
  useEffect(()=>{
   const refresh=()=>{if(document.hidden)return;if(role)refreshAccount(role);else for(const id of ['patient','doctor'])if(knownAccounts.current[id])refreshAccount(id);};
-  const quarantine=id=>{if(!['patient','doctor'].includes(id)||authWorking.current===id)return;accountRequest.current[id]++;setVisited(old=>({...old,[id]:false}));setGuests(old=>({...old,[id]:false}));setAccounts(old=>({...old,[id]:undefined}));if(id==='patient'){setSeeds({});setPendingIntake(null);setFlight(null);}if(id===role)refreshAccount(id);};
+  const quarantine=id=>{if(!['patient','doctor'].includes(id)||workingFor(id))return;accountRequest.current[id]++;setVisited(old=>({...old,[id]:false}));setGuests(old=>({...old,[id]:false}));setAccounts(old=>({...old,[id]:undefined}));if(id==='patient'){setSeeds({});setPendingIntake(null);setFlight(null);}if(id===role)refreshAccount(id);};
   const mismatch=event=>quarantine(event.detail),timer=setInterval(refresh,8000);
   window.addEventListener('focus',refresh);window.addEventListener('compass-account-mismatch',mismatch);
   const channel='BroadcastChannel' in window?new BroadcastChannel('compass-local-updates'):null;
@@ -44,9 +48,19 @@ export function App() {
   return()=>{clearInterval(timer);window.removeEventListener('focus',refresh);window.removeEventListener('compass-account-mismatch',mismatch);channel?.close();};
  },[role]);
 
- const chooseRole=next=>{setRole(next);setFlight(null);setAccountWindow(null);setAccountError('');window.location.hash=next||'';window.scrollTo({top:0,behavior:'instant'});};
- const useGuest=()=>{setGuests(old=>({...old,[role]:true}));setVisited(old=>({...old,[role]:true}));};
- const authenticate=async(mode,input)=>{accountRequest.current[input.role]++;authWorking.current=input.role;try{return await authenticateAccount(mode,input);}catch(error){authWorking.current=null;throw error;}};
+ const chooseRole=next=>{setRole(next);setGateLeaving(false);setFlight(null);setAccountWindow(null);setAccountError('');window.location.hash=next||'';window.scrollTo({top:0,behavior:'instant'});};
+ const useGuest=async()=>{
+  const id=role||'patient';let state=null;authWorking.current=id;
+  try{if(id==='patient')state=await loadStoredState();}catch(error){setAccountError(error.message);authWorking.current=null;return;}
+  setGateLeaving(true);if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)await new Promise(resolve=>setTimeout(resolve,180));
+  if(id==='patient'){setSeeds(old=>({...old,local:state}));setFlight({to:null,value:latestMoodForDay(state?.entries||[])?.value??3});}
+  setWorkspaceEpoch(old=>({...old,[id]:old[id]+1}));setGuests(old=>({...old,[id]:true}));setVisited(old=>({...old,[id]:true}));setRole(id);window.location.hash=id;window.scrollTo({top:0,behavior:'instant'});authWorking.current=null;
+ };
+ const authenticate=async(mode,input)=>{
+  const roles=mode==='login'?['patient','doctor']:[input.role];for(const id of roles)accountRequest.current[id]++;
+  authWorking.current=mode==='login'?'all':input.role;
+  try{return mode==='login'?await loginWithRoleDiscovery(input,value=>authenticateAccount('login',value)):await authenticateAccount(mode,input);}catch(error){authWorking.current=null;throw error;}
+ };
  const authenticated=async(result,meta)=>{
   let initialState=null,intake=null;
   if(meta.role==='patient'){
@@ -56,20 +70,31 @@ export function App() {
     try{const saved=await storeEntry(draft,result.account.id);if(initialState)initialState={...initialState,entries:[saved,...initialState.entries.filter(row=>row.id!=='medical-profile')]};}catch(error){if(error.code==='ACCOUNT_CHANGED'||error.status===401){authWorking.current=null;await refreshAccount(meta.role);return;}intake=draft;}
    }
    setPendingIntake(intake?{accountId:result.account.id,entry:intake}:null);setSeeds(old=>({...old,[result.account.id]:initialState}));
-   if(meta.sourceRect?.width)setFlight({from:meta.sourceRect,to:null,value:latestMoodForDay(initialState?.entries||[])?.value??3});
+
   }
+  setGateLeaving(true);
+  if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)await new Promise(resolve=>setTimeout(resolve,180));
+  if(meta.role==='patient'&&meta.sourceScene)setFlight({to:null,value:latestMoodForDay(initialState?.entries||[])?.value??3});
+  setWorkspaceEpoch(old=>({...old,[meta.role]:old[meta.role]+1}));
+  setRole(meta.role);window.location.hash=meta.role;
   knownAccounts.current[meta.role]=result.account.id;accountRequest.current[meta.role]++;setAccounts(old=>({...old,[meta.role]:result.account}));setGuests(old=>({...old,[meta.role]:false}));setVisited(old=>({...old,[meta.role]:true}));authWorking.current=null;window.scrollTo({top:0,behavior:'instant'});
  };
- useEffect(()=>{if(!flight||flight.to||role!=='patient')return;let frame1,frame2;frame1=requestAnimationFrame(()=>{frame2=requestAnimationFrame(()=>{const target=document.querySelector('.auth-arrival .home-hero .mascot-figure');if(!target){setFlight(null);return;}const {left,top,width,height}=target.getBoundingClientRect();setFlight(old=>old?{...old,to:{left,top,width,height}}:null);});});return()=>{cancelAnimationFrame(frame1);cancelAnimationFrame(frame2);};},[flight,role]);
- const logout=async id=>{accountRequest.current[id]++;authWorking.current=id;try{await signOutAccount(id);knownAccounts.current[id]=null;setAccounts(old=>({...old,[id]:null}));setGuests(old=>({...old,[id]:false}));setVisited(old=>({...old,[id]:false}));setAccountWindow(null);setSeeds({});setPendingIntake(null);setFlight(null);}finally{authWorking.current=null;}};
+ useLayoutEffect(()=>{
+  if(!flight||role!=='patient')return;
+  let frame,active=true;const began=performance.now();
+  const measure=()=>{if(!active)return;const scene=document.querySelector('.auth-arrival .home-hero .mood-scene');
+   if(scene&&scene.clientWidth){const next=homeSceneTarget(scene,flight.value);setFlight(old=>old&&JSON.stringify(old.to)!==JSON.stringify(next)?{...old,to:next}:old);}
+   else if(performance.now()-began<4000)frame=requestAnimationFrame(measure);else{setFlight(null);setGateLeaving(false);}
+  };frame=requestAnimationFrame(measure);window.addEventListener('resize',measure);return()=>{active=false;cancelAnimationFrame(frame);window.removeEventListener('resize',measure);};
+ },[flight,role]);
+ const logout=async id=>{accountRequest.current[id]++;authWorking.current=id;try{await signOutAccount(id);knownAccounts.current[id]=null;setAccounts(old=>({...old,[id]:null}));setGuests(old=>({...old,[id]:false}));setVisited(old=>({...old,[id]:false}));setAccountWindow(null);setSeeds({});setPendingIntake(null);setFlight(null);setGateLeaving(false);}finally{authWorking.current=null;}};
  const updateConsents=async(id,value)=>{const result=await updateAccountConsents(value,id);setAccounts(old=>({...old,[id]:result.account||result}));return result;};
  return <>
-  {!role&&<RoleEntry onChoose={chooseRole}/>}
-  {role&&!allowed(role)&&<AccountGate key={role} role={role} onRoleChange={chooseRole} onBack={()=>chooseRole(null)} onGuest={accounts[role]===null?useGuest:undefined} onLogin={input=>authenticate('login',input)} onRegister={input=>authenticate('register',input)} onAuthenticated={authenticated}/>}
-  {accountError&&role&&!allowed(role)&&<p className="auth-connection-error" role="status">{accountError}</p>}
-  {visited.patient&&<div className={flight?'auth-arrival':''} hidden={role!=='patient'||!allowed('patient')} inert={role!=='patient'||!allowed('patient')}><PatientApp key={accounts.patient?.id||'local'} initialState={seeds[accounts.patient?.id]} pendingIntake={pendingIntake?.accountId===accounts.patient?.id?pendingIntake.entry:null} onIntakeSaved={()=>setPendingIntake(null)} account={accounts.patient} onUpdateConsents={value=>updateConsents('patient',value)} onSignOut={()=>logout('patient')} onRequestAuth={()=>setGuests(old=>({...old,patient:false}))} active={role==='patient'&&allowed('patient')} onSwitchRole={()=>chooseRole(null)}/></div>}
-  {visited.doctor&&<div hidden={role!=='doctor'||!allowed('doctor')} inert={role!=='doctor'||!allowed('doctor')}><DoctorWorkspace key={accounts.doctor?.id||'local'} account={accounts.doctor} onAccount={()=>accounts.doctor?setAccountWindow('doctor'):setGuests(old=>({...old,doctor:false}))} active={role==='doctor'&&allowed('doctor')} onSwitchRole={()=>chooseRole(null)}/></div>}
-  {flight&&role==='patient'&&<MascotFlight from={flight.from} to={flight.to||flight.from} ready={Boolean(flight.to)} value={flight.value} onComplete={()=>setFlight(null)}/>}
+  {(!role||!allowed(role))&&<AccountGate role={role||(accounts.doctor&&!accounts.patient?'doctor':'patient')} sceneRef={sharedScene} leaving={gateLeaving} onBack={()=>chooseRole(null)} onGuest={accounts[role||'patient']===null?useGuest:undefined} onLogin={input=>authenticate('login',input)} onRegister={input=>authenticate('register',input)} onAuthenticated={authenticated}/>}
+  {accountError&&(!role||!allowed(role))&&<p className="auth-connection-error" role="status">{accountError}</p>}
+  {visited.patient&&<div className={flight?'auth-arrival':''} hidden={role!=='patient'||!allowed('patient')} inert={role!=='patient'||!allowed('patient')||Boolean(flight)}><PatientApp key={(accounts.patient?.id||'local')+':'+workspaceEpoch.patient} initialState={seeds[accounts.patient?.id||'local']} pendingIntake={pendingIntake?.accountId===accounts.patient?.id?pendingIntake.entry:null} onIntakeSaved={()=>setPendingIntake(null)} account={accounts.patient} onUpdateConsents={value=>updateConsents('patient',value)} onSignOut={()=>logout('patient')} onRequestAuth={()=>setGuests(old=>({...old,patient:false}))} active={role==='patient'&&allowed('patient')} onSwitchRole={()=>chooseRole(null)}/></div>}
+  {visited.doctor&&<div hidden={role!=='doctor'||!allowed('doctor')} inert={role!=='doctor'||!allowed('doctor')}><DoctorWorkspace key={(accounts.doctor?.id||'local')+':'+workspaceEpoch.doctor} account={accounts.doctor} onAccount={()=>accounts.doctor?setAccountWindow('doctor'):setGuests(old=>({...old,doctor:false}))} active={role==='doctor'&&allowed('doctor')} onSwitchRole={()=>chooseRole(null)}/></div>}
+  {(!role||!allowed(role)||flight)&&<AuthScene ref={sharedScene} target={flight?.to} onArrive={()=>{setFlight(null);setGateLeaving(false);}}/>}
   {accountWindow&&accounts[accountWindow]&&<Modal title="Учётная запись" onClose={()=>setAccountWindow(null)}><div className="modal-body settings-body"><AccountPreferences account={accounts[accountWindow]} onUpdate={value=>updateConsents(accountWindow,value)} onSignOut={()=>logout(accountWindow)}/></div></Modal>}
  </>;
 }
@@ -179,7 +204,7 @@ function PatientApp({ active, onSwitchRole, account, onUpdateConsents, onSignOut
     <aside className="sidebar">
       <div className="wordmark">компас<span className="wordmark-dot"/></div><div className="sidebar-caption">Пространство заботы о себе</div>
       <nav aria-label="Основная навигация"><span className="sidebar-glider" aria-hidden="true"/>{tabs.map(({ id, name, icon: Icon }) => <button key={id} onClick={() => navigate(id)} className={page === id ? 'current' : ''} aria-current={page === id ? 'page' : undefined}><Icon size={23} weight={page === id ? 'duotone' : 'regular'}/><span>{name}</span></button>)}</nav>
-      <div className="sidebar-bottom"><button className="sidebar-setting" onClick={onSwitchRole}><ArrowCounterClockwise size={21}/>Сменить роль</button><button className="sidebar-setting" onClick={() => setModal('settings')}><GearSix size={21}/>Настройки и приватность</button><p><span className="demo-dot"/>Локальный прототип</p><small>Только вымышленные данные.<br/>{storage === 'ready' ? 'Записи в локальной базе.' : storage === 'loading' ? 'Подключаем хранилище…' : 'База недоступна. Сохранение отключено.'}</small></div>
+      <div className="sidebar-bottom"><button className="sidebar-setting" onClick={onSwitchRole}><ArrowCounterClockwise size={21}/>Сменить аккаунт</button><button className="sidebar-setting" onClick={() => setModal('settings')}><GearSix size={21}/>Настройки и приватность</button><p><span className="demo-dot"/>Локальный прототип</p><small>Только вымышленные данные.<br/>{storage === 'ready' ? 'Записи в локальной базе.' : storage === 'loading' ? 'Подключаем хранилище…' : 'База недоступна. Сохранение отключено.'}</small></div>
     </aside>
     <main tabIndex={-1} id="main-content" className="main" aria-busy={storage === 'loading'}>
       <button className="patient-role-switch" onClick={onSwitchRole}>Пациент <ArrowCounterClockwise size={15}/></button>

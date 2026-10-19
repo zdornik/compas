@@ -27,6 +27,9 @@ export function createKnowledgeApi(pool) {
    if(pathname==='/api/knowledge/status'){
     const [stats,sources]=await Promise.all([
      pool.query(`SELECT (SELECT count(*)::int FROM knowledge.documents WHERE kind='clinical_recommendation') "clinicalDocuments",(SELECT count(*)::int FROM knowledge.documents WHERE kind='drug_instruction') "instructionDocuments",(SELECT count(*)::int FROM knowledge.pages) pages,(SELECT count(*)::int FROM knowledge.products) products,(SELECT count(*)::int FROM knowledge.substances) substances,(SELECT count(*)::int FROM knowledge.mentions) mentions,(SELECT count(*)::int FROM knowledge.interactions) interactions,
+      (SELECT count(*)::int FROM knowledge.registry_compositions WHERE review_status='reviewed') "mappedSubstances",
+      (SELECT count(*)::int FROM knowledge.substances WHERE name_en IS NOT NULL) "translatedSubstances",
+      (SELECT count(*)::int FROM knowledge.inn_terms) "officialInnTerms",
       (SELECT count(DISTINCT d.id)::int FROM knowledge.documents d JOIN knowledge.product_documents x ON x.document_id=d.id JOIN knowledge.products p ON p.id=x.product_id WHERE p.metadata->>'collectionScope'='psychiatry') "psychiatryInstructions",
       (SELECT count(DISTINCT p.registration_number)::int FROM knowledge.products p WHERE p.metadata->>'collectionScope'='psychiatry') "psychiatryRegistrations",
       (SELECT count(DISTINCT p.registration_number)::int FROM knowledge.products p WHERE p.metadata->>'collectionScope'='psychiatry' AND p.instruction_document_id IS NOT NULL) "psychiatryRegistrationsReady"`),
@@ -83,7 +86,7 @@ export function createKnowledgeApi(pool) {
     if(!row.rows.length){json(res,404,{error:'Препарат не найден'});return true;}
     const item=row.rows[0];
     const [docs,mentions]=await Promise.all([pool.query(`SELECT ${fields},(SELECT count(*)::int FROM knowledge.pages k WHERE k.document_id=d.id) AS "pageCount" FROM knowledge.documents d JOIN knowledge.product_documents x ON x.document_id=d.id WHERE x.product_id=$1 ORDER BY d.title,d.version`,[item.id]),pool.query(`SELECT DISTINCT d.id,d.title,m.page,m.context,m.review_status AS "reviewStatus" FROM knowledge.mentions m JOIN knowledge.documents d ON d.id=m.document_id WHERE m.substance_id=$1 ORDER BY d.title,m.page LIMIT 15`,[item.substanceId])]);
-    json(res,200,{...item,instructions:docs.rows,mentions:mentions.rows});return true;
+    json(res,200,{...item,instructions:docs.rows,mentions:mentions.rows,identityMappings:await resolveIngredientMappings(pool,[item.substanceId])});return true;
    }
    if(pathname==='/api/knowledge/interactions'){
     const ids=[...new Set(url.searchParams.getAll('id'))];

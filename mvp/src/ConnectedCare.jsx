@@ -9,6 +9,7 @@ import {changeCare,loadCarePatient,readReference} from './persistence.js';
 import {medicationDraft,normalizeMedicationConfig,doseLabel} from './medications.js';
 import {dayKey} from './domain.js';
 import './care.css';
+import {IngredientMappings} from './IngredientMappings.jsx';
 import {applyProductSelection} from './product-dose.js';
 
 const SourcePdf=lazy(()=>import('./PdfDocument.jsx'));
@@ -18,6 +19,7 @@ function SafetyReport({report,onSource}) {
  const findings=[...groups.values()],count=report.duplicates.length+report.interactions.length+(report.diseaseInteractions?.length||0)+findings.length;
  const severity=value=>({Major:'высокая значимость',Moderate:'умеренная значимость',Minor:'низкая значимость',Unknown:'значимость не определена'}[value]||value);
  return <section className="cp-safety cp-safety-compact"><header><WarningCircle size={22}/><div><h3>{count?'Есть сведения для проверки':'Автоматических совпадений нет'}</h3><p>Проверка неполная · решение принимает врач</p></div></header>
+ <IngredientMappings mappings={report.identityMappings}/>
  {report.duplicates.map((item,index)=><article className="cp-risk" key={'duplicate'+index}><p>{item.name}: это МНН уже есть в принимаемой терапии.</p></article>)}
  {report.interactions.map(item=><article className="cp-risk" key={item.id}><p>{item.drugANameRu||item.drugAName} + {item.drugBNameRu||item.drugBName} — {severity(item.severity)} по источнику.</p><details><summary>Контекст и источник</summary><p className="cp-evidence" lang="en">{item.mechanism||'В источнике нет описания механизма.'}</p>{item.management&&<p>{item.management}</p>}<a href={item.sourceUrl} target="_blank" rel="noreferrer">Исходная запись<ArrowUpRight size={13}/></a></details></article>)}
  {report.diseaseInteractions?.map(item=><article className="cp-risk" key={item.id+item.conditionId}><p>{item.drugNameRu||report.candidate?.inn||item.drugName}: в базе есть предупреждение для «{item.conditionName}» ({severity(item.severity)}).</p><details><summary>Контекст и источник</summary><small>МКБ-10 {item.icd10} · {item.sourceCondition} · {item.severity}</small><p className="cp-evidence" lang="en">{item.note}</p>{item.references?.map((reference,index)=><p key={index}>{reference}</p>)}<a href={item.sourceUrl} target="_blank" rel="noreferrer">Исходная запись<ArrowUpRight size={13}/></a></details></article>)}

@@ -321,3 +321,21 @@ The following items are functional local research workflows tested with syntheti
 - [x] Final authorized source Git push completed: 83b103d is on origin/main; this completion note follows in a documentation-only commit.
 - [ ] Production email verification/password recovery, clinician identity and qualification verification, MFA/session management, legal consent documents, clinical validation and operational deployment.
 - [ ] Appointment creation/confirmation/storage, clinician-assigned questionnaire schedules, reliable background notifications, unread-message counters and the remaining unconnected workflows. The current calendar is a shared interface with an explicit empty state.
+
+## Authentication visual correction, 19 October 2026
+- [x] Remove role landing page; common login discovers saved role, registration uses the shared sliding role control.
+- [x] Animate measured auth-card height, registration disclosures, errors and onboarding content without losing drafts.
+- [x] Replace detached mascot flight with one persistent texture/figure composition and a measured, painted home handoff; desktop/mobile and reduced motion verified.
+- [x] Build, 96 tests, targeted synthetic account/consent/chat regression checks and live visual verification. Source commit/push follows after final review.
+
+## Latest priority: English INN participates in interaction lookup
+- [x] Recompute and import 813 additional exact EAEU/provider/RxNorm identity chains with hashes, no PDF prerequisite, no salt stripping or combination guesses. Existing 40 links preserved; 69/136 psychiatry names map and 67 retain explicit gaps.
+- [x] Visible RU/EN/source-ID status in product cards, combination checks and physician safety report; live public-reference regression checks passed, including real no-PDF registration.
+- [x] Fix auth content/shell timing with a single measured resize and matching row movement; intermediate DOM geometry and screenshots checked in both directions. At the measured expansion frame, the button moved 199.46px while the shell expanded 199.70px.
+
+## Manual identity review and GRLS / ESKLP clarification
+- [x] Review all 67 remaining psychiatry names manually with primary naming references and pinned provider records. Add 8 full compositions (2 with two components); retain 59 explicit gaps: absent 33, incomplete 15, form unresolved 10, source conflict 1. All 67 have English names or explicitly descriptive composition labels.
+- [x] Import reviewed public knowledge only. Overall 861 registry compositions, including 77/136 psychiatry names; 1,463 registry names have English display labels. Retain chemical-form notes, original IDs and primary/GRLS evidence. Block Galantamine/benzgalantamine source conflict.
+- [x] Full local build and 96 tests pass. Live exact/manual crosswalk checks and synthetic account/consent/chat regression pass. Missing PDF does not block confirmed ingredient lookup; absence of a pair still returns safeToCombine=null.
+- [x] Inspect original GRLS Excel column J: Russian INN/group/chemical name is already imported. No separate English/Latin column in this snapshot. Explain distinction between international naming and English language.
+- [ ] Import ESKLP / NSI active ingredients 1.2.643.5.1.13.13.11.1367 when an official complete snapshot becomes accessible. ESKLP/NSI web access failed and direct NSI request timed out on 19 October; no snapshot is claimed loaded. Preserve RU, SMNN/KLP/ingredient IDs, languages, version and source hashes; reconcile exact source identities independently of instructions.

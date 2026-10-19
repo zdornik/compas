@@ -19,3 +19,11 @@ test('provider pairs expand components, deduplicate symmetric pairs and exclude 
  assert.deepEqual(providerPairs(groups),[{a:'A',b:'C'},{a:'B',b:'C'}]);
  assert.deepEqual(providerPairs([groups[0],groups[0]]),[{a:'A',b:'B'}]);
 });
+test('manual source conflicts override older links and descriptive names never enable a pair',()=>{
+ for(const manualProviderStatus of ['source_conflict','composition_incomplete','absent_from_snapshot','form_unresolved']){
+  const result=evaluateIngredientMapping('inn:review',[{...row,registryNameEn:'Display description',translationKind:'descriptive',manualProviderStatus,reviewNote:'Source review'}]);
+  assert.equal(result.status,'unmapped');assert.equal(result.reason,manualProviderStatus);assert.equal(result.reviewNote,'Source review');
+  assert.deepEqual(providerPairs([result,{status:'mapped',components:[{providerId:'OTHER'}]}]),[]);
+ }
+ assert.equal(evaluateIngredientMapping('inn:review',[{...row,manualProviderStatus:'linked'}]).status,'mapped');
+});

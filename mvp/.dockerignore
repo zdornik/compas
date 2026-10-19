@@ -10,4 +10,5 @@ qa
 .demo-runtime.env
 backups
 
-knowledge
+knowledge/*
+!knowledge/manual-ingredient-review.json
