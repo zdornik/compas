@@ -18,19 +18,19 @@ services:
       timeout: 3s
       retries: 15
     restart: unless-stopped
-    security_opt: [no-new-privileges:true]
+    security_opt: ["no-new-privileges:true"]
   migrate:
     image: postgres:17-alpine
     user: postgres
-    command: [sh, -ec, 'export PGPASSWORD="$$(cat /run/secrets/admin_db_password)"; exec psql -h db -U compass_admin -d compass -v ON_ERROR_STOP=1 -f /migrations/001-medications.sql -f /migrations/002-knowledge.sql -f /migrations/003-knowledge-layout.sql -f /migrations/004-care.sql -f /migrations/005-ingredient-identities.sql -f /migrations/006-reference-catalogs.sql -f /migrations/007-eaeu-inn.sql -f /migrations/008-auth.sql -f /migrations/009-care-chat.sql -f /migrations/010-manual-ingredient-reviews.sql -f /migrations/011-esklp.sql -f /migrations/012-nsi-drug-terms.sql -f /migrations/013-reference-catalog.sql -f /migrations/014-chronic-search.sql -f /migrations/015-instruction-publication.sql -f /migrations/016-composition-dependencies.sql']
-    secrets: [admin_db_password]
-    volumes: [./docker/migrations:/migrations:ro]
+    command: [sh, -ec, 'export PGPASSWORD="$$(cat /run/secrets/admin_db_password)" COMPASS_JOURNAL_PASSWORD="$$(cat /run/secrets/journal_db_password)"; exec psql -h db -U compass_admin -d compass -v ON_ERROR_STOP=1 -f /migrations/001-medications.sql -f /migrations/002-knowledge.sql -f /migrations/003-knowledge-layout.sql -f /migrations/004-care.sql -f /migrations/005-ingredient-identities.sql -f /migrations/006-reference-catalogs.sql -f /migrations/007-eaeu-inn.sql -f /migrations/008-auth.sql -f /migrations/009-care-chat.sql -f /migrations/010-manual-ingredient-reviews.sql -f /migrations/011-esklp.sql -f /migrations/012-nsi-drug-terms.sql -f /migrations/013-reference-catalog.sql -f /migrations/014-chronic-search.sql -f /migrations/015-instruction-publication.sql -f /migrations/016-composition-dependencies.sql -f /migrations/017-journal.sql -f /migrations/018-appointments.sql -f /migrations/019-reference-files.sql']
+    secrets: [admin_db_password, journal_db_password]
+    volumes: ["./docker/migrations:/migrations:ro"]
     networks: [private]
     depends_on:
       db: { condition: service_healthy }
     read_only: true
     cap_drop: [ALL]
-    security_opt: [no-new-privileges:true]
+    security_opt: ["no-new-privileges:true"]
     restart: "no"
   web:
     image: compass-mvp-local:latest
@@ -42,25 +42,65 @@ services:
       DB_PASSWORD_FILE: /run/secrets/app_db_password
       DATA_KEY_FILE: /run/secrets/data_key
       SITE_ORIGIN: http://127.0.0.1:4174
+      REFERENCE_FILES_DIR: /app/knowledge/archive/blobs
+      JOURNAL_ANALYSIS_ENABLED: '1'
+      JOURNAL_PROVIDER: stub
     secrets: [app_db_password, data_key]
-    volumes: [./knowledge:/app/knowledge:ro]
+    volumes: ["./knowledge:/app/knowledge:ro"]
     depends_on:
       db:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
-    ports: [127.0.0.1:4174:8080]
+    ports: ["127.0.0.1:4174:8080"]
     networks: [private, edge]
     read_only: true
     tmpfs: ["/tmp:size=16m,noexec,nosuid"]
     cap_drop: [ALL]
-    security_opt: [no-new-privileges:true]
+    security_opt: ["no-new-privileges:true"]
     restart: unless-stopped
     healthcheck:
       test: [CMD, node, -e, "require('node:http').get({host:'127.0.0.1',port:8080,path:'/api/health',headers:{Host:'127.0.0.1:4174'}},r=>{r.resume();if(r.statusCode!==200)process.exit(1)}).on('error',()=>process.exit(1))"]
       interval: 10s
       timeout: 5s
       retries: 5
+  journal-worker:
+    image: compass-mvp-local:latest
+    build: .
+    command: [node, scripts/run-journal-worker.mjs]
+    environment:
+      DB_HOST: db
+      JOURNAL_DB_PASSWORD_FILE: /run/secrets/journal_db_password
+      DATA_KEY_FILE: /run/secrets/data_key
+      JOURNAL_ANALYSIS_ENABLED: '1'
+      JOURNAL_PROVIDER: stub
+    secrets: [journal_db_password, data_key]
+    depends_on:
+      db: { condition: service_healthy }
+      migrate: { condition: service_completed_successfully }
+    networks: [private]
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    restart: unless-stopped
+  reference-publish:
+    user: "0:0"
+    profiles: [knowledge-tools]
+    image: compass-mvp-local:latest
+    build: .
+    command: [node, scripts/publish-reference-files.mjs]
+    environment:
+      DB_HOST: db
+      DB_PASSWORD_FILE: /run/secrets/admin_db_password
+      REFERENCE_FILES_DIR: /app/knowledge/archive/blobs
+    secrets: [admin_db_password]
+    volumes: ["./knowledge:/app/knowledge"]
+    networks: [private]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
   knowledge-download:
     profiles: [knowledge-tools]
     image: compass-knowledge-loader:latest
@@ -75,9 +115,10 @@ services:
     read_only: true
     tmpfs: ["/tmp:size=64m,noexec,nosuid"]
     cap_drop: [ALL]
-    security_opt: [no-new-privileges:true]
+    security_opt: ["no-new-privileges:true"]
     restart: "on-failure:3"
   knowledge-import:
+    user: "0:0"
     profiles: [knowledge-tools]
     image: compass-mvp-local:latest
     command: [node, server/import-knowledge.mjs, --follow]
@@ -85,14 +126,15 @@ services:
       DB_HOST: db
       DB_PASSWORD_FILE: /run/secrets/admin_db_password
     secrets: [admin_db_password]
-    volumes: [./knowledge:/app/knowledge:ro]
+    volumes: ["./knowledge:/app/knowledge"]
     networks: [private]
     depends_on:
       migrate: { condition: service_completed_successfully }
     read_only: true
     cap_drop: [ALL]
-    security_opt: [no-new-privileges:true]
+    security_opt: ["no-new-privileges:true"]
   knowledge-layout-import:
+    user: "0:0"
     profiles: [knowledge-tools]
     image: compass-mvp-local:latest
     command: [node, server/import-layout.mjs, --follow]
@@ -100,13 +142,13 @@ services:
       DB_HOST: db
       DB_PASSWORD_FILE: /run/secrets/admin_db_password
     secrets: [admin_db_password]
-    volumes: [./knowledge:/app/knowledge:ro]
+    volumes: ["./knowledge:/app/knowledge"]
     networks: [private]
     depends_on:
       migrate: { condition: service_completed_successfully }
     read_only: true
     cap_drop: [ALL]
-    security_opt: [no-new-privileges:true]
+    security_opt: ["no-new-privileges:true"]
   knowledge-chronic-download:
     extends: {service: knowledge-download}
     command: [python, scripts/knowledge/fetch-instructions.py, --scope, chronic]
@@ -115,6 +157,7 @@ services:
     command: [node, server/import-knowledge.mjs, --instructions-only, --chronic, --follow]
     restart: "on-failure:3"
   knowledge-instruction-layout-import:
+    user: "0:0"
     profiles: [knowledge-tools]
     image: compass-mvp-local:latest
     command: [node, server/import-layout.mjs, --instructions, --follow]
@@ -122,13 +165,13 @@ services:
       DB_HOST: db
       DB_PASSWORD_FILE: /run/secrets/admin_db_password
     secrets: [admin_db_password]
-    volumes: [./knowledge:/app/knowledge:ro]
+    volumes: ["./knowledge:/app/knowledge"]
     networks: [private]
     depends_on:
       migrate: { condition: service_completed_successfully }
     read_only: true
     cap_drop: [ALL]
-    security_opt: [no-new-privileges:true]
+    security_opt: ["no-new-privileges:true"]
 volumes:
   compass-data:
 networks:
@@ -142,3 +185,5 @@ secrets:
     file: .local-secrets/app_db_password
   data_key:
     file: .local-secrets/data_key
+  journal_db_password:
+    file: .local-secrets/journal_db_password

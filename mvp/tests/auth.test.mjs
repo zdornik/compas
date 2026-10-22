@@ -4,6 +4,7 @@ import {randomBytes} from 'node:crypto';
 import {Readable} from 'node:stream';
 import {createApi} from '../server/api.mjs';
 import {createCareStore} from '../server/care-store.mjs';
+import {createAuthStore} from '../server/auth-store.mjs';
 import {seal} from '../server/crypto.mjs';
 import {normalizeLogin,loginHash,hashPassword,verifyPassword,validateRegistration,validateConsents,consentUpdate,createAuthLimiter,CONSENT_VERSION} from '../server/auth-policy.mjs';
 const registration={role:'patient',email:' TEST@Example.org ',password:'длинный-пароль-2026',profile:{name:' Тест ',surname:' Пациент ',age:31},consents:{healthData:true}};
@@ -11,7 +12,7 @@ test('account inputs have fixed roles, bounded identity fields and explicit inde
  const value=validateRegistration(registration);assert.equal(value.email,'test@example.org');assert.equal(value.profile.name,'Тест');assert.deepEqual(value.consents,{healthData:true,journalProcessing:false,journalSharing:false});assert.match(CONSENT_VERSION,/2026-10-19/);
  for(const input of [{...registration,role:'admin'},{...registration,password:'short'},{...registration,password:'x'.repeat(129)},{...registration,profile:{...registration.profile,age:0}},{...registration,consents:{}},{...registration,consents:{healthData:true,journalSharing:true}},{...registration,consents:{healthData:true,journalProcessing:'true'}}])assert.throws(()=>validateRegistration(input));
  assert.throws(()=>normalizeLogin('a\nb@example.org'));assert.throws(()=>validateConsents({healthData:true,journalProcessing:false,journalSharing:true}));
- assert.deepEqual(validateConsents({healthData:false,journalProcessing:false,journalSharing:false}),{healthData:false,journalProcessing:false,journalSharing:false});
+ assert.deepEqual(validateConsents({healthData:false,journalProcessing:false,journalSharing:false}),{healthData:false,journalProcessing:false,journalSharing:false,journalAiProcessing:false});
  const key=randomBytes(32);assert.equal(loginHash(value.email,key).length,64);assert.notEqual(loginHash(value.email,key),loginHash(value.email,randomBytes(32)));
 });
 test('scrypt hashes are individually salted and do not accept wrong or malformed credentials',async()=>{
@@ -19,6 +20,17 @@ test('scrypt hashes are individually salted and do not accept wrong or malformed
 });
 test('auth throttles repeated attempts and expires counters without unbounded key retention',()=>{
  let clock=1;const allow=createAuthLimiter({now:()=>clock,maxKeys:3});assert.equal(allow('user',2,100),true);assert.equal(allow('user',2,100),true);assert.equal(allow('user',2,100),false);clock=102;assert.equal(allow('user',2,100),true);for(let i=0;i<100;i++)assert.equal(allow('key'+i),true);
+});
+test('role discovery verifies credentials for each account and never changes the registered role',async()=>{
+ const key=randomBytes(32),patientPassword='Synthetic-patient-2026',doctorPassword='Synthetic-doctor-2026';
+ const candidates=await Promise.all(['patient','doctor'].map(async(role,index)=>({id:role,principal_id:role+'-principal',role,password_hash:await hashPassword(index?doctorPassword:patientPassword),payload:seal({email:'shared@example.invalid',profile:{name:'Test'},consents:{}},key,'auth-account:'+role)})));
+ let insertedRole;
+ const db={query:async(sql,params)=>{if(sql==='SELECT * FROM auth_accounts WHERE login_hash=$1')return {rows:candidates};if(sql.includes('INSERT INTO app_sessions'))insertedRole=params[3];return {rows:[]};}};
+ const store=createAuthStore({key,transaction:async(_id,callback)=>callback(db)});
+ const result=await store.login({email:'shared@example.invalid',password:doctorPassword,role:'patient',discoverRole:true});
+ assert.equal(result.account.role,'doctor');assert.equal(insertedRole,true);
+ assert.equal((await store.login({email:'shared@example.invalid',password:patientPassword,role:'doctor',discoverRole:true})).account.role,'patient');
+ await assert.rejects(()=>store.login({email:'shared@example.invalid',password:'wrong-password',role:'patient',discoverRole:true}),{status:401});
 });
 test('stale consent settings cannot restore revoked permissions; identical retries create no new event version',()=>{
  const before={consents:{healthData:true,journalProcessing:true,journalSharing:true},consentVersion:CONSENT_VERSION,consentUpdatedAt:'2026-10-19T00:00:00.000Z'},input={healthData:true,journalProcessing:false,journalSharing:false,expectedConsentUpdatedAt:before.consentUpdatedAt};
@@ -48,7 +60,31 @@ test('role selection cannot turn a patient account into a clinician and repeated
  assert.equal((await makeRequest(api,'/api/state',{token:accountToken,csrf:'account-csrf',role:'doctor'})).status,403);
  store.auth.login=async()=>{throw Object.assign(new Error('Не удалось войти'),{status:401});};
  for(let attempt=0;attempt<8;attempt++)assert.equal((await makeRequest(api,'/api/auth/login',{method:'POST',input:{...registration,email:'rate@example.org'}})).status,401);
- assert.equal((await makeRequest(api,'/api/auth/login',{method:'POST',input:{...registration,email:'rate@example.org'}})).status,429);
+ const limited=await makeRequest(api,'/api/auth/login',{method:'POST',input:{...registration,email:'rate@example.org'}});
+ assert.equal(limited.status,429);assert.equal(limited.data.code,'AUTH_RATE_LIMITED');assert.ok(Number(limited.headers['Retry-After'])>0);
+});
+test('successful sign-ins do not exhaust failure limits and do not erase other users IP failures',async()=>{
+ const store=fakeStore(),api=await createApi({store,siteOrigin:origin});
+ const input={...registration,email:'success@example.org'};
+ for(let i=0;i<50;i++)assert.equal((await makeRequest(api,'/api/auth/login',{method:'POST',input})).status,200);
+ store.auth.login=async value=>{if(value.email.startsWith('fail'))throw Object.assign(new Error('credentials'),{status:401});return {token:accountToken,csrfToken:'new-csrf',account:{role:'patient'}};};
+ for(let i=0;i<7;i++)assert.equal((await makeRequest(api,'/api/auth/login',{method:'POST',input:{...input,email:'fail@example.org'}})).status,401);
+ assert.equal((await makeRequest(api,'/api/auth/login',{method:'POST',input})).status,200);
+ assert.equal((await makeRequest(api,'/api/auth/login',{method:'POST',input:{...input,email:'fail@example.org'}})).status,401);
+ assert.equal((await makeRequest(api,'/api/auth/login',{method:'POST',input:{...input,email:'fail@example.org'}})).status,429);
+ for(let i=0;i<31;i++)assert.equal((await makeRequest(api,'/api/auth/login',{method:'POST',input:{...input,email:'fail-'+i+'@example.org'}})).status,401);
+ assert.equal((await makeRequest(api,'/api/auth/login',{method:'POST',input})).status,200);
+ assert.equal((await makeRequest(api,'/api/auth/login',{method:'POST',input:{...input,email:'fail-last@example.org'}})).status,401);
+ assert.equal((await makeRequest(api,'/api/auth/login',{method:'POST',input:{...input,email:'fail-blocked@example.org'}})).status,429);
+});
+test('discovered doctor login rotates only doctor cookies and preserves the anonymous doctor profile',async()=>{
+ const store=fakeStore();store.auth.login=async()=>({token:accountToken,csrfToken:'doctor-csrf',account:{id:'doctor-id',role:'doctor'}});
+ const api=await createApi({store,siteOrigin:origin});
+ const result=await makeRequest(api,'/api/auth/login',{method:'POST',input:{...registration,discoverRole:true}});
+ assert.equal(result.status,200);assert.equal(result.data.account.role,'doctor');
+ assert.match(result.headers['Set-Cookie'][0],/^compass_session_doctor=/);
+ assert.match(result.headers['Set-Cookie'][1],/^compass_session_doctor_local=/);
+ assert.ok(result.headers['Set-Cookie'].every(value=>!value.startsWith('compass_session=')));
 });
 test('an expected account hint blocks stale cross-tab drafts without granting permissions',async()=>{
  const store=fakeStore(),api=await createApi({store,siteOrigin:origin});
@@ -69,7 +105,7 @@ test('physician journal access checks global consent before decrypting and revoc
  }};
  const care=createCareStore({transaction:async(_id,callback)=>callback(db),key,decode:row=>{decoded.push(row.id);return row.payload;}}),session={patient_id:doctorId,doctor_enabled:true};
  const hidden=await care.patient(session,linkId);assert.equal(hidden.journalShared,false);assert.equal(hidden.entries[0].note,'');assert.ok(!decoded.includes('journal'));
- shared=true;decoded=[];const open=await care.patient(session,linkId);assert.equal(open.journalShared,true);assert.equal(open.entries.find(row=>row.type==='journal').body,'Private journal');
+ shared=true;decoded=[];const open=await care.patient(session,linkId);assert.equal(open.journalShared,true);assert.equal(open.entries.some(row=>row.type==='journal'),false);assert.ok(!decoded.includes('journal')); // Full text is served only by the dedicated notes API.
  shared=false;assert.equal((await care.patient(session,linkId)).entries.some(row=>row.type==='journal'),false);
  health=false;await assert.rejects(()=>care.patient(session,linkId),{status:403});
 });

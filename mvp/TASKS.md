@@ -1,6 +1,8 @@
 # Компас · список работ
 
-Обновлено: 19 октября 2026. Исходный план составлен 17 октября. `[x]` — выполнено и проверено в указанном объёме; `[ ]` — ещё нет. Список обновлять при каждой следующей итерации. Выполненность интерфейса не означает готовность медицинского сервиса. Разделы 2–6 описывают требования к допуску защищённого пилота; реализованные локальные исследовательские сценарии и их ограничения перечислены в поздних разделах. Исторические макеты не являются текущими медицинскими функциями.
+Обновлено: 20 октября 2026. Исходный план составлен 17 октября. `[x]` — выполнено и проверено в указанном объёме; `[ ]` — ещё нет. Список обновлять при каждой следующей итерации. Выполненность интерфейса не означает готовность медицинского сервиса. Разделы 2–6 описывают требования к допуску защищённого пилота; реализованные локальные исследовательские сценарии и их ограничения перечислены в поздних разделах. Исторические макеты не являются текущими медицинскими функциями.
+
+Планируемая фича заметок с AI-саммари и алертами врачу: [NOTE-ANALYSIS-PLAN.md](NOTE-ANALYSIS-PLAN.md). План пересмотрен 20 октября по main `21e0564`: учтены новый first-run со справочным snapshot, изоляция персональных таблиц от экспорта, быстрые тесты без корпуса и привязка ответов к пациенту/версии. Первый сквозной контур реализован с локальной заглушкой по явному решению пользователя; описание — [JOURNAL.md](JOURNAL.md). Реальный провайдер и клиническая политика не подключены. Существующие заметки во внешние сервисы не отправлялись.
 
 ## 1. Согласованный дизайн и работающий frontend
 
@@ -383,3 +385,41 @@ The following items are functional local research workflows tested with syntheti
 - [x] Validate restoration on a new temporary Docker project with fresh secrets and an empty source-files mount: real public PDFs/assets/layout, all three screenshot-scenario ingredient mappings, exact fixture row counts, no imported patient records, SELECT-only runtime and refusal to replace existing reference data. Corrupt parts are rejected before writes, and a late whole-stream checksum failure rolls back every reference table. Five new unit checks pass.
 - [x] Complete the reference snapshot: 15,922,800,499 bytes, 30 parts, all server SHA-256 digests and the manifest verified. Final desktop/320px controls, keyboard periods, products/interactions-to-guidelines and reader opening pass; 112 tests pass. Normal startup retains the populated primary database and remains healthy.
 - [x] Publish the verified private release `reference-db-2026-10-19`, pinned to code `d97a903`, with all 30 parts and the checked manifest. Code/manifest/instructions are pushed; the remote main commit, release assets and tag were verified. Snapshot row counts match the primary reference database. Final audit documentation follows without changing the snapshot/code version.
+
+
+## Journal versions, placeholder analysis and clinician alerts · 20 October 2026
+- [x] Versioned encrypted journal snapshots, optimistic writes, stable mutation receipts including no-op retries, legacy ciphertext backfill without scheduling history.
+- [x] Separate explicit versioned processing opt-in, consent epochs, cancellation on revocation and active care-link checks for notes/results/inbox/acknowledgement.
+- [x] Transactional PostgreSQL jobs, expiring leases/fencing, bounded retries, immutable results and atomic per-doctor alerts. Restricted worker role receives only narrow function capabilities, without direct health/account-table access.
+- [x] User-selected local stub only: clearly labelled summary excerpts; only explicit synthetic markers select elevated/urgent/indeterminate fixtures. No real clinical inference or external calls.
+- [x] Existing physician Diary → Notes uses a separate summary/detail API; general patient-card response excludes journal bodies. Inbox supports separate seen and acknowledgement actions.
+- [x] Explicit notes-only startup, worker image/secret wiring and preservation of default reference restoration. New tables stay outside knowledge exports.
+- [x] 118 unit/security/domain tests passed. Isolated PostgreSQL/API scenarios verified exact/no-op retries, concurrent edits, two workers, out-of-order results, consent withdrawal in flight, lease reclamation, four failures/retry, alert acknowledgement and worker permissions. Actual knowledge pg_dump excludes new personal tables while encrypted note versions exist.
+- [x] Browser QA on a separate loopback origin/cookie verified a patient save, existing physician Notes tab, exact-version alert details, stub explanation, acknowledgement and separate consent wording. Primary local migration and API are healthy; temporary QA server/worker stopped. OpenAPI partial contract added in journal.openapi.json.
+- [ ] Real provider/model selection, clinical alert policy and quality evaluation, external notifications, operational metrics/response ownership, real-data release. Full Docker startup/restore has not been verified on this host (Docker absent); PostgreSQL checks use a separate native local QA database.
+
+## Login throttling and visible journal access · 20 October 2026
+- [x] Common sign-in discovers the saved role in one authenticated server request. Only the actual role's cookie/CSRF changes; the other role and anonymous profile remain intact.
+- [x] Successful logins refund their attempt and reset the account's failure counter without clearing other users' IP failures. Repeated failures remain limited; 429 includes Retry-After and a visible retry time. Restarted the primary local API to apply the fix and clear the old erroneous block; both existing test-account logins passed.
+- [x] Add “Врач → Доступ к заметкам” using the same consent form as account settings. Reading and local stub processing are separate choices with an explicit save; required text-processing permission follows the chosen action. Confirming a doctor alone keeps notes private.
+- [x] Build and all 121 tests pass. Browser QA with a separate database/origin/cookie verifies patient approval, permission save/reload, a new note, role discovery, and clinician summary/full-text access. No existing primary profile permissions changed.
+
+## Persistent appointments · 20 October 2026
+- [x] Both user-requested workflows: physician schedules a confirmed appointment; patient requests a time for physician confirmation/decline. Active care link and registered patient/doctor accounts required. Participants can cancel; patient can withdraw a request.
+- [x] Migration 018 adds public appointments and immutable encrypted event payloads. PostgreSQL exclusion constraints prevent overlapping confirmed appointments for either participant, including concurrent confirmation; adjacent half-open intervals remain valid. Revisions and mutation receipts protect stale/repeated actions.
+- [x] Patient “Врач → Приёмы и запросы” and real physician Calendar replace the placeholders. Reuse week/month calendar, future date picker and time wheel; show Moscow time, per-day counts and clear statuses. Preserve drafts; refresh visible state without browser health-data storage.
+- [x] Care-link or health-data withdrawal cancels future/ongoing appointments atomically, releases booked intervals and retains the patient's history. RLS and canonical consent checks block former physician/anonymous access. New personal tables stay outside knowledge exports.
+- [x] Build and all 128 tests pass. Isolated PostgreSQL/API checks verify both roles, legacy anonymous rejection, retries, stale actions, private ciphertext/events, concurrent conflicts, adjacency, pagination, midnight overlap and revocation. Browser QA verifies patient request → doctor confirmation → calendar, direct physician scheduling, conflict message and both confirmed entries in patient UI. Primary migration applied without seeding appointments; local API remains healthy.
+- [ ] Separate rescheduling flow, physician availability slots, external reminders and video meeting integration remain outside this iteration. Docker execution remains unavailable on this host; database verification uses native PostgreSQL 17.
+
+
+### Справочные PDF и текст, 20 октября 2026
+- [x] Хеш-адресуемый архив исходников/PNG, возобновляемый перенос из bytea, атомарная проверка и SELECT-only runtime.
+- [x] Потоковая выдача PDF/изображений, Range/HEAD, ETag/304, версионное кеширование публичных файлов.
+- [x] Офлайн-индекс читалки, загрузка текста по мере прокрутки, полный буквальный поиск с исходными смещениями, gzip публичного JSON.
+- [x] Исправление абзацев/пунктов в PDF с полуторным интервалом; оригиналы, таблицы и fallback-страницы сохранены.
+- [x] Снимок v2 с БД и архивом объектов; v1 совместим; реальное восстановление образца и откат ошибок проверены в отдельной БД.
+- [x] 135 автоматических тестов, интеграционная проверка официального образца на 125 страниц и просмотр в отдельном браузерном профиле.
+- [ ] Перенести и измерить полный опубликованный корпус после появления достаточного места: архив 15,9 ГБ, свободно около 12,7 ГБ. Сейчас в основном локальном справочнике один официальный образец.
+- [ ] Отдельно прогнать улучшенный layout-v4 на полном архиве исходников; runtime не переписывает сохранённую разметку старого снимка.
+- [ ] Создать и загрузить новый полный Release только при отдельной задаче публикации; в этой работе экспорт не запускался.

@@ -52,10 +52,10 @@ export async function loadCarePatient(id) { await loadSession('doctor');return r
 export async function readReference(path, signal) {
   if (!path.startsWith('/api/knowledge/')) throw new Error('Недопустимый адрес справочника');
   let response;
-  try { response = await fetch(path, { credentials: 'same-origin', cache: 'no-store', signal: signal || AbortSignal.timeout(20000), headers: { Accept: 'application/json' } }); }
+  try { response = await fetch(path, { credentials: 'same-origin', cache: 'default', signal: signal || AbortSignal.timeout(20000), headers: { Accept: 'application/json' } }); }
   catch (error) { if (error.name === 'AbortError') throw error; throw new Error('Нет связи со справочником. Попробуйте ещё раз.'); }
   const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.error || 'Не удалось загрузить справочник');
+  if (!response.ok) throw Object.assign(new Error(data.error || 'Не удалось загрузить справочник'),{status:response.status});
   return data;
 }
 
@@ -74,11 +74,25 @@ export async function loadAuthAccount(role='patient') {await loadSession(role);t
 export async function authenticateAccount(mode,input){
  if(!['login','register'].includes(mode))throw new Error('Некорректное действие');
  const role=input.role;await loadSession(role);const result=await request('/api/auth/'+mode,{role,method:'POST',body:JSON.stringify(input)});
- csrfTokens[role]=result.csrfToken;announceAuthChange(role);return result;
+ csrfTokens[result.account.role]=result.csrfToken;announceAuthChange(result.account.role);return result;
 }
 export async function signOutAccount(role='patient'){
  await loadSession(role);const result=await request('/api/auth/logout',{role,method:'POST',body:'{}'});csrfTokens[role]=result.csrfToken||null;announceAuthChange(role);return result;
 }
 export async function updateAccountConsents(consents,role='patient'){
  await loadSession(role);const result=await request('/api/auth/consents',{role,method:'POST',body:JSON.stringify(consents)});announceChange();return result;
+}
+
+export async function journalRequest(path,{role='patient',method='GET',body,signal}={}){
+ if(!/^\/api\/(?:journal\/|care\/(?:alerts(?:\/|\?|$)|patients\/[a-f0-9-]+\/notes(?:\/|\?|$)))/i.test(path))throw new Error('Недопустимый адрес заметок');
+ await loadSession(role);
+ const result=await request(path,{role,method,...(body===undefined?{}:{body:JSON.stringify(body)}),...(signal?{signal}:{})});
+ if(method!=='GET')announceChange();return result;
+}
+
+export async function appointmentRequest(path,{role='patient',method='GET',body,signal}={}){
+ if(!/^\/api\/appointments(?:\?|$|\/[a-f0-9-]{36}\/(?:confirm|decline|cancel)$)/i.test(path))throw new Error('Недопустимый адрес приёмов');
+ await loadSession(role);
+ const result=await request(path,{role,method,...(body===undefined?{}:{body:JSON.stringify(body)}),...(signal?{signal}:{})});
+ if(method!=='GET')announceChange();return result;
 }

@@ -1,3 +1,5 @@
+import {packObjects} from './reference-objects.mjs';
+import {referenceFilesRoot} from '../server/reference-files.mjs';
 // Exports only the public knowledge schema. Never includes public/auth/care/LOs.
 import {spawn} from 'node:child_process';
 import {createHash} from 'node:crypto';
@@ -29,7 +31,9 @@ try{
  const tables=info.tables.filter(t=>t!=='catalog_state');
  if(tables.some(t=>!IDENTIFIER.test(t)||/(?:patient|auth|session|care_|chat)/.test(t)))throw new Error('Unexpected table in public reference schema');
  const counts=await ask('SELECT json_build_object('+tables.map(t=>`'${t}',(SELECT count(*)::bigint FROM knowledge."${t}")`).join(',')+')');
+ const objects=await ask("SELECT coalesce(json_agg(x ORDER BY x.sha256),'[]'::json) FROM (SELECT blob_key AS sha256,max(original_bytes)::bigint AS bytes FROM (SELECT blob_key,original_bytes FROM knowledge.documents UNION ALL SELECT blob_key,original_bytes FROM knowledge.page_assets) b WHERE blob_key IS NOT NULL GROUP BY blob_key) x");
  const manifest={format:'postgresql-custom-data-v1',state:'exporting',repository:REFERENCE_REPOSITORY,release,schema:'knowledge',containsPatientData:false,containsSecrets:false,postgresMajor:17,capturedAt:info.capturedAt,serverVersion:info.serverVersion,requiredMigrations:info.migrations,tables:counts,excludedTables:['catalog_state'],parts:[],bytes:0,sha256:null};
+ if(objects.length){manifest.format='postgresql-custom-data-v2';manifest.objects={format:'compass-reference-objects-v1',entries:objects.map(x=>({...x,bytes:Number(x.bytes)})),parts:[],bytes:0,sha256:null};}
  const fullHash=createHash('sha256');
  const checkpoint=()=>writeFile(resolve(folder,'checkpoint.json'),JSON.stringify(manifest,null,2));
  await checkpoint();
@@ -55,7 +59,17 @@ try{
  await start();
  for await(const buffer of exporter.stdout){let offset=0;fullHash.update(buffer);while(offset<buffer.length){const length=Math.min(partBytes-size,buffer.length-offset),slice=buffer.subarray(offset,offset+length);let written=0;while(written<slice.length){const result=await part.file.write(slice.subarray(written));if(!result.bytesWritten)throw new Error('Incomplete snapshot write');written+=result.bytesWritten;}partHash.update(slice);size+=length;offset+=length;if(size===partBytes){await finish();await start();}}}
  await exportDone;if(size)await finish();else{await part.file.close();await unlink(part.path);part=null;}
- manifest.sha256=fullHash.digest('hex');manifest.state='ready';validateSnapshot(manifest);await checkpoint();
+ manifest.sha256=fullHash.digest('hex');
+ if(manifest.objects){
+  const inventory=manifest.objects,hash=createHash('sha256');let handle,objectPart,objectHash,objectSize=0,objectIndex=0;
+  const begin=async()=>{objectPart={index:++objectIndex,name:prefix+'.objects-'+String(objectIndex).padStart(4,'0')};objectPart.path=resolve(folder,objectPart.name);handle=await open(objectPart.path,'wx',0o600);objectHash=createHash('sha256');objectSize=0;};
+  const finishObject=async()=>{await handle.sync();await handle.close();handle=null;const entry={index:objectPart.index,name:objectPart.name,bytes:objectSize,sha256:objectHash.digest('hex')};await upload(objectPart.path,entry.name);const remote=await getRelease(),asset=remote.assets.find(a=>a.name===entry.name);if(!asset||asset.size!==entry.bytes||asset.digest!=='sha256:'+entry.sha256)throw new Error('Uploaded object archive checksum mismatch');entry.assetId=asset.id;inventory.parts.push(entry);inventory.bytes+=entry.bytes;await checkpoint();await unlink(objectPart.path);};
+  try{
+   await begin();for await(const chunk of packObjects(referenceFilesRoot(),inventory.entries)){hash.update(chunk);let offset=0;while(offset<chunk.length){const slice=chunk.subarray(offset,offset+Math.min(partBytes-objectSize,chunk.length-offset));let written=0;while(written<slice.length){const result=await handle.write(slice.subarray(written));if(!result.bytesWritten)throw new Error('Incomplete object archive write');written+=result.bytesWritten;}objectHash.update(slice);objectSize+=slice.length;offset+=slice.length;if(objectSize===partBytes){await finishObject();await begin();}}}
+   if(objectSize)await finishObject();else{await handle.close();handle=null;await unlink(objectPart.path);}inventory.sha256=hash.digest('hex');
+  }finally{if(handle)await handle.close().catch(()=>{});}
+ }
+ manifest.state='ready';validateSnapshot(manifest);await checkpoint();
  const manifestPath=resolve(folder,'reference-snapshot.json');await writeFile(manifestPath,JSON.stringify(manifest,null,2));await upload(manifestPath,'reference-snapshot.json');
  await writeFile('database/reference-snapshot.json.tmp',JSON.stringify(manifest,null,2));await rename('database/reference-snapshot.json.tmp','database/reference-snapshot.json');
  console.log(JSON.stringify({exported:true,bytes:manifest.bytes,parts:manifest.parts.length,sha256:manifest.sha256,release,state:'draft',patientDataExported:false}));

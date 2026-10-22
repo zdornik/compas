@@ -1,3 +1,4 @@
+import {JOURNAL_POLICY} from './journal-policy.mjs';
 import {createHmac,randomBytes,scrypt as scryptCallback,timingSafeEqual} from 'node:crypto';
 import {promisify} from 'node:util';
 const scrypt=promisify(scryptCallback);
@@ -44,21 +45,27 @@ export function validateConsents(input){
  if(!input||['healthData','journalProcessing','journalSharing'].some(key=>typeof input[key]!=='boolean'))fail('Передайте выбранные согласия');
  if(!input.healthData&&(input.journalProcessing||input.journalSharing))fail('При отзыве обработки данных отзовите также согласия для дневника');
  if(input.journalSharing&&!input.journalProcessing)fail('Доступ врача к личным записям требует согласия на их обработку');
- return {healthData:input.healthData,journalProcessing:input.journalProcessing,journalSharing:input.journalSharing};
+ if(input.journalAiProcessing!==undefined&&typeof input.journalAiProcessing!=='boolean')fail('Проверьте согласие на тестовую обработку');
+ if(input.journalAiProcessing&&(!input.healthData||!input.journalProcessing||input.providerPolicyVersion!==JOURNAL_POLICY))fail('Для обработки требуется отдельное согласие с текущими условиями');
+ return {healthData:input.healthData,journalProcessing:input.journalProcessing,journalSharing:input.journalSharing,...(input.journalAiProcessing?{journalAiProcessing:true,providerPolicyVersion:JOURNAL_POLICY}:{journalAiProcessing:false})};
 }
 export function consentUpdate(previous,input,now=new Date()){
  const consents=validateConsents(input);
- if(['healthData','journalProcessing','journalSharing'].every(key=>previous.consents[key]===consents[key]))return null;
+ if(['healthData','journalProcessing','journalSharing','journalAiProcessing','providerPolicyVersion'].every(key=>(previous.consents[key]??(key==='journalAiProcessing'?false:null))===(consents[key]??(key==='journalAiProcessing'?false:null))))return null;
  if(input.expectedConsentUpdatedAt!==undefined&&input.expectedConsentUpdatedAt!==previous.consentUpdatedAt)fail('Согласия изменены в другом окне. Обновите настройки перед сохранением',409);
  const at=new Date(Math.max(now.getTime(),Date.parse(previous.consentUpdatedAt)+1)).toISOString();
  return {...previous,consents,consentVersion:CONSENT_VERSION,consentUpdatedAt:at};
 }
 export function createAuthLimiter({now=Date.now,maxKeys=20000}={}){
  const buckets=new Map();
- return (key,limit=8,windowMs=15*60000)=>{
+ const allow=(key,limit=8,windowMs=15*60000)=>{
   const time=now();let bucket=buckets.get(key);
   if(!bucket||bucket.until<=time){bucket={count:0,until:time+windowMs};buckets.delete(key);buckets.set(key,bucket);}
   if(buckets.size>maxKeys){for(const [id,value]of buckets)if(value.until<=time)buckets.delete(id);while(buckets.size>maxKeys)buckets.delete(buckets.keys().next().value);}
   bucket.count++;return bucket.count<=limit;
  };
+ allow.refund=key=>{const bucket=buckets.get(key);if(bucket&&--bucket.count<=0)buckets.delete(key);};
+ allow.reset=key=>buckets.delete(key);
+ allow.retryAfter=key=>Math.max(1,Math.ceil(((buckets.get(key)?.until||now())-now())/1000));
+ return allow;
 }

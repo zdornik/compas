@@ -16,12 +16,12 @@ test('shared authentication composition keeps the mascot inside the same texture
  }
 });
 test('common login discovers clinician credentials without a role selector and keeps the registered role',async()=>{
- const attempted=[];const result=await loginWithRoleDiscovery({email:'synthetic@example.invalid',password:'test-password'},async input=>{attempted.push(input.role);if(input.role==='patient')throw Object.assign(new Error('credentials'),{status:401});return {account:{role:'doctor'}};});
- assert.deepEqual(attempted,['patient','doctor']);assert.equal(result.account.role,'doctor');
+ const attempted=[];const result=await loginWithRoleDiscovery({email:'synthetic@example.invalid',password:'test-password'},async input=>{attempted.push(input);return {account:{role:'doctor'}};});
+ assert.equal(attempted.length,1);assert.equal(attempted[0].discoverRole,true);assert.equal(result.account.role,'doctor');
 });
 test('common login does not retry server, network or throttle errors against another role',async()=>{
  for(const status of [undefined,403,429,503]){
   const attempted=[];await assert.rejects(()=>loginWithRoleDiscovery({role:'doctor'},async input=>{attempted.push(input.role);throw Object.assign(new Error('failed'),{status});}));assert.deepEqual(attempted,['doctor']);
  }
- const attempted=[];await assert.rejects(()=>loginWithRoleDiscovery({},async input=>{attempted.push(input.role);throw Object.assign(new Error('credentials'),{status:401});}),/Проверьте почту и пароль/);assert.equal(attempted.length,2);
+ const attempted=[];await assert.rejects(()=>loginWithRoleDiscovery({},async input=>{attempted.push(input.role);throw Object.assign(new Error('credentials'),{status:401});}),{status:401});assert.equal(attempted.length,1);
 });

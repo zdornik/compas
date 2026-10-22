@@ -21,12 +21,12 @@ assert.equal((await request('patient','/api/care/doctor',{method:'POST',body:{na
 const clinician=await request('doctor','/api/auth/register',{method:'POST',body:{...patientBody,role:'doctor',profile:{name:'Синтетический',surname:'Врач'}}});assert.equal(clinician.status,201,JSON.stringify(clinician.data));csrf.doctor=clinician.data.csrfToken;assert.equal(clinician.data.account.role,'doctor');
 const claim=await request('doctor','/api/care/claim',{method:'POST',body:{code:isolated.data.profile.code}});assert.equal(claim.status,201,JSON.stringify(claim.data));const linkId=claim.data.id;
 assert.equal((await request('doctor','/api/care/patients/'+linkId)).status,403);assert.equal((await request('patient','/api/care/links/'+linkId,{method:'POST',body:{status:'active'}})).status,200);
-const noteId=randomUUID(),today=new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Moscow'}).format(new Date()),note={id:noteId,type:'journal',title:'Синтетическая личная заметка',body:'SYNTHETIC_PRIVATE_JOURNAL_CANARY',day:today};
+const noteId=randomUUID(),today=new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Moscow'}).format(new Date()),note={expectedRevision:0,mutationId:randomUUID(),id:noteId,type:'journal',title:'Синтетическая личная заметка',body:'SYNTHETIC_PRIVATE_JOURNAL_CANARY',day:today};
 assert.equal((await request('patient','/api/entries/'+noteId,{method:'PUT',body:note})).status,200);
 const hidden=await request('doctor','/api/care/patients/'+linkId);assert.equal(hidden.status,200);assert.equal(hidden.data.journalShared,false);assert.ok(!JSON.stringify(hidden.data).includes(note.body));
 assert.equal((await request('patient','/api/auth/consents',{method:'POST',body:{healthData:true,journalProcessing:false,journalSharing:true}})).status,422);
 assert.equal((await request('patient','/api/auth/consents',{method:'POST',body:{healthData:true,journalProcessing:true,journalSharing:true}})).status,200);
-assert.equal((await request('doctor','/api/care/patients/'+linkId)).data.entries.find(row=>row.id===noteId).body,note.body);
+assert.equal((await request('doctor','/api/care/patients/'+linkId+'/notes/'+noteId)).data.entry.body,note.body);
 assert.equal((await request('patient','/api/auth/consents',{method:'POST',body:{healthData:true,journalProcessing:false,journalSharing:false}})).status,200);
 assert.ok(!(await request('doctor','/api/care/patients/'+linkId)).data.entries.some(row=>row.id===noteId));
 const messageId=randomUUID(),message={id:messageId,body:'Синтетическое сообщение для проверки доставки'};

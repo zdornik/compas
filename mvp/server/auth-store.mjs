@@ -1,3 +1,5 @@
+import {syncJournalAccess} from './journal-store.mjs';
+import {cancelAccessAppointments} from './appointment-store.mjs';
 import {randomUUID,randomBytes} from 'node:crypto';
 import {seal,unseal,tokenHash} from './crypto.mjs';
 import {CONSENT_VERSION,normalizeLogin,loginHash,hashPassword,verifyPassword,validateRegistration,validateConsents,consentUpdate} from './auth-policy.mjs';
@@ -31,7 +33,7 @@ export function createAuthStore({transaction,key}){
     const name=value.profile.name+' '+value.profile.surname;
     if(value.role==='doctor')await db.query('INSERT INTO care_doctors(id,payload) VALUES($1,$2)',[principalId,seal({name},key,'doctor:'+principalId)]);
     else{const code=randomBytes(6).toString('hex').toUpperCase();await db.query('INSERT INTO care_patient_profiles(patient_id,code_hash,payload) VALUES($1,$2,$3)',[principalId,tokenHash(code),seal({name,code},key,'patient-profile:'+principalId)]);}
-    await consentEvent(db,account,value.consents,at);return session(db,account);
+    await syncJournalAccess(db,principalId,value.consents);await consentEvent(db,account,value.consents,at);return session(db,account);
    });}catch(error){if(error.code==='23505')fail('Не удалось создать аккаунт с указанными данными. Попробуйте войти или используйте другой адрес',409);throw error;}
   },
   async login(input){
@@ -39,9 +41,20 @@ export function createAuthStore({transaction,key}){
    if(!['patient','doctor'].includes(input?.role)){await verifyPassword(input?.password,null);fail('Не удалось войти. Проверьте данные и выбранную роль',401);}
    return transaction(null,async db=>{
     await db.query("SELECT set_config('app.login_hash',$1,true)",[loginHash(email,key)]);
-    const account=(await db.query('SELECT * FROM auth_accounts WHERE login_hash=$1 AND role=$2',[loginHash(email,key),input.role])).rows[0];
-    const valid=await verifyPassword(input.password,account?.password_hash);
-    if(!valid||account?.role!==input.role)fail('Не удалось войти. Проверьте данные и выбранную роль',401);
+    let account;
+    if(input.discoverRole===true){
+     const candidates=(await db.query('SELECT * FROM auth_accounts WHERE login_hash=$1',[loginHash(email,key)])).rows;
+     // Verify both fixed roles, including missing accounts, before choosing a session.
+     for(const role of [input.role,input.role==='patient'?'doctor':'patient']){
+      const candidate=candidates.find(row=>row.role===role);
+      const valid=await verifyPassword(input.password,candidate?.password_hash);
+      if(valid&&!account)account=candidate;
+     }
+    }else{
+     const candidate=(await db.query('SELECT * FROM auth_accounts WHERE login_hash=$1 AND role=$2',[loginHash(email,key),input.role])).rows[0];
+     if(await verifyPassword(input.password,candidate?.password_hash))account=candidate;
+    }
+    if(!account)fail('Не удалось войти. Проверьте почту и пароль',401);
     await actor(db,account.principal_id);return session(db,account);
    });
   },
@@ -53,10 +66,12 @@ export function createAuthStore({transaction,key}){
   async consents(current,input){
    if(!current.account_id)fail('Сначала войдите в аккаунт',401);const consents=validateConsents(input);
    return transaction(current.patient_id,async db=>{
+    await db.query('SELECT id FROM local_patients WHERE id=$1 FOR UPDATE',[current.patient_id]);
     await actor(db,current.patient_id);const account=(await db.query('SELECT * FROM auth_accounts WHERE id=$1 AND principal_id=$2 FOR UPDATE',[current.account_id,current.patient_id])).rows[0];if(!account)fail('Аккаунт не найден',401);
     const previous=unseal(account.payload,key,'auth-account:'+account.id),next=consentUpdate(previous,input);if(!next)return {account:accountView(account,key)};
     account.payload=seal(next,key,'auth-account:'+account.id);
-    await db.query('UPDATE auth_accounts SET payload=$2,updated_at=now() WHERE id=$1',[account.id,account.payload]);await consentEvent(db,account,consents,next.consentUpdatedAt);
+    if(!consents.healthData)await cancelAccessAppointments(db,current.patient_id,key);
+    await db.query('UPDATE auth_accounts SET payload=$2,updated_at=now() WHERE id=$1',[account.id,account.payload]);await syncJournalAccess(db,current.patient_id,consents);await consentEvent(db,account,consents,next.consentUpdatedAt);
     return {account:accountView(account,key)};
    });
   },

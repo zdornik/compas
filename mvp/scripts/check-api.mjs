@@ -16,11 +16,11 @@ const request = async (path, profile, body, extra = {}) => {
 const a = await session(), b = await session();
 assert.equal((await request('/api/state')).response.status, 401);
 const id = randomUUID();
-const note = { id, type: 'journal', title: 'Проверка сохранения', body: `SYNTHETIC-COMPASS-CANARY-${id}`, day: new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Moscow' }).format(new Date()) };
+const note = { expectedRevision:0,mutationId:randomUUID(),id, type: 'journal', title: 'Проверка сохранения', body: `SYNTHETIC-COMPASS-CANARY-${id}`, day: new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Moscow' }).format(new Date()) };
 assert.equal((await request(`/api/entries/${id}`, a, note, { 'X-CSRF-Token': 'wrong' })).response.status, 403);
 assert.equal((await request(`/api/entries/${id}`, a, note, { Origin: 'https://other.invalid' })).response.status, 403);
 assert.equal((await request(`/api/entries/${id}`, a, note)).response.status, 200);
-assert.equal((await request(`/api/entries/${id}`, a, { ...note, body: note.body + ' edited' })).response.status, 200);
+assert.equal((await request(`/api/entries/${id}`, a, { ...note,expectedRevision:1,mutationId:randomUUID(), body: note.body + ' edited' })).response.status, 200);
 const aState = await request('/api/state', a), bState = await request('/api/state', b);
 assert.equal(aState.data.entries.filter(entry => entry.id === id).length, 1);
 assert.equal(aState.data.entries.find(entry => entry.id === id).body, note.body + ' edited');

@@ -1,3 +1,5 @@
+import {archiveReferenceRow} from './publish-reference-files.mjs';
+import {publishReaderIndex} from './reference-reader.mjs';
 import {lockReferenceWrite,refreshReferenceCatalog} from './refresh-reference-catalog.mjs';
 // Offline enrichment importer. Public source documents only; never handles a patient record.
 import pg from 'pg';
@@ -6,16 +8,16 @@ import { resolve,sep } from 'node:path';
 import { createHash } from 'node:crypto';
 const root=resolve('knowledge');
 const password=(await readFile(process.env.DB_PASSWORD_FILE,'utf8')).trim();
-const pool=new pg.Pool({host:process.env.DB_HOST||'db',database:'compass',user:'compass_admin',password,max:1});
+const pool=new pg.Pool({host:process.env.DB_HOST||'db',database:process.env.DB_NAME||'compass',port:Number(process.env.DB_PORT||5432),user:'compass_admin',password,max:1});
 const client=await pool.connect(),seen=new Map();
-const requiredExtractor='pdfplumber-0.11.9-layout-v3';
+const requiredExtractor='pdfplumber-0.11.9-layout-v4';
 async function importOne(path) {
  const item=JSON.parse(await readFile(path,'utf8'));
  if(item.extractor!==requiredExtractor)return false;
  const record=(await client.query('SELECT sha256,metadata FROM knowledge.documents WHERE id=$1',[item.documentId])).rows[0];
  if(!record)return false;
  if(record.sha256!==item.sourceSha256)throw new Error('Layout does not match its original PDF');
- if(record.metadata.layoutExtractor===item.extractor)return true;
+ if(record.metadata.layoutExtractor===item.extractor&&!process.argv.includes('--rebuild'))return true;
  const count=Number((await client.query('SELECT count(*) n FROM knowledge.pages WHERE document_id=$1',[item.documentId])).rows[0].n);
  if(item.pages.length!==count)throw new Error('Layout page count does not match its source');
  const assets=[];
@@ -27,11 +29,14 @@ async function importOne(path) {
  await lockReferenceWrite(client);
  try {
   await client.query(`UPDATE knowledge.pages p SET text_content=x.text,layout=x.layout FROM jsonb_to_recordset($2::jsonb) AS x(page integer,text text,layout jsonb) WHERE p.document_id=$1 AND p.page=x.page`,[item.documentId,JSON.stringify(item.pages)]);
-  for(const asset of assets)await client.query(`INSERT INTO knowledge.page_assets(document_id,page,id,mime_type,sha256,original) VALUES($1,$2,$3,'image/png',$4,$5) ON CONFLICT(document_id,id) DO NOTHING`,[item.documentId,asset.page,asset.id,asset.sha256,asset.bytes]);
+  for(const asset of assets)await client.query(`INSERT INTO knowledge.page_assets(document_id,page,id,mime_type,sha256,original) VALUES($1,$2,$3,'image/png',$4,$5) ON CONFLICT(document_id,id) DO UPDATE SET page=EXCLUDED.page,sha256=EXCLUDED.sha256,original=EXCLUDED.original,blob_key=NULL,original_bytes=NULL,archive_verified_at=NULL`,[item.documentId,asset.page,asset.id,asset.sha256,asset.bytes]);
+  await client.query('DELETE FROM knowledge.page_assets WHERE document_id=$1 AND NOT(id=ANY($2::text[]))',[item.documentId,assets.map(asset=>asset.id)]);
+  for(const asset of assets)await archiveReferenceRow(client,'page_assets','document_id=$1 AND id=$2',[item.documentId,asset.id]);
   if(item.documentId.startsWith('cr:'))await client.query('DELETE FROM knowledge.mentions WHERE document_id=$1',[item.documentId]);
   if(item.documentId.startsWith('cr:')&&item.mentions.length)await client.query(`INSERT INTO knowledge.mentions(document_id,page,substance_id,start_offset,matched_text,context,method,review_status)
    SELECT $1,x.page,x."substanceId",x."startOffset",x."matchedText",x.context,'exact_registry_name_tokenized_layout','unreviewed_mention' FROM jsonb_to_recordset($2::jsonb) AS x(page integer,"substanceId" text,"startOffset" integer,"matchedText" text,context text) ON CONFLICT DO NOTHING`,[item.documentId,JSON.stringify(item.mentions)]);
   await client.query(`UPDATE knowledge.documents SET metadata=metadata||$2::jsonb WHERE id=$1`,[item.documentId,JSON.stringify({layoutExtractor:item.extractor,layoutCounts:item.counts,layoutJoiningChanges:item.joiningChanges.length})]);
+  await publishReaderIndex(client,item.documentId);
   await client.query('COMMIT');console.log(JSON.stringify({document:item.documentId,pages:count,...item.counts,sourceImages:assets.length,joiningChanges:item.joiningChanges.length}));return true;
  }catch(error){await client.query('ROLLBACK');throw error;}
 }

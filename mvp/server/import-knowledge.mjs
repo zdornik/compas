@@ -1,3 +1,5 @@
+import {archiveReferenceRow} from './publish-reference-files.mjs';
+import {publishReaderIndex} from './reference-reader.mjs';
 import {REFERENCE_WRITE_LOCK,refreshReferenceCatalog} from './refresh-reference-catalog.mjs';
 // Offline CLI importer. Never imported by the web API. The admin secret is CLI-only.
 import pg from 'pg';
@@ -9,7 +11,7 @@ import { createHash, randomUUID } from 'node:crypto';
 const root = resolve('knowledge');
 const jsonFile = async path => JSON.parse(await readFile(resolve(root, path), 'utf8'));
 const password = (await readFile(process.env.DB_PASSWORD_FILE, 'utf8')).trim();
-const pool = new pg.Pool({ host: process.env.DB_HOST || 'db', database: 'compass', user: 'compass_admin', password, max: 1 });
+const pool = new pg.Pool({ host: process.env.DB_HOST || 'db', database: process.env.DB_NAME||'compass', port:Number(process.env.DB_PORT||5432), user: 'compass_admin', password, max: 1 });
 const client = await pool.connect();
 const run = randomUUID(), counts = {};
 let rootCatalogLock=false,lastPublicationSignature;
@@ -41,11 +43,13 @@ async function documentImport(item) {
  try {
   await client.query(`INSERT INTO knowledge.documents(id,source_id,kind,external_id,title,version,source_url,landing_url,source_status,icd10,age_category,sha256,original,retrieved_at,publication_date,metadata,mime_type)
    VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
-   ON CONFLICT(id) DO UPDATE SET title=EXCLUDED.title,source_url=EXCLUDED.source_url,landing_url=EXCLUDED.landing_url,source_status=EXCLUDED.source_status,icd10=EXCLUDED.icd10,sha256=EXCLUDED.sha256,original=EXCLUDED.original,retrieved_at=EXCLUDED.retrieved_at,metadata=EXCLUDED.metadata,mime_type=EXCLUDED.mime_type`,
+   ON CONFLICT(id) DO UPDATE SET title=EXCLUDED.title,source_url=EXCLUDED.source_url,landing_url=EXCLUDED.landing_url,source_status=EXCLUDED.source_status,icd10=EXCLUDED.icd10,sha256=EXCLUDED.sha256,original=EXCLUDED.original,blob_key=NULL,original_bytes=NULL,archive_verified_at=NULL,retrieved_at=EXCLUDED.retrieved_at,metadata=EXCLUDED.metadata,mime_type=EXCLUDED.mime_type`,
    [item.id,item.sourceId,item.kind,item.externalId,item.title,item.version,item.sourceUrl,item.landingUrl,item.sourceStatus,item.icd10||[],item.ageCategory,item.sha256,original,item.retrievedAt,item.publicationDate,JSON.stringify(item.metadata),mime]);
   await client.query('DELETE FROM knowledge.mentions WHERE document_id=$1',[item.id]);
   await client.query('DELETE FROM knowledge.pages WHERE document_id=$1',[item.id]);
   await client.query(`INSERT INTO knowledge.pages(document_id,page,text_content) SELECT $1,x.page,x.text FROM jsonb_to_recordset($2::jsonb) AS x(page integer,text text)`,[item.id,JSON.stringify(item.pages)]);
+  await archiveReferenceRow(client,'documents','id=$1',[item.id]);
+  await publishReaderIndex(client,item.id);
   await client.query('COMMIT');
  } catch(error){ await client.query('ROLLBACK');throw error; }
 }
@@ -111,6 +115,13 @@ try {
  await client.query('SELECT pg_advisory_lock(2026101802)');
  await client.query('SELECT pg_advisory_lock($1)',[REFERENCE_WRITE_LOCK]);rootCatalogLock=true;
  await client.query(`INSERT INTO knowledge.import_runs(id,started_at,status) VALUES($1,now(),'running')`,[run]);
+ const singleAt=process.argv.indexOf('--document');
+ if(singleAt>=0){
+  const path=resolve(process.argv[singleAt+1]||'');if(!path.startsWith(root+sep))throw new Error('Document metadata outside knowledge archive');
+  const item=JSON.parse(await readFile(path,'utf8')),source=sources.find(source=>source.id===item.sourceId);if(!source)throw new Error('Unknown public document source');
+  await client.query(`INSERT INTO knowledge.sources(id,name,url,license,coverage,retrieved_at) VALUES($1,$2,$3,$4,$5,now()) ON CONFLICT(id) DO NOTHING`,[source.id,source.name,source.url,source.license,'Отдельно импортированный документ; полный корпус не загружен']);
+  await documentImport(item);counts.documents=1;counts.pages=item.pages.length;
+ }else{
  if(!process.argv.includes('--instructions-only')){
  for(const source of sources) await client.query(`INSERT INTO knowledge.sources(id,name,url,license,coverage,retrieved_at) VALUES($1,$2,$3,$4,$5,now()) ON CONFLICT(id) DO UPDATE SET name=EXCLUDED.name,url=EXCLUDED.url,license=EXCLUDED.license,coverage=EXCLUDED.coverage,retrieved_at=now()`,[source.id,source.name,source.url,source.license,source.coverage]);
  const clinical=await jsonFile('clinical-manifest.json');
@@ -159,6 +170,7 @@ try {
  await importPsychiatryScope();
  }
  await importInstructions();
+ }
  await client.query(`UPDATE knowledge.import_runs SET finished_at=now(),status='completed',counts=$2::jsonb WHERE id=$1`,[run,JSON.stringify(counts)]);
  if(!process.argv.includes('--instructions-only'))await refreshReferenceCatalog(client);
  await client.query('SELECT pg_advisory_unlock($1)',[REFERENCE_WRITE_LOCK]);rootCatalogLock=false;

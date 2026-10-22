@@ -15,7 +15,7 @@ assert.equal((await call(other,'/api/care/links/'+id,{status:'active'})).status,
 assert.equal((await call(patient,'/api/care/links/'+id,{status:'active'})).status,200);
 assert.equal((await call(doctor,'/api/care/claim',{code:invite.code})).status,404);
 assert.equal((await call(other,'/api/care/patients/'+id)).status,404);
-const privateId=randomUUID();await call(patient,'/api/entries/'+privateId,{id:privateId,type:'journal',title:'Личный текст',body:'SYNTHETIC-PRIVATE-NEVER-SHARE',day:new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Moscow'}).format(new Date())},'PUT');
+const privateId=randomUUID();await call(patient,'/api/entries/'+privateId,{expectedRevision:0,mutationId:randomUUID(),id:privateId,type:'journal',title:'Личный текст',body:'SYNTHETIC-PRIVATE-NEVER-SHARE',day:new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Moscow'}).format(new Date())},'PUT');
 const profile={id:'medical-profile',type:'medical-profile',expectedRevision:0,medications:[{id:'existing-med',name:'Пимозид',details:'Тестовый пример'}],conditions:[{id:'existing-condition',name:'эпилепсия',details:'Тестовый пример'}]};
 assert.equal((await call(patient,'/api/entries/medical-profile',profile,'PUT')).status,200);
 const record=await call(doctor,'/api/care/patients/'+id);assert.equal(record.status,200);assert.equal(record.data.entries.some(row=>row.id===privateId),false);assert.equal(record.data.entries.find(row=>row.id==='medical-profile').medications[0].name,'Пимозид');

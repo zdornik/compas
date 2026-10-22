@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ChatCircle, NotePencil, MagnifyingGlass, ArrowUpRight, BookOpen, Pill, Plus, Check, ArrowCounterClockwise, Clock, Moon, ClipboardText, ShieldCheck, Bell, ChatsCircle, CalendarBlank, CaretRight } from '@phosphor-icons/react';
 import { Row } from './components.jsx';
 import { dayKey, dateLabel } from './domain.js';
+import {Appointments} from './Appointments.jsx';
 
 function Switch({ value, onChange }) {
   const options = [{ id: 'notes', label: 'Записи' }, { id: 'observations', label: 'Самочувствие' }];
@@ -30,6 +31,6 @@ export function DiaryPage({ entries, selectedId, onSelect, onNew, onAdd, onEdit,
   </>;
 }
 
-export function DoctorPage({ onOpen, onNavigate, children }) {
-  return <>{children}<section className="surface cp-patient-chat-entry"><span className="workspace-icon"><ChatCircle size={24}/></span><div><h2>Сообщения с врачом</h2><p>Переписка доступна после подтверждения подключения.</p></div><button className="secondary-button" onClick={()=>onOpen('chat')}>Открыть чат<ArrowUpRight size={17}/></button></section><div className="doctor-details-grid"><section className="appointment-card"><span className="workspace-icon"><CalendarBlank size={24}/></span><span className="section-kicker">БЛИЖАЙШИЙ ПРИЁМ</span><h2>Пока не назначен</h2><p>Календарь приёмов ещё не подключён.</p></section><section className="visit-preparation"><div className="workspace-section-head"><h2>Перед приёмом</h2><BookOpen size={22}/></div><p>Проверьте медицинский профиль и отметьте мысли, которые хотите обсудить.</p><button className="text-button" onClick={() => onNavigate('diary')}>Открыть дневник<ArrowUpRight size={17}/></button></section></div><p className="workspace-footnote">Сообщения обновляются в открытом приложении. Фоновые уведомления пока не подключены.</p></>;
+export function DoctorPage({ onOpen, onNavigate, children,owner,active,onRequestAuth }) {
+  return <>{children}<section className="surface cp-patient-chat-entry"><span className="workspace-icon"><ChatCircle size={24}/></span><div><h2>Сообщения с врачом</h2><p>Переписка доступна после подтверждения подключения.</p></div><button className="secondary-button" onClick={()=>onOpen('chat')}>Открыть чат<ArrowUpRight size={17}/></button></section><div className="doctor-details-grid"><Appointments owner={owner} active={active} onRequestAuth={onRequestAuth}/><section className="visit-preparation"><div className="workspace-section-head"><h2>Перед приёмом</h2><BookOpen size={22}/></div><p>Проверьте медицинский профиль и отметьте мысли, которые хотите обсудить.</p><button className="text-button" onClick={() => onNavigate('diary')}>Открыть дневник<ArrowUpRight size={17}/></button></section></div><p className="workspace-footnote">Сообщения обновляются в открытом приложении. Фоновые уведомления пока не подключены.</p></>;
 }

@@ -12,9 +12,5 @@ export function entranceScene(width,height,value=3){
  return sceneAt({figure,clip:{left:0,top:0,width,height},radii:Array(8).fill(0),value},{figure,clip:{left:0,top:0,width,height},radii:Array(8).fill(0),value},0);
 }
 export async function loginWithRoleDiscovery(input,authenticate){
- const preferred=input.role==='doctor'?'doctor':'patient';
- for(const role of [preferred,preferred==='patient'?'doctor':'patient']){
-  try{return await authenticate({...input,role});}catch(error){if(error.status!==401)throw error;}
- }
- throw Object.assign(new Error('Не удалось войти. Проверьте почту и пароль.'),{status:401});
+ return authenticate({...input,role:input.role==='doctor'?'doctor':'patient',discoverRole:true});
 }

@@ -1,6 +1,8 @@
 import { timingSafeEqual,createHash } from 'node:crypto';
 import { createStore } from './store.mjs';
 import {createAuthLimiter} from './auth-policy.mjs';
+import {journalPage,uuid} from './journal-policy.mjs';
+import {appointmentPage} from './appointment-policy.mjs';
 const equal = (a = '', b = '') => typeof a === 'string' && typeof b === 'string' && Buffer.byteLength(a) === Buffer.byteLength(b) && timingSafeEqual(Buffer.from(a), Buffer.from(b));
 export async function createApi({store:providedStore,siteOrigin}={}) {
   const store = providedStore||await createStore();
@@ -60,11 +62,25 @@ export async function createApi({store:providedStore,siteOrigin}={}) {
         if(pathname==='/api/auth/register'||pathname==='/api/auth/login'){
           const address=req.socket.remoteAddress||'local',loginKey=createHash('sha256').update(String(input?.email||'').trim().toLowerCase()).digest('hex');
           const action=pathname.endsWith('/register')?'register':'login';
-          if(!authAllowed(action+':ip:'+address,action==='register'?10:40,action==='register'?3600000:900000)||!authAllowed(action+':login:'+loginKey,8,900000)){json(res,429,{error:'Слишком много попыток входа. Попробуйте позже'});return;}
           if(input?.role!==role){json(res,422,{error:'Выберите ту же роль, что указана в форме'});return;}
-          const created=action==='register'?await store.auth.register(input):await store.auth.login(input);
-          const cookies=[cookie(cookieName,created.token)];
-          if(!session.account_id)cookies.push(cookie(cookieName+'_local',token));
+          const ipBucket=action+':ip:'+address,loginBucket=action+':login:'+loginKey;
+          const ipAllowed=authAllowed(ipBucket,action==='register'?10:40,action==='register'?3600000:900000);
+          const loginAllowed=ipAllowed&&authAllowed(loginBucket,8,900000);
+          if(!ipAllowed||!loginAllowed){
+            if(ipAllowed)authAllowed.refund(ipBucket);
+            const retryAfter=authAllowed.retryAfter(ipAllowed?loginBucket:ipBucket);
+            res.setHeader('Retry-After',String(retryAfter));
+            json(res,429,{error:`Слишком много неудачных попыток. Попробуйте через ${Math.max(1,Math.ceil(retryAfter/60))} мин.`,code:'AUTH_RATE_LIMITED',retryAfter});return;
+          }
+          let created;
+          try{created=action==='register'?await store.auth.register(input):await store.auth.login(input);}
+          catch(error){if(action==='login'&&error.status!==401){authAllowed.refund(ipBucket);authAllowed.refund(loginBucket);}throw error;}
+          if(action==='login'){authAllowed.refund(ipBucket);authAllowed.reset(loginBucket);}
+          const targetCookie=created.account.role==='doctor'?sessionCookie+'_doctor':sessionCookie;
+          const targetToken=targetCookie===cookieName?token:cookieValue(req,targetCookie);
+          const targetSession=targetCookie===cookieName?session:await store.session(targetToken);
+          const cookies=[cookie(targetCookie,created.token)];
+          if(targetSession&&!targetSession.account_id)cookies.push(cookie(targetCookie+'_local',targetToken));
           res.setHeader('Set-Cookie',cookies);
           json(res,action==='register'?201:200,{csrfToken:created.csrfToken,account:created.account});return;
         }
@@ -79,6 +95,39 @@ export async function createApi({store:providedStore,siteOrigin}={}) {
       }
       if (pathname === '/api/session' && req.method === 'GET') { json(res, 200, { csrfToken: session.csrf_token }); return; }
       if (pathname === '/api/state' && req.method === 'GET') { json(res, 200, await store.state(session.patient_id)); return; }
+      const appointmentPath=pathname.match(/^\/api\/appointments(?:\/([a-f0-9-]{36})\/(confirm|decline|cancel))?$/i);
+      if(appointmentPath){
+        if(req.method==='GET'&&!appointmentPath[1]){
+          if(role==='doctor')await store.auth.requireHealthConsent(session);
+          json(res,200,await store.appointments.list(session,appointmentPage(new URL(req.url,origin).searchParams)));return;
+        }
+        if(req.method==='POST'){
+          if(req.headers.origin!==origin||req.headers['x-compass-client']!=='web'||!equal(req.headers['x-csrf-token'],session.csrf_token)){json(res,403,{error:'Проверка запроса не пройдена. Обновите страницу'});return;}
+          await store.auth.requireHealthConsent(session);
+          const input=await readBody(req);
+          json(res,appointmentPath[1]?200:201,appointmentPath[1]?await store.appointments.change(session,appointmentPath[1],appointmentPath[2],input):await store.appointments.create(session,input));return;
+        }
+        json(res,405,{error:'Метод не поддерживается'});return;
+      }
+      const ownJournal=pathname.match(/^\/api\/journal\/([a-zA-Z0-9-]{1,80})\/analysis(?:\/(retry))?$/);
+      const careNotes=pathname.match(/^\/api\/care\/patients\/([a-f0-9-]{36})\/notes(?:\/([a-zA-Z0-9-]{1,80}))?$/i);
+      const alertPath=pathname.match(/^\/api\/care\/alerts(?:\/([a-f0-9-]{36})(?:\/(seen|acknowledge))?)?$/i);
+      if(ownJournal||careNotes||alertPath){
+        const params=new URL(req.url,origin).searchParams;
+        if(req.method==='POST'){
+          if(req.headers.origin!==origin||!equal(req.headers['x-csrf-token'],session.csrf_token)){json(res,403,{error:'Проверка запроса не пройдена'});return;}
+          await store.auth.requireHealthConsent(session);
+          const input=await readBody(req);
+          if(ownJournal?.[2]){json(res,200,await store.journal.retry(session,ownJournal[1]));return;}
+          if(alertPath?.[1]&&alertPath[2]&&uuid(alertPath[1])){json(res,200,await store.journal.alert(session,alertPath[1],alertPath[2],input));return;}
+        }else if(req.method==='GET'){
+          if(ownJournal&&!ownJournal[2]&&role==='patient'){json(res,200,await store.journal.own(session,ownJournal[1]));return;}
+          await store.auth.requireHealthConsent(session);
+          if(careNotes&&uuid(careNotes[1])){json(res,200,careNotes[2]?await store.journal.note(session,careNotes[1],careNotes[2],params.get('revision')):await store.journal.notes(session,careNotes[1],journalPage(params)));return;}
+          if(alertPath&&!alertPath[2]){json(res,200,alertPath[1]?await store.journal.alert(session,alertPath[1]):await store.journal.alerts(session,journalPage(params)));return;}
+        }
+        json(res,405,{error:'Метод не поддерживается'});return;
+      }
       if (pathname === '/api/care' && req.method === 'GET') { json(res, 200, await store.care.links(session)); return; }
       const careArchive=pathname.match(/^\/api\/care\/patients\/([a-f0-9-]{36})\/medications\/([a-f0-9-]{36})\/archive$/i);
       const carePatient = pathname.match(/^\/api\/care\/patients\/([a-f0-9-]{36})(?:\/(check|prescriptions|medical-profile))?$/i);

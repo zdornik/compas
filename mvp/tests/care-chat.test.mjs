@@ -11,7 +11,8 @@ function fixture({status='active',consent=null}={}) {
  const link={id:linkId,patient_id:patientId,doctor_id:doctorId,get status(){return currentStatus;}};
  const db={async query(sql,params=[]){queries.push({sql,params});
   if(sql.startsWith('SELECT set_config'))return {rows:[]};
-  if(sql==='SELECT * FROM care_links WHERE id=$1 FOR UPDATE')return {rows:params[0]===linkId?[link]:[]};
+  if(sql==='SELECT id FROM local_patients WHERE id=$1 FOR UPDATE')return {rows:[{id:patientId}]};
+  if(sql.startsWith('SELECT * FROM care_links WHERE id=$1'))return {rows:params[0]===linkId?[link]:[]};
   if(sql==='SELECT id,payload FROM auth_accounts WHERE principal_id=$1 FOR SHARE')return {rows:consent?[{id:'account',payload:seal({consents:consent},key,'auth-account:account')}]:[]};
   if(sql.startsWith('SELECT id,sender_id,payload'))return {rows:messages.filter(row=>row.id===params[1])};
   if(sql.startsWith('INSERT INTO care_messages')){const row={link_id:params[0],id:params[1],sender_id:params[2],payload:params[3],created_at:new Date('2026-10-19T11:00:00.000Z')};messages.push(row);return {rows:[row]};}

@@ -29,7 +29,8 @@ export function createCareChatStore({transaction,key}) {
   return transaction(null,async db=>{
    await db.query("SELECT set_config('app.actor_id',$1,true)",[session.patient_id]);
    // Sharing the care-link lock serialises sends/reads with consent revocation.
-   const link=(await db.query('SELECT * FROM care_links WHERE id=$1 FOR UPDATE',[linkId])).rows[0];
+   let link=(await db.query('SELECT * FROM care_links WHERE id=$1',[linkId])).rows[0];
+   if(link){await db.query('SELECT id FROM local_patients WHERE id=$1 FOR UPDATE',[link.patient_id]);link=(await db.query('SELECT * FROM care_links WHERE id=$1 FOR UPDATE',[linkId])).rows[0];}
    if(!link||![link.patient_id,link.doctor_id].includes(session.patient_id))fail('Переписка не найдена',404);
    if(link.status!=='active'||(link.doctor_id===session.patient_id&&!session.doctor_enabled))fail('Переписка недоступна: подключение не активно',403);
    const senderRole=link.patient_id===session.patient_id?'patient':'doctor';

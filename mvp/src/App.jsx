@@ -191,7 +191,8 @@ function PatientApp({ active, onSwitchRole, account, onUpdateConsents, onSignOut
     if (storage !== 'ready') throw new Error('База недоступна. Запись остаётся в форме — повторите сохранение после подключения');
     mutationRevision.current++;
     const saved = await storeEntry(entry);
-    setEntries(old => old.some(e => e.id === saved.id) ? old.map(e => e.id === saved.id ? saved : e) : [saved, ...old]);
+    setEntries(old => old.some(e => e.id === saved.id) ? old.map(e => e.id === saved.id ? (e.revision>saved.revision?e:saved) : e) : [saved, ...old]);
+    if(saved.type==='journal'&&saved.currentRevision>saved.revision){const latest=await loadStoredState();setEntries(latest.entries);return latest.entries.find(row=>row.id===saved.id)||saved;}
     if (page === 'diary' && ['mood', 'sleep', 'assessment', 'journal'].includes(saved.type)) setDiaryDay(saved.day || dayKey(new Date(saved.at)));
     return saved;
   };
@@ -226,13 +227,13 @@ function PatientApp({ active, onSwitchRole, account, onUpdateConsents, onSignOut
           <header className="page-header"><div><p className="eyebrow desktop-only">ЛИЧНОЕ ПРОСТРАНСТВО</p><h1>{tab.name}</h1></div></header>
           {tab.id === 'diary' && <DiaryPage entries={entries} selectedId={selectedJournalId} onSelect={setSelectedJournalId} onNew={() => openJournal()} onAdd={date => { if (date) setDiaryDay(date); setModal('add'); }} onEdit={openJournal} hasDraft={Boolean(journalDraft && !journalDraft.id && journalDraft.body.trim())}><MoodHistory entries={entries.filter(entry => ['mood', 'sleep', 'assessment'].includes(entry.type))} selected={diaryDay} setSelected={setDiaryDay} onEdit={openMood} onAssessment={entry => { setViewingAssessment(entry); setModal('questionnaire'); }} onAdd={() => setModal('add')}/></DiaryPage>}
           {tab.id === 'treatment' && <TreatmentPage entries={entries} themeValue={themePosition} now={clock} onOpen={openSectionModal} onSave={save} onReload={reloadState} onToast={setToast}/>}
-          {tab.id === 'doctor' && <DoctorPage onOpen={setModal} onNavigate={navigate}><PatientConnections active={active&&page==='doctor'} onHealth={()=>setModal('health')}/></DoctorPage>}
+          {tab.id === 'doctor' && <DoctorPage owner={account?.id} active={active&&page==='doctor'} onRequestAuth={onRequestAuth} onOpen={setModal} onNavigate={navigate}><PatientConnections active={active&&page==='doctor'} account={account} onUpdateConsents={onUpdateConsents} onRequestAuth={onRequestAuth} onHealth={()=>setModal('health')}/></DoctorPage>}
         </div>}
       </section>)}</div>
     </main>
     <nav className="bottom-nav" aria-label="Навигация по приложению"><span className="bottom-nav-glider" aria-hidden="true"/>{tabs.map(({ id, name, icon: Icon }) => <button key={id} onClick={() => navigate(id)} className={page === id ? 'current' : ''} aria-current={page === id ? 'page' : undefined}><Icon size={24}/><span>{name}</span></button>)}</nav>
     {toast && <div role="status" className="toast"><CheckCircle size={20}/>{toast}</div>}
-    {modal === 'journal' && journalDraft && <JournalEditor draft={journalDraft} onChange={setJournalDraft} onClose={closeModal} onSave={async entry => { const saved = await save(entry); setSelectedJournalId(saved.id); setJournalDraft({ ...saved, date: saved.day }); closeModal(); setToast('Запись сохранена в дневнике'); }}/>}
+    {modal === 'journal' && journalDraft && <JournalEditor onReload={async()=>{const state=await loadStoredState();const latest=state.entries.find(row=>row.id===journalDraft.id);if(latest)setJournalDraft({...latest,date:latest.day});setEntries(state.entries);}} draft={journalDraft} onChange={setJournalDraft} onClose={closeModal} onSave={async entry => { const saved = await save(entry); setSelectedJournalId(saved.id); setJournalDraft({ ...saved, date: saved.day }); closeModal(); setToast('Запись сохранена в дневнике'); }}/>}
     {modal === 'mood' && <MoodFlow initialEntry={editingMood} initialDate={page === 'diary' ? diaryDay : dayKey()} onPreview={(editingMood?.day || (editingMood ? dayKey(new Date(editingMood.at)) : page === 'diary' ? diaryDay : dayKey())) === dayKey() ? setMoodPreview : undefined} onClose={() => closeModal()} onSave={save}/>}
     {modal === 'questionnaire' && <Assessments moodValue={themePosition} initialEntry={viewingAssessment} entries={entries} onClose={closeModal} onSave={async entry => { const saved = await save(entry); setToast('Результат сохранён в дневнике'); return saved; }}/ >}
     {modal === 'sleep' && <Sleep initialDate={page === 'diary' ? diaryDay : dayKey()} onClose={() => closeModal()} onSave={async entry => { await save(entry); closeModal(); setToast('Сон отмечен в дневнике'); }}/ >}

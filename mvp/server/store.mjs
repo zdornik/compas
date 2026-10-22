@@ -9,12 +9,14 @@ import {canonicalMedicalInput,canonicalMedicationInput} from './medical-referenc
 import { createCareStore } from './care-store.mjs';
 import {createAuthStore,readPatientConsent} from './auth-store.mjs';
 import {createCareChatStore} from './chat-store.mjs';
+import {createJournalStore,syncJournalAccess} from './journal-store.mjs';
+import {createAppointmentStore} from './appointment-store.mjs';
 
 export async function createStore() {
   const password = (await readFile(process.env.DB_PASSWORD_FILE, 'utf8')).trim();
   const key = Buffer.from((await readFile(process.env.DATA_KEY_FILE, 'utf8')).trim(), 'base64');
   if (key.length !== 32) throw new Error('A 256-bit data key is required');
-  const pool = new pg.Pool({ host: process.env.DB_HOST, port: 5432, database: 'compass', user: 'compass_app', password, max: 8, connectionTimeoutMillis: 5000, idleTimeoutMillis: 30000 });
+  const pool = new pg.Pool({ host: process.env.DB_HOST, port: Number(process.env.DB_PORT||5432), database: process.env.DB_NAME||'compass', user: 'compass_app', password, max: 8, connectionTimeoutMillis: 5000, idleTimeoutMillis: 30000 });
   pool.on('error', () => console.error('Database connection unavailable'));
   const transaction = async (patientId, callback) => {
     const db = await pool.connect();
@@ -26,7 +28,11 @@ export async function createStore() {
     } catch (error) { await db.query('ROLLBACK'); throw error; } finally { db.release(); }
   };
   const decode = (row, patientId) => unseal(row.payload, key, `${patientId}:${row.id}`);
+  const journal=createJournalStore({transaction,key});
   return {
+    close:()=>pool.end(),
+    journal,
+    appointments:createAppointmentStore({transaction,key}),
     care: createCareStore({ transaction, key, decode }),
     auth:createAuthStore({transaction,key}),
     chat:createCareChatStore({transaction,key}),
@@ -53,9 +59,9 @@ export async function createStore() {
     },
     async state(patientId) {
       return transaction(patientId, async db => {
-        const entries = await db.query('SELECT id,payload FROM patient_entries ORDER BY saved_at DESC, id');
+        const entries = await db.query('SELECT e.id,e.payload,n.current_revision FROM patient_entries e LEFT JOIN journal_notes n ON n.patient_id=e.patient_id AND n.entry_id=e.id ORDER BY e.saved_at DESC, e.id');
         const doses = await db.query('SELECT dose_id,status FROM patient_doses WHERE observation_day = $1', [dayKey()]);
-        return { entries: entries.rows.map(row => decode(row, patientId)), doses: ['one', 'two'].map((id, index) => ({ id, name: `Препарат ${index + 1}`, status: doses.rows.find(row => row.dose_id === id)?.status || 'planned' })) };
+        return { entries: entries.rows.map(row => ({...decode(row, patientId),...(row.current_revision?{revision:row.current_revision}:{})})), doses: ['one', 'two'].map((id, index) => ({ id, name: `Препарат ${index + 1}`, status: doses.rows.find(row => row.dose_id === id)?.status || 'planned' })) };
       });
     },
     async saveEntry(patientId, id, input) {
@@ -70,6 +76,10 @@ export async function createStore() {
         if (input.type === 'medication-dose' && typeof input.planId === 'string') {
           const found = await db.query("SELECT id,payload FROM patient_entries WHERE id = $1 AND type = 'medication-plan'", [input.planId]);
           if (found.rows[0]) plan = decode(found.rows[0], patientId);
+        }
+        if(input.type==='journal'){
+          await syncJournalAccess(db,patientId,await readPatientConsent(db,patientId,key));
+          return journal.save(db,patientId,id,input,old.rows[0]?decode(old.rows[0],patientId):null);
         }
         const record = validateEntry(input, id, old.rows[0] ? decode(old.rows[0], patientId) : null, new Date(), { plan });
         await db.query('INSERT INTO patient_entries (patient_id,id,type,observation_day,payload) VALUES ($1,$2,$3,$4,$5) ON CONFLICT (patient_id,id) DO UPDATE SET observation_day = EXCLUDED.observation_day,payload = EXCLUDED.payload,saved_at = now()', [patientId, id, record.type, record.day, seal(record, key, `${patientId}:${id}`)]);

@@ -1,3 +1,5 @@
+import {deliverReferenceFile} from './reference-files.mjs';
+import {readReaderRoute,referenceJson} from './reference-reader.mjs';
 import {esklpProduct} from './esklp.mjs';
 import {searchCatalogProducts} from './reference-catalog.mjs';
 import {referenceSearch} from './reference-search.mjs';
@@ -16,13 +18,13 @@ export function assessInteractionCoverage({ loaded=0, mapped=0, selected=0, foun
  if(mapped!==selected)return {status:'unmapped',message:'Не все выбранные препараты сопоставлены с источником взаимодействий. Проверка неполная.',safeToCombine:null};
  return {status:found?'potential_interactions':'no_records',message:found?'В источнике есть сведения о потенциальных взаимодействиях.':'В загруженной части источника сведений о паре не найдено. Это не подтверждает безопасность сочетания.',safeToCombine:null};
 }
-const fields=`d.id,d.mime_type AS "mimeType",d.kind,d.title,d.version,d.external_id AS "externalId",d.source_url AS "sourceUrl",d.landing_url AS "landingUrl",d.source_status AS "sourceStatus",d.icd10 AS "icd10",d.age_category AS "ageCategory",d.retrieved_at AS "retrievedAt",d.publication_date AS "publicationDate",d.review_status AS "reviewStatus",d.clinical_use_approved AS "clinicalUseApproved",d.metadata->>'extractionStatus' AS "extractionStatus"`;
+const fields=`d.id,d.sha256,d.mime_type AS "mimeType",d.kind,d.title,d.version,d.external_id AS "externalId",d.source_url AS "sourceUrl",d.landing_url AS "landingUrl",d.source_status AS "sourceStatus",d.icd10 AS "icd10",d.age_category AS "ageCategory",d.retrieved_at AS "retrievedAt",d.publication_date AS "publicationDate",d.review_status AS "reviewStatus",d.clinical_use_approved AS "clinicalUseApproved",d.metadata->>'extractionStatus' AS "extractionStatus"`;
 const like=q=>'%'+q.replace(/[\\%_]/g,'\\$&')+'%';
 export function createKnowledgeApi(pool) {
  const json=(res,status,value)=>{res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});res.end(JSON.stringify(value));};
  return async(req,res,pathname)=>{
   if(!pathname.startsWith('/api/knowledge/'))return false;
-  if(req.method!=='GET'){json(res,405,{error:'Справочник доступен только для чтения'});return true;}
+  if(!['GET','HEAD'].includes(req.method)){json(res,405,{error:'Справочник доступен только для чтения'});return true;}
   try {
    const url=new URL(req.url,'http://localhost'), p=parseKnowledgeQuery(url.search);
    const suggestions=await referenceSearch(pool,pathname,url,p.q);if(suggestions){json(res,200,suggestions);return true;}
@@ -40,23 +42,20 @@ export function createKnowledgeApi(pool) {
    }
    const asset=pathname.match(/^\/api\/knowledge\/documents\/([a-zA-Z0-9:_-]{1,100})\/assets\/([a-f0-9]{32})$/);
    if(asset){
-    const result=await pool.query('SELECT original,mime_type FROM knowledge.page_assets WHERE document_id=$1 AND id=$2',[asset[1],asset[2]]);
-    if(!result.rows.length){json(res,404,{error:'Фрагмент оригинала не найден'});return true;}
-    const file=result.rows[0];res.writeHead(200,{'Content-Type':file.mime_type,'Content-Length':file.original.length,'Cache-Control':'no-store'});res.end(file.original);return true;
+    await deliverReferenceFile(req,res,{pool,table:'page_assets',where:'document_id=$1 AND id=$2',params:[asset[1],asset[2]]});return true;
    }
-   const document=pathname.match(/^\/api\/knowledge\/documents\/([a-zA-Z0-9:_-]{1,100})(?:\/(pages|pdf|mentions|reader))?$/);
+   const document=pathname.match(/^\/api\/knowledge\/documents\/([a-zA-Z0-9:_-]{1,100})(?:\/(pages|pdf|mentions|reader|reader-index|reader-search))?$/);
    if(document){
     const id=document[1],action=document[2];
+    if(['reader-index','reader-search'].includes(action)||action==='reader'&&url.searchParams.has('from')){await readReaderRoute(pool,req,res,id,action,url);return true;}
     if(action==='reader'){
      const exists=await pool.query('SELECT id FROM knowledge.documents WHERE id=$1',[id]);
      if(!exists.rows.length){json(res,404,{error:'Документ не найден'});return true;}
      const result=await pool.query('SELECT page,text_content AS text,layout FROM knowledge.pages WHERE document_id=$1 ORDER BY page',[id]);
-     json(res,200,{pages:result.rows});return true;
+     referenceJson(req,res,{pages:result.rows});return true;
     }
     if(action==='pdf'){
-     const data=await pool.query('SELECT original,mime_type FROM knowledge.documents WHERE id=$1',[id]);
-     if(!data.rows.length){json(res,404,{error:'Документ не найден'});return true;}
-     const file=data.rows[0],extension=file.mime_type==='image/jpeg'?'jpg':file.mime_type==='image/png'?'png':'pdf';res.writeHead(200,{'Content-Type':file.mime_type,'Content-Length':file.original.length,'Content-Disposition':`inline; filename="${id.replace(/:/g,'-')}.${extension}"`,'Cache-Control':'no-store'});res.end(file.original);return true;
+     await deliverReferenceFile(req,res,{pool,table:'documents',where:'id=$1',params:[id],filename:id.replace(/:/g,'-')});return true;
     }
     if(action==='pages'){
      const result=await pool.query(`SELECT page,text_content AS text FROM knowledge.pages WHERE document_id=$1 AND ($2='' OR search_vector @@ plainto_tsquery('russian',$2)) ORDER BY abs(page-$3),page LIMIT 1`,[id,p.q,p.page]);
@@ -101,6 +100,6 @@ export function createKnowledgeApi(pool) {
     json(res,200,{...assessInteractionCoverage({loaded,mapped:mappedCount,selected:ids.length,found:rows.rows.length}),items:rows.rows,identityMappings,instructionMentions:instructionMentions.rows.map(row=>({...row,context:row.context.replace(/<\/?b>/g,''),classification:'unreviewed_text_match'})),products:products.rows,clinicalUseApproved:false});return true;
    }
    json(res,404,{error:'Раздел справочника не найден'});return true;
-  }catch(error){json(res,error.status||503,{error:error.status?error.message:'Справочник пока недоступен. Повторите загрузку позже.'});return true;}
+  }catch(error){if(res.headersSent){if(!res.destroyed)res.destroy();return true;}json(res,error.status||503,{error:error.status?error.message:'Справочник пока недоступен. Повторите загрузку позже.'});return true;}
  };
 }

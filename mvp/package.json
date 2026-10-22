@@ -8,7 +8,7 @@
     "build": "node scripts/prepare-pdf-assets.mjs && vite build && node scripts/prepare-pwa.mjs && node scripts/compress-static.mjs",
     "preview": "vite preview",
     "start": "node scripts/serve.mjs",
-    "test": "node --test tests/domain.test.mjs tests/calendar.test.mjs tests/medications.test.mjs tests/assessments.test.mjs tests/security.test.mjs tests/server.test.mjs tests/demo-gate.test.mjs tests/knowledge.test.mjs tests/guidelines.test.mjs tests/doctor-care.test.mjs tests/care.test.mjs tests/ingredient-identities.test.mjs tests/medication-management.test.mjs tests/auth.test.mjs tests/care-chat.test.mjs tests/auth-motion.test.mjs tests/ingredient-crosswalk.test.mjs tests/manual-ingredient-review.test.mjs tests/nsi-crosswalk.test.mjs tests/reference-catalog.test.mjs tests/composition-crosswalk.test.mjs tests/reference-snapshot.test.mjs",
+    "test": "node --test tests/domain.test.mjs tests/calendar.test.mjs tests/medications.test.mjs tests/assessments.test.mjs tests/security.test.mjs tests/server.test.mjs tests/demo-gate.test.mjs tests/knowledge.test.mjs tests/guidelines.test.mjs tests/doctor-care.test.mjs tests/care.test.mjs tests/ingredient-identities.test.mjs tests/medication-management.test.mjs tests/auth.test.mjs tests/care-chat.test.mjs tests/auth-motion.test.mjs tests/ingredient-crosswalk.test.mjs tests/manual-ingredient-review.test.mjs tests/nsi-crosswalk.test.mjs tests/reference-catalog.test.mjs tests/composition-crosswalk.test.mjs tests/reference-snapshot.test.mjs tests/journal.test.mjs tests/appointments.test.mjs tests/reference-files.test.mjs",
     "docker:up": "node scripts/start-local.mjs",
     "docker:stop": "docker compose stop",
     "demo:share": "node scripts/share-demo.mjs",
@@ -19,7 +19,12 @@
     "predev": "node scripts/prepare-pdf-assets.mjs",
     "db:restore": "node scripts/restore-reference-db.mjs",
     "db:verify": "node scripts/restore-reference-db.mjs --verify",
-    "db:export": "node scripts/export-reference-db.mjs"
+    "db:export": "node scripts/export-reference-db.mjs",
+    "journal:worker": "node scripts/run-journal-worker.mjs",
+    "test:journal": "node scripts/check-journal.mjs",
+    "test:appointments": "node scripts/check-appointments.mjs",
+    "reference:audit": "node scripts/audit-reference-storage.mjs",
+    "reference:publish": "node scripts/publish-reference-files.mjs"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",

@@ -124,9 +124,10 @@ function normalizedWithMap(text) {
  }
  return {text:normalized.trimEnd(),map};
 }
+export const normalizeReaderSearch=value=>normalizedWithMap(String(value||'')).text.trim();
 const searchIndexes=new WeakMap();
 export function findGuidelineMatches(pages,query,limit=1500) {
- const needle=fold(query).slice(0,160);if(needle.length<2)return {items:[],total:0,pageCount:0,truncated:false};
+ const needle=normalizeReaderSearch(query).slice(0,160);if(needle.length<2)return {items:[],total:0,pageCount:0,truncated:false};
  const items=[];let total=0;const foundPages=new Set();
  for(const page of pages)for(const [blockIndex,block]of page.blocks.entries()){
   let indexed=searchIndexes.get(block);if(!indexed){indexed=normalizedWithMap(block.text);searchIndexes.set(block,indexed);}let from=0,at;

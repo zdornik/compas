@@ -1,0 +1,1572 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Compass journal workflow",
+    "version": "0.1.0-stub",
+    "description": "Local synthetic stub only. No external neural provider or clinical assessment. Existing non-journal endpoints are outside this partial contract. See JOURNAL.md for consent and lifecycle."
+  },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ],
+  "paths": {
+    "/api/entries/{id}": {
+      "put": {
+        "operationId": "saveJournal",
+        "security": [
+          {
+            "patientSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Compass-Role",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "enum": [
+                "patient"
+              ]
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operation completed; queued does not imply analysis completion.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SavedJournal"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "428": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JournalWrite"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/journal/{id}/analysis": {
+      "get": {
+        "operationId": "ownJournalAnalysis",
+        "security": [
+          {
+            "patientSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Compass-Role",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "enum": [
+                "patient"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operation completed; queued does not imply analysis completion.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "revision": {
+                      "type": "integer"
+                    },
+                    "analysis": {
+                      "$ref": "#/components/schemas/Analysis"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "428": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/journal/{id}/analysis/retry": {
+      "post": {
+        "operationId": "retryJournal",
+        "security": [
+          {
+            "patientSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Compass-Role",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "enum": [
+                "patient"
+              ]
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operation completed; queued does not imply analysis completion.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Analysis"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "428": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/care/patients/{linkId}/notes": {
+      "get": {
+        "operationId": "doctorJournalList",
+        "security": [
+          {
+            "doctorSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "linkId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20
+            }
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Compass-Role",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "enum": [
+                "doctor"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operation completed; queued does not imply analysis completion.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "day": {
+                            "type": "string"
+                          },
+                          "revision": {
+                            "type": "integer"
+                          },
+                          "updatedAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "analysis": {
+                            "$ref": "#/components/schemas/Analysis"
+                          }
+                        }
+                      }
+                    },
+                    "nextBefore": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "428": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/care/patients/{linkId}/notes/{id}": {
+      "get": {
+        "operationId": "doctorJournalDetail",
+        "security": [
+          {
+            "doctorSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "linkId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "revision",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "X-Compass-Role",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "enum": [
+                "doctor"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operation completed; queued does not imply analysis completion.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NoteDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "428": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/care/alerts": {
+      "get": {
+        "operationId": "doctorJournalAlerts",
+        "security": [
+          {
+            "doctorSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20
+            }
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Compass-Role",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "enum": [
+                "doctor"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operation completed; queued does not imply analysis completion.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "allOf": [
+                          {
+                            "$ref": "#/components/schemas/AlertState"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "linkId": {
+                                "type": "string"
+                              },
+                              "synthetic": {
+                                "const": true
+                              },
+                              "created_at": {
+                                "type": "string",
+                                "format": "date-time"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "unread": {
+                      "type": "integer"
+                    },
+                    "nextBefore": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "428": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/care/alerts/{id}": {
+      "get": {
+        "operationId": "doctorJournalAlertDetail",
+        "security": [
+          {
+            "doctorSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Compass-Role",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "enum": [
+                "doctor"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operation completed; queued does not imply analysis completion.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NoteDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "428": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/care/alerts/{id}/seen": {
+      "post": {
+        "operationId": "doctorJournalAlertSeen",
+        "security": [
+          {
+            "doctorSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Compass-Role",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "enum": [
+                "doctor"
+              ]
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operation completed; queued does not imply analysis completion.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NoteDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "428": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "expectedStateRevision"
+                ],
+                "properties": {
+                  "expectedStateRevision": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/care/alerts/{id}/acknowledge": {
+      "post": {
+        "operationId": "doctorJournalAlertAcknowledge",
+        "security": [
+          {
+            "doctorSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Compass-Role",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "enum": [
+                "doctor"
+              ]
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operation completed; queued does not imply analysis completion.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NoteDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "428": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Authentication, consent, identity, conflict, validation or availability error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "expectedStateRevision"
+                ],
+                "properties": {
+                  "expectedStateRevision": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "patientSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "compass_session"
+      },
+      "doctorSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "compass_session_doctor"
+      }
+    },
+    "schemas": {
+      "JournalEntry": {
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "title",
+          "body",
+          "day",
+          "revision"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9-]{1,80}$"
+          },
+          "type": {
+            "const": "journal"
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "body": {
+            "type": "string",
+            "maxLength": 20000
+          },
+          "day": {
+            "type": "string",
+            "format": "date"
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "JournalWrite": {
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "title",
+          "body",
+          "day",
+          "expectedRevision",
+          "mutationId"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9-]{1,80}$"
+          },
+          "type": {
+            "const": "journal"
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "body": {
+            "type": "string",
+            "maxLength": 20000
+          },
+          "day": {
+            "type": "string",
+            "format": "date"
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "mutationId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "TestResult": {
+        "type": "object",
+        "required": [
+          "schemaVersion",
+          "synthetic",
+          "summary",
+          "signalLevel",
+          "signals"
+        ],
+        "properties": {
+          "schemaVersion": {
+            "const": 1
+          },
+          "synthetic": {
+            "const": true
+          },
+          "summary": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "signalLevel": {
+            "enum": [
+              "routine",
+              "elevated",
+              "urgent",
+              "indeterminate"
+            ]
+          },
+          "signals": {
+            "type": "array",
+            "maxItems": 10,
+            "items": {
+              "type": "object",
+              "required": [
+                "category",
+                "explanation",
+                "sourceSpan"
+              ],
+              "properties": {
+                "category": {
+                  "const": "synthetic_fixture"
+                },
+                "explanation": {
+                  "type": "string",
+                  "maxLength": 1000
+                },
+                "sourceSpan": {
+                  "type": "object",
+                  "required": [
+                    "field",
+                    "start",
+                    "end",
+                    "quote"
+                  ],
+                  "properties": {
+                    "field": {
+                      "enum": [
+                        "title",
+                        "body"
+                      ]
+                    },
+                    "start": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "end": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "quote": {
+                      "type": "string",
+                      "maxLength": 500
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "Analysis": {
+        "type": "object",
+        "required": [
+          "status",
+          "revision",
+          "synthetic"
+        ],
+        "properties": {
+          "status": {
+            "enum": [
+              "not_requested",
+              "queued",
+              "running",
+              "retry_wait",
+              "succeeded",
+              "failed",
+              "cancelled"
+            ]
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "synthetic": {
+            "const": true
+          },
+          "result": {
+            "$ref": "#/components/schemas/TestResult"
+          },
+          "errorCode": {
+            "type": "string"
+          }
+        }
+      },
+      "SavedJournal": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/JournalEntry"
+          },
+          {
+            "type": "object",
+            "required": [
+              "currentRevision",
+              "analysis"
+            ],
+            "properties": {
+              "currentRevision": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "analysis": {
+                "$ref": "#/components/schemas/Analysis"
+              }
+            }
+          }
+        ]
+      },
+      "NoteDetail": {
+        "type": "object",
+        "required": [
+          "entry",
+          "currentRevision",
+          "analysis"
+        ],
+        "properties": {
+          "entry": {
+            "$ref": "#/components/schemas/JournalEntry"
+          },
+          "currentRevision": {
+            "type": "integer"
+          },
+          "analysis": {
+            "$ref": "#/components/schemas/Analysis"
+          },
+          "patientName": {
+            "type": "string"
+          },
+          "alert": {
+            "$ref": "#/components/schemas/AlertState"
+          }
+        }
+      },
+      "AlertState": {
+        "type": "object",
+        "required": [
+          "id",
+          "state",
+          "stateRevision",
+          "kind"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "state": {
+            "enum": [
+              "new",
+              "seen",
+              "acknowledged"
+            ]
+          },
+          "stateRevision": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "kind": {
+            "enum": [
+              "signal",
+              "processing"
+            ]
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

@@ -5,6 +5,7 @@ import {prescriptionSafety} from './prescription-safety.mjs';
 import {makeMedicalProfile} from '../src/medical-profile.js';
 import {canonicalMedicalInput} from './medical-reference.mjs';
 import {readPatientConsent} from './auth-store.mjs';
+import {cancelAccessAppointments} from './appointment-store.mjs';
 const fail=(message,status=422)=>{throw Object.assign(new Error(message),{status});};
 const label=value=>{if(typeof value!=='string'||!value.trim()||value.trim().length>100)fail('Укажите имя до 100 символов');return value.trim();};
 const uuid=value=>typeof value==='string'&&/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(value);
@@ -16,7 +17,8 @@ export function createCareStore({transaction,key,decode}) {
  const openLink=async(db,session,id,doctor=true)=>{
   if(!uuid(id))fail('Подключение не найдено',404);
   await actor(db,session.patient_id);
-  const row=(await db.query('SELECT * FROM care_links WHERE id=$1 FOR UPDATE',[id])).rows[0];
+  let row=(await db.query('SELECT * FROM care_links WHERE id=$1',[id])).rows[0];
+  if(row){await db.query('SELECT id FROM local_patients WHERE id=$1 FOR UPDATE',[row.patient_id]);row=(await db.query('SELECT * FROM care_links WHERE id=$1 FOR UPDATE',[id])).rows[0];}
   if(!row||(doctor?row.doctor_id!==session.patient_id:row.patient_id!==session.patient_id))fail('Подключение не найдено',404);
   if(doctor&&(!session.doctor_enabled||row.status!=='active'))fail('Пациент не предоставил доступ или отозвал его',403);
   return row;
@@ -38,11 +40,11 @@ export function createCareStore({transaction,key,decode}) {
    const doctor=(await db.query('SELECT payload FROM care_doctors WHERE id=$1',[session.patient_id])).rows[0];const id=randomUUID(),patient=persistent?{patientName:unseal(persistent.payload,key,'patient-profile:'+persistent.patient_id).name}:unseal(invitation.payload,key,'care-invite:'+hash),payload={...patient,doctorName:unseal(doctor.payload,key,'doctor:'+session.patient_id).name};
    const link=(await db.query("INSERT INTO care_links(id,patient_id,doctor_id,status,payload) VALUES($1,$2,$3,'pending',$4) RETURNING *",[id,invitation.patient_id,session.patient_id,seal(payload,key,'care-link:'+id)])).rows[0];if(!persistent)await db.query('UPDATE care_invites SET used_at=now() WHERE token_hash=$1',[hash]);await audit(db,link,'request',{});return linkView(link,session.patient_id);
   });},
-  async consent(session,id,status){if(!['active','revoked'].includes(status))fail('Некорректное согласие');return transaction(null,async db=>{const link=await openLink(db,session,id,false);if(link.status==='revoked'&&status==='active')fail('Создайте новое подключение',409);await db.query('UPDATE care_links SET status=$2,updated_at=now() WHERE id=$1',[id,status]);await audit(db,link,status==='active'?'consent':'revoke',{});return {id,status};});},
+  async consent(session,id,status){if(!['active','revoked'].includes(status))fail('Некорректное согласие');return transaction(null,async db=>{const link=await openLink(db,session,id,false);if(link.status==='revoked'&&status==='active')fail('Создайте новое подключение',409);if(status==='revoked')await cancelAccessAppointments(db,link.patient_id,key,{linkId:id,reason:'connection_revoked'});await db.query('UPDATE care_links SET status=$2,updated_at=now() WHERE id=$1',[id,status]);await audit(db,link,status==='active'?'consent':'revoke',{});return {id,status};});},
   async patient(session,id){return authorized(session,id,async(db,link)=>{
    const consents=await patientConsent(db,link.patient_id),journalShared=consents.journalProcessing===true&&consents.journalSharing===true;
    const account=(await db.query('SELECT id,payload FROM auth_accounts WHERE principal_id=$1',[link.patient_id])).rows[0],profile=account?unseal(account.payload,key,'auth-account:'+account.id).profile:null;
-   const entries=(await db.query("SELECT id,payload FROM patient_entries WHERE ($1::boolean OR type<>'journal') ORDER BY saved_at DESC,id",[journalShared])).rows.map(row=>decode(row,link.patient_id)).map(row=>!journalShared&&row.type==='mood'?{...row,note:''}:row);
+   const entries=(await db.query("SELECT id,payload FROM patient_entries WHERE type<>'journal' ORDER BY saved_at DESC,id",[])).rows.map(row=>decode(row,link.patient_id)).map(row=>!journalShared&&row.type==='mood'?{...row,note:''}:row);
    return {link:linkView(link,session.patient_id),entries,journalShared,profile};
   });},
   async medicalProfile(session,id,input){return authorized(session,id,async(db,link)=>{

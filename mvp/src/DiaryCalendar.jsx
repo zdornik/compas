@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect,useState } from 'react';
 import { CaretLeft, CaretRight } from '@phosphor-icons/react';
 import { Art } from './components.jsx';
 import { MOODS, dateLabel, dayKey, latestMoodForDay } from './domain.js';
@@ -8,11 +8,13 @@ import { CalendarMotion } from './CalendarMotion.jsx';
 const weekdays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
 const dateFor = key => new Date(`${key}T12:00:00Z`);
 
-export function DiaryCalendar({ entries, selected, onSelect, purpose='diary' }) {
+export function DiaryCalendar({ entries, selected, onSelect, purpose='diary',onPeriodChange }) {
   const [view, setView] = useState('week');
   const [anchor, setAnchor] = useState(selected);
   const [direction, setDirection] = useState(0);
+  useEffect(()=>{if(purpose==='appointments')setAnchor(selected);},[selected,purpose]);
   const { key, days, offset } = calendarPeriod(view, anchor);
+  useEffect(()=>{onPeriodChange?.({from:days[0],to:days.at(-1)});},[days[0],days.at(-1),onPeriodChange]);
   const today = dayKey();
   const period = view === 'week' ? `${dateLabel(dateFor(days[0]))} – ${dateLabel(dateFor(days.at(-1)))}` : new Intl.DateTimeFormat('ru-RU', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(dateFor(anchor));
   const changeView = next => {
@@ -40,10 +42,10 @@ export function DiaryCalendar({ entries, selected, onSelect, purpose='diary' }) 
         {Array.from({ length: offset }, (_, i) => <span key={`space-${i}`} aria-hidden="true"/>)}
         {days.map(key => {
           const record = latestMoodForDay(entries, key), count = entries.filter(entry => (entry.day || dayKey(new Date(entry.at))) === key).length;
-          return <button key={key} className={`calendar-day ${key === selected ? 'selected' : ''} ${key === today ? 'is-today' : ''}`} aria-label={`${dateLabel(dateFor(key))}${record ? `, ${MOODS[record.value].short}` : count ? `, записей: ${count}` : purpose==='appointments'?', нет приёмов':', нет записей'}`} aria-current={key === today ? 'date' : undefined} aria-pressed={key === selected} onClick={() => { setAnchor(key); onSelect(key); }}><span>{Number(key.slice(-2))}</span>{record ? <Art tone={MOODS[record.value].tone} className="calendar-orb"/> : <span className={`empty-day ${count ? 'has-records' : ''}`} aria-hidden="true">·</span>}</button>;
+          return <button key={key} className={`calendar-day ${key === selected ? 'selected' : ''} ${key === today ? 'is-today' : ''}`} aria-label={`${dateLabel(dateFor(key))}${record ? `, ${MOODS[record.value].short}` : count ? (purpose==='appointments'?`, приёмов и запросов: ${count}`:`, записей: ${count}`) : purpose==='appointments'?', нет приёмов':', нет записей'}`} aria-current={key === today ? 'date' : undefined} aria-pressed={key === selected} onClick={() => { setAnchor(key); onSelect(key); }}><span>{Number(key.slice(-2))}</span>{record ? <Art tone={MOODS[record.value].tone} className="calendar-orb"/> : <span className={`empty-day ${count ? 'has-records' : ''}`} aria-hidden="true">·</span>}</button>;
         })}
       </div>
     </CalendarMotion>
-    <div className="calendar-summary"><strong>{purpose==='appointments'?'Приёмы':mood ? MOODS[mood.value].short : selectedEntries.length ? 'Самочувствие' : 'Нет записей'}</strong><span>{purpose==='appointments'?'Расписание пока не подключено':selectedEntries.length ? `Записей: ${selectedEntries.length}` : 'День ещё не заполнен'}</span></div>
+    <div className="calendar-summary"><strong>{purpose==='appointments'?'Приёмы':mood ? MOODS[mood.value].short : selectedEntries.length ? 'Самочувствие' : 'Нет записей'}</strong><span>{purpose==='appointments'?`Приёмов и запросов: ${selectedEntries.length}`:selectedEntries.length ? `Записей: ${selectedEntries.length}` : 'День ещё не заполнен'}</span></div>
   </section>;
 }

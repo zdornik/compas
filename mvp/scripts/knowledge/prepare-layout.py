@@ -5,7 +5,7 @@ No clinical prose is generated. Every joining change and table bbox retains sour
 from pathlib import Path
 import json,re,hashlib,argparse,collections,statistics,datetime,concurrent.futures,math,logging,time,shutil
 import pdfplumber
-ROOT=Path(__file__).resolve().parents[2];OUT=ROOT/'knowledge';VERSION='pdfplumber-0.11.9-layout-v3'
+ROOT=Path(__file__).resolve().parents[2];OUT=ROOT/'knowledge';VERSION='pdfplumber-0.11.9-layout-v4'
 logging.getLogger('pdfminer').setLevel(logging.ERROR)
 def atomic(path,value):
  path.parent.mkdir(parents=True,exist_ok=True);temp=path.with_suffix('.tmp');temp.write_text(json.dumps(value,ensure_ascii=False),encoding='utf-8');temp.replace(path)
@@ -28,7 +28,7 @@ def image_asset(page,box,key,assets):
  path=OUT/'processed/layout/assets'/f'{asset_id}.png';path.parent.mkdir(parents=True,exist_ok=True)
  if not path.exists():
   if shutil.disk_usage(ROOT).free<10*1024**3:raise RuntimeError('Disk reserve reached; layout paused')
-  page.crop(box).to_image(resolution=144,antialias=True).save(path,format='PNG',quantize=False)
+  page.crop(box).to_image(resolution=144,antialias=True).save(path,format='PNG',quantize=False,optimize=True,compress_level=9)
  assets.append({'id':asset_id,'page':page.page_number,'filePath':str(path.relative_to(ROOT)),'sha256':hashlib.sha256(path.read_bytes()).hexdigest(),'mimeType':'image/png'})
  return asset_id
 def join_lines(lines,known,changes):
@@ -72,7 +72,7 @@ def table_block(page,table,key,assets,known,changes):
   slots={(r,c) for r in range(row,row+rowspan) for c in range(col,col+colspan)}
   if occupied&slots or not rowspan or not colspan:valid=False
   occupied.update(slots)
-  crop=page.crop(box);value=join_lines((crop.extract_text(x_tolerance_ratio=.15) or '').splitlines(),known,changes)
+  crop=page.crop(box);value='\n'.join(compact(line) for line in (crop.extract_text(x_tolerance_ratio=.15) or '').splitlines())
   chars=[c for c in page.chars if inside(c,box) and c['text'].strip()]
   header=bool(chars) and sum('bold' in c['fontname'].lower() for c in chars)/len(chars)>.7
   if text:text+='\n'
@@ -85,19 +85,27 @@ def process_document(path_string,known):
  if target.exists():
   old=json.loads(target.read_text())
   if old.get('extractor')==VERSION and old.get('sourceSha256')==original['sha256']:return {'document':key,'cached':True,'tables':old['counts']['tables'],'notes':old['counts']['notes']}
+ image_key=key+':'+original['sha256']+':'+VERSION
  pages=[];assets=[];changes=[];counts=collections.Counter()
  with pdfplumber.open(ROOT/original['filePath'],unicode_norm='NFC') as pdf:
   for page in pdf.pages:
    full_lines=page.extract_text_lines(x_tolerance_ratio=.15,return_chars=True)
    raw=clean('\n'.join(line['text'] for line in full_lines))
    grids=[t for t in page.find_tables() if len(t.rows)>=2 and max(len(row.cells) for row in t.rows)>=2 and valid_bbox(t.bbox,page) and all(valid_bbox(c,page) for c in t.cells)]
-   tables=[table_block(page,t,key,assets,known,changes) for t in grids]
+   tables=[table_block(page,t,image_key,assets,known,changes) for t in grids]
    # Dotted contents leaders can look like incomplete grids. Do not turn these into tables.
    tables=[t for t in tables if t['structured'] or re.search(r'Таблиц[аы]\s*\d',page.crop((0,max(0,t['bbox'][1]-75),page.width,t['bbox'][1])).extract_text() or '',re.I)]
    boxes=[t['bbox'] for t in tables]
    available=page.filter(lambda obj:obj.get('object_type')!='char' or not any(inside(obj,b) for b in boxes))
    lines=available.extract_text_lines(x_tolerance_ratio=.15,return_chars=True)
    sizes=[c['size'] for c in available.chars if c['text'].strip()];body_size=statistics.median(sizes) if sizes else 12
+   # Word-processor PDFs often use 1.5 line spacing: a fixed gap threshold
+   # turns every wrapped line into a paragraph. Derive the normal gap from
+   # adjacent source lines; indentation and explicit markers still split blocks.
+   gaps=[b['top']-a['bottom'] for a,b in zip(lines,lines[1:]) if 0<=b['top']-a['bottom']<body_size*1.5 and min(a['x1'],b['x1'])>max(a['x0'],b['x0'])]
+   paragraph_gap=max(body_size*.55,(statistics.median(gaps)*1.45+1) if gaps else 0)
+   body_lines=[line for line in lines if line['x1']-line['x0']>page.width*.3]
+   body_left=min((line['x0'] for line in body_lines),default=0);body_right=max((line['x1'] for line in body_lines),default=page.width)
    chunks=[];pending=[];pending_type='paragraph';previous=None
    def flush():
     nonlocal pending,pending_type
@@ -114,10 +122,11 @@ def process_document(path_string,known):
     note_continuation=pending_type=='footnote' and previous and line['top']-previous['bottom']<body_size
     kind='footnote' if size<body_size*.87 and line['top']>page.height*.65 and (note_marker or note_continuation) else 'heading' if bold and not re.match(r'^(?:•|Уровень)',value) else 'paragraph'
     if re.match(r'^Уровень (?:убедительности|достоверности)',value):kind='evidence'
-    elif re.match(r'^[•●▪\uf0b7]|^\d{1,2}\)\s|^[-–—]\s',value):kind='list'
+    elif re.match(r'^[•●▪\uf0b7]|^(?:\d{1,2}[.)]|[A-ZА-ЯЁ]\.)\s|^[-–—]\s',value) and kind!='heading':kind='list'
     elif re.match(r'^Комментарии?\s*:',value):kind='comment'
-    split=not previous or line['top']-previous['bottom']>body_size*.55 or kind not in ('paragraph',pending_type) or (pending_type=='heading' and kind!='heading') or (pending_type=='footnote' and kind!='footnote')
-    if previous and pending and kind=='paragraph' and pending_type=='paragraph' and line['x0']-previous['x0']>body_size*1.1:split=True
+    split=kind=='list' or not previous or line['top']-previous['bottom']>paragraph_gap or kind not in ('paragraph',pending_type) or (pending_type=='heading' and kind!='heading') or (pending_type=='footnote' and kind!='footnote')
+    if previous and pending and kind=='paragraph' and pending_type in ('paragraph','list') and line['x0']-previous['x0']>body_size*1.1:split=True
+    if previous and pending and kind=='paragraph' and pending_type in ('paragraph','list') and line['x0']>body_left+body_size*1.1 and previous['x1']<body_right-body_size*2 and re.search(r'[.!?;:]$',compact(previous['text'])) and re.match(r'^[А-ЯЁA-Z]',value):split=True
     if pending and any(previous['bottom']<=b[1] and line['top']>=b[3] for b in boxes):split=True
     if split:flush();pending_type=kind
     pending.append({**line,'text':value});previous=line
@@ -128,12 +137,12 @@ def process_document(path_string,known):
    expected=content(' '.join(line['text'] for line in full_lines if not margin_number(line,page)))
    actual=content(' '.join(block['text'] for block in blocks))
    if actual!=expected:
-    asset=image_asset(page,(0,0,page.width,page.height),key,assets)
+    asset=image_asset(page,(0,0,page.width,page.height),image_key,assets)
     blocks=[{'type':'figure','text':raw,'assetId':asset,'bbox':[0,0,page.width,page.height],'reason':'source_character_coverage_mismatch'}]
     counts['originalPageFallbacks']+=1
    # Keep graph/scan-only pages usable through a faithful source image rather than invented text.
    if not blocks and page.images:
-    asset=image_asset(page,(0,0,page.width,page.height),key,assets);blocks=[{'type':'figure','text':'','assetId':asset,'bbox':[0,0,page.width,page.height]}]
+    asset=image_asset(page,(0,0,page.width,page.height),image_key,assets);blocks=[{'type':'figure','text':'','assetId':asset,'bbox':[0,0,page.width,page.height]}]
    counts['tables']+=len(tables);counts['notes']+=sum(b['type']=='footnote' for b in blocks)
    pages.append({'page':page.page_number,'text':raw,'layout':{'version':1,'width':page.width,'height':page.height,'blocks':blocks}})
    page.close()

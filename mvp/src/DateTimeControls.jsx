@@ -8,7 +8,7 @@ const keyFromDate = date => date.toISOString().slice(0, 10);
 const fullDate = key => new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(dateFromKey(key));
 const months = Array.from({ length: 12 }, (_, i) => new Intl.DateTimeFormat('ru-RU', { month: 'long', timeZone: 'UTC' }).format(new Date(Date.UTC(2026, i, 1))));
 
-export function DatePicker({ value, onChange, label = 'Дата', max = dayKey(), disabled = false }) {
+export function DatePicker({ value, onChange, label = 'Дата', min, max = dayKey(), disabled = false }) {
   const [open, setOpen] = useState(false);
   const [month, setMonth] = useState(() => value.slice(0, 7));
   const [choosingMonth, setChoosingMonth] = useState(false);
@@ -41,7 +41,7 @@ export function DatePicker({ value, onChange, label = 'Дата', max = dayKey()
     if (event.key.startsWith('Page')) next.setUTCMonth(next.getUTCMonth() + delta);
     else next.setUTCDate(next.getUTCDate() + delta);
     const key = keyFromDate(next);
-    if (key > max) return;
+    if (key > max || (min && key < min)) return;
     setDirection(Math.sign(key.localeCompare(current)));
     setMonth(key.slice(0, 7));
     requestAnimationFrame(() => root.current?.querySelector(`.calendar-motion-current [data-date="${key}"]`)?.focus());
@@ -57,7 +57,7 @@ export function DatePicker({ value, onChange, label = 'Дата', max = dayKey()
         <div className="date-weekdays" aria-hidden="true">{['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map(day => <span key={day}>{day}</span>)}</div>
         <div className="date-days" onKeyDown={navigateDate}>{Array.from({ length: offset }, (_, i) => <span key={`blank-${i}`}/>)}{Array.from({ length: count }, (_, i) => {
           const key = `${month}-${String(i + 1).padStart(2, '0')}`;
-          return <button type="button" key={key} data-date={key} aria-label={fullDate(key)} aria-pressed={key === value} aria-current={key === dayKey() ? 'date' : undefined} className={`${key === value ? 'selected' : ''} ${key === dayKey() ? 'is-today' : ''}`} disabled={key > max} onClick={() => choose(key)}>{i + 1}</button>;
+          return <button type="button" key={key} data-date={key} aria-label={fullDate(key)} aria-pressed={key === value} aria-current={key === dayKey() ? 'date' : undefined} className={`${key === value ? 'selected' : ''} ${key === dayKey() ? 'is-today' : ''}`} disabled={key > max || (min && key < min)} onClick={() => choose(key)}>{i + 1}</button>;
         })}</div>
       </>}</CalendarMotion>
       <div className="date-shortcuts"><button type="button" onClick={() => { const yesterday = dateFromKey(max < dayKey() ? max : dayKey()); yesterday.setUTCDate(yesterday.getUTCDate() - 1); choose(keyFromDate(yesterday)); }}>Вчера</button><button type="button" onClick={() => choose(max < dayKey() ? max : dayKey())}>Сегодня</button></div>

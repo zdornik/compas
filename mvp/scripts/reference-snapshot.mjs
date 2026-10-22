@@ -1,3 +1,4 @@
+import {validateObjects} from './reference-objects.mjs';
 import {spawn} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {createReadStream} from 'node:fs';
@@ -13,7 +14,9 @@ export async function command(file,args,{input,capture=true,...options}={}){
 }
 export async function fileHash(path){const hash=createHash('sha256');let bytes=0;for await(const chunk of createReadStream(path)){hash.update(chunk);bytes+=chunk.length;}return {sha256:hash.digest('hex'),bytes};}
 export function validateSnapshot(value){
- if(value?.format!=='postgresql-custom-data-v1'||value.repository!==REFERENCE_REPOSITORY||value.schema!=='knowledge'||value.containsPatientData!==false||value.containsSecrets!==false||value.state!=='ready'||!HASH.test(value.sha256)||!/^reference-db-[a-zA-Z0-9._-]+$/.test(value.release))throw new Error('Invalid reference snapshot manifest');
+ if(value?.format==='postgresql-custom-data-v2')validateObjects(value.objects);
+ else if(value?.objects)throw new Error('Unexpected object archive');
+ if(!['postgresql-custom-data-v1','postgresql-custom-data-v2'].includes(value?.format)||value.repository!==REFERENCE_REPOSITORY||value.schema!=='knowledge'||value.containsPatientData!==false||value.containsSecrets!==false||value.state!=='ready'||!HASH.test(value.sha256)||!/^reference-db-[a-zA-Z0-9._-]+$/.test(value.release))throw new Error('Invalid reference snapshot manifest');
  if(!Array.isArray(value.parts)||!value.parts.length||value.parts.length>1000)throw new Error('Invalid snapshot parts');
  let total=0;const names=new Set();for(const [i,p]of value.parts.entries()){
   if(p.index!==i+1||!/^reference-db-[a-zA-Z0-9._-]+\.part-\d{4}$/.test(p.name)||names.has(p.name)||!p.name.endsWith('.part-'+String(i+1).padStart(4,'0'))||!Number.isSafeInteger(p.assetId)||p.assetId<1||!HASH.test(p.sha256)||!Number.isSafeInteger(p.bytes)||p.bytes<1||p.bytes>=2*1024**3)throw new Error('Invalid snapshot part');

@@ -25,7 +25,7 @@ export default function PdfDocument({url,initialPage=1,sourceOutline=[],onPageCh
    eventBus.on('updatefindmatchescount',event=>{if(!abort.signal.aborted)setMatches(event.matchesCount);});
    eventBus.on('updatefindcontrolstate',event=>{if(!abort.signal.aborted){setPending(event.state===3);setMatches(event.matchesCount||{current:0,total:0});}});
    // Parse the original PDF locally. No document scripting, remote font services or eval.
-   loadingTask=lib.getDocument({url,cMapUrl:'/pdf-assets/cmaps/',cMapPacked:true,standardFontDataUrl:'/pdf-assets/standard_fonts/',isEvalSupported:false,disableFontFace:false,useSystemFonts:false,useWasm:false,enableXfa:false,withCredentials:false});
+   loadingTask=lib.getDocument({url,cMapUrl:'/pdf-assets/cmaps/',cMapPacked:true,standardFontDataUrl:'/pdf-assets/standard_fonts/',isEvalSupported:false,disableFontFace:false,useSystemFonts:false,useWasm:false,enableXfa:false,disableAutoFetch:true,disableStream:true,rangeChunkSize:65536,withCredentials:false});
    pdfDocument=await loadingTask.promise;
    if(abort.signal.aborted)return;
    viewer.setDocument(pdfDocument);links.setDocument(pdfDocument);
