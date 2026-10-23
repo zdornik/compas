@@ -1,3 +1,5 @@
+import {useEntryHistory,HistoryStatus} from './useEntryHistory.jsx';
+import {mergeEntries} from './history-data.js';
 import {applyProductSelection} from './product-dose.js';
 import {ProductPicker} from './MedicalProfile.jsx';
 import {currentMedicationRows} from './current-medications.js';
@@ -30,9 +32,11 @@ function PlanDetails({ plan, onEdit, onArchive, onCopy, pending, error }) {
   </div><footer className="medication-sheet-footer">{error && <p className="journal-error" role="alert">{error}</p>}{plan.origin!=='doctor'&&<button className="primary full-width" disabled={pending} onClick={plan.archived ? onCopy : onEdit}>{plan.archived ? <><Plus size={19}/>Новая схема на основе этой</> : <><PencilSimple size={18}/>Изменить схему</>}</button>}<p className="med-save-caption">{plan.origin==='doctor'?'Для изменения назначения обратитесь к врачу. ':''}{plan.archived ? 'История приёмов сохранена.' : 'Уже отмеченные приёмы сохранят свою дозировку.'}</p></footer></>;
 }
 
-export function TreatmentPage({ entries, onSave, onOpen, onReload, onToast, themeValue = 3, now }) {
+export function TreatmentPage({ entries:localEntries, active=true, onSave, onOpen, onReload, onToast, themeValue = 3, now }) {
   const today = dayKey(now);
   const [selectedDay, setSelectedDay] = useState(today);
+  const history=useEntryHistory({kind:'doses',from:selectedDay,to:selectedDay,active});
+  const entries=mergeEntries(history.entries,localEntries);
   const previousToday = useRef(today);
   useEffect(() => {
     if (today !== previousToday.current) {
@@ -108,7 +112,7 @@ export function TreatmentPage({ entries, onSave, onOpen, onReload, onToast, them
     const stage = stageForDay(planForDay(plan, today), today);
     return <button className="med-plan-card" key={plan.id} onClick={() => openDetails(plan)}><span className="workspace-icon"><Pill size={23}/></span><span><strong>{plan.name}</strong><small>{plan.archived ? 'Схема завершена' : today < plan.startDate ? `С ${labelDate(plan.startDate)}` : stage ? doseLabel({ ...plan, ...stage }) : 'Приём по схеме завершён'}{plan.titration.enabled && !plan.archived ? stage?.maintenance ? ' · постоянная доза' : stage ? ` · этап ${stage.index + 1}` : ' · титрация' : ''}</small><em>{plan.origin==='doctor'?'От врача · ':''}{plan.times.join(' · ')}{mealLabel(plan.meal) ? ` · ${mealLabel(plan.meal)}` : ''}</em></span><CaretRight size={18}/></button>;
   };
-  return <>
+  return <><HistoryStatus resource={history}/>
     <section className="plan-banner med-treatment-banner"><ContourCanvas value={themeValue}/><div><span className="section-kicker">В СВОЁМ РИТМЕ</span><h2>Забота — по одному<br/>небольшому шагу</h2><p>{selectedDay === today ? 'Ваш план на сегодня' : `Приёмы за ${labelDate(selectedDay)}`}</p></div>{rows.length > 0 && <div className="plan-progress"><span>{completed}<small> / {rows.length}</small></span><p>приёмов отмечено</p><progress aria-label="Отмеченные приёмы" value={completed} max={rows.length}/></div>}</section>
     <div className="treatment-columns medication-columns"><div><div className="med-section-heading"><h2>{selectedDay === today ? 'Сегодня' : labelDate(selectedDay)}</h2><DatePicker label="День" value={selectedDay} onChange={setSelectedDay}/></div>
       {rows.length ? <div className="med-intake-list">{rows.map(row => <article className={`med-intake-row is-${row.status}`} key={row.id}><time>{row.time}</time><div className="med-intake-main"><button className="med-intake-name" onClick={() => openDetails(plans.find(plan => plan.id === row.planId))}>{row.name}<ArrowUpRight size={14}/></button><p>{doseLabel(row)}{mealLabel(row.meal) ? ` · ${mealLabel(row.meal)}` : ''}</p>{row.previousSchedule && <small>По прежней схеме</small>}{row.status === 'planned' ? <div className="med-intake-actions"><button className="secondary-button" disabled={pendingDoses.includes(row.id) || !storageReady} aria-label={`Отметить приём ${row.name} в ${row.time}`} onClick={() => mark(row, 'taken')}><Check size={16}/>Принят</button><button className="text-button" disabled={pendingDoses.includes(row.id) || !storageReady} aria-label={`Отметить пропуск ${row.name} в ${row.time}`} onClick={() => mark(row, 'skipped')}>Пропущен</button></div> : <div className="med-intake-recorded"><span><Check size={15}/>{row.status === 'taken' ? 'Принят' : 'Пропущен'}<small>· {timeLabel(row.statusAt)}</small></span><button className="icon-button" aria-label={`Изменить отметку ${row.name} в ${row.time}`} disabled={pendingDoses.includes(row.id)} onClick={() => mark(row, 'planned')}><ArrowCounterClockwise size={17}/></button></div>}</div></article>)}</div> : <section className="med-treatment-empty"><span className="workspace-icon"><Pill size={29}/></span><h3>{current.length ? 'На этот день приёмов нет' : 'Начните со своей схемы'}</h3><p>{current.length ? 'Даты и время можно посмотреть в карточке препарата.' : 'Добавьте препарат и перенесите назначение: дозировку, время и этапы титрации.'}</p>{!current.length && <button className="primary" onClick={() => openNew()}><Plus size={18}/>Добавить препарат</button>}</section>}

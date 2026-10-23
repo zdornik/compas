@@ -1,0 +1,65 @@
+name: MVP checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  mvp:
+    runs-on: ubuntu-24.04
+    env:
+      PG_BIN: /usr/lib/postgresql/17/bin
+    defaults:
+      run:
+        working-directory: mvp
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: compass_admin
+          POSTGRES_PASSWORD: synthetic-ci-only
+          POSTGRES_DB: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U compass_admin -d postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: mvp/package-lock.json
+      - name: Install matching PostgreSQL 17 client tools
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl --fail --silent --show-error https://www.postgresql.org/media/keys/ACCC4CF8.asc -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc
+          cat <<'EOF' | sudo tee /etc/apt/sources.list.d/pgdg.sources >/dev/null
+          Types: deb
+          URIs: https://apt.postgresql.org/pub/repos/apt
+          Suites: noble-pgdg
+          Components: main
+          Signed-By: /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc
+          EOF
+          sudo apt-get update -qq
+          sudo apt-get install -y postgresql-client-17
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - run: npm test
+      - run: python3 -m unittest discover -s tests -p 'test_*.py'
+      - run: node scripts/init-local-secrets.mjs
+      - run: npm run test:integration
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          ADMIN_DB_PASSWORD: synthetic-ci-only
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:browser
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          ADMIN_DB_PASSWORD: synthetic-ci-only
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: synthetic-browser-smoke
+          path: mvp/qa/browser/
+          retention-days: 7

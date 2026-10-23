@@ -6,26 +6,27 @@ import {makeMedicalProfile} from '../src/medical-profile.js';
 import {canonicalMedicalInput} from './medical-reference.mjs';
 import {readPatientConsent} from './auth-store.mjs';
 import {cancelAccessAppointments} from './appointment-store.mjs';
+import {coreEntries,entryHistory} from './history.mjs';
 const fail=(message,status=422)=>{throw Object.assign(new Error(message),{status});};
 const label=value=>{if(typeof value!=='string'||!value.trim()||value.trim().length>100)fail('Укажите имя до 100 символов');return value.trim();};
 const uuid=value=>typeof value==='string'&&/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(value);
 const checkedConfig=input=>{try{return normalizeMedicationConfig(input);}catch(error){error.status=error.status||422;throw error;}};
 export function createCareStore({transaction,key,decode}) {
  const actor=async(db,id)=>db.query("SELECT set_config('app.actor_id',$1,true)",[id]);
- const rows=async(db,patientId)=>(await db.query("SELECT id,payload FROM patient_entries WHERE type IN ('medical-profile','medication-plan','medication-dose') ORDER BY saved_at DESC,id")).rows.map(row=>decode(row,patientId));
+ const rows=async(db,patientId)=>(await db.query("SELECT id,payload FROM patient_entries WHERE type IN ('medical-profile','medication-plan') ORDER BY saved_at DESC,id")).rows.map(row=>decode(row,patientId));
  const patientConsent=(db,patientId)=>readPatientConsent(db,patientId,key);
- const openLink=async(db,session,id,doctor=true)=>{
+ const openLink=async(db,session,id,doctor=true,write=true)=>{
   if(!uuid(id))fail('Подключение не найдено',404);
   await actor(db,session.patient_id);
   let row=(await db.query('SELECT * FROM care_links WHERE id=$1',[id])).rows[0];
-  if(row){await db.query('SELECT id FROM local_patients WHERE id=$1 FOR UPDATE',[row.patient_id]);row=(await db.query('SELECT * FROM care_links WHERE id=$1 FOR UPDATE',[id])).rows[0];}
+  if(row){await db.query('SELECT id FROM local_patients WHERE id=$1 FOR '+(write?'UPDATE':'SHARE'),[row.patient_id]);row=(await db.query('SELECT * FROM care_links WHERE id=$1 FOR '+(write?'UPDATE':'SHARE'),[id])).rows[0];}
   if(!row||(doctor?row.doctor_id!==session.patient_id:row.patient_id!==session.patient_id))fail('Подключение не найдено',404);
   if(doctor&&(!session.doctor_enabled||row.status!=='active'))fail('Пациент не предоставил доступ или отозвал его',403);
   return row;
  };
  const linkView=(row,viewer)=>({id:row.id,status:row.status,createdAt:row.created_at,updatedAt:row.updated_at,...(viewer===row.patient_id||row.status==='active'?unseal(row.payload,key,'care-link:'+row.id):{patientName:'Ожидает подтверждения пациента'})});
  const audit=async(db,link,action,payload)=>{const id=randomUUID();await db.query('INSERT INTO care_audit(id,patient_id,doctor_id,link_id,action,payload) VALUES($1,$2,$3,$4,$5,$6)',[id,link.patient_id,link.doctor_id,link.id,action,seal(payload,key,'care-audit:'+id)]);};
- const authorized=async(session,id,callback)=>transaction(null,async db=>{const link=await openLink(db,session,id);await db.query('SELECT id FROM local_patients WHERE id=$1 FOR UPDATE',[link.patient_id]);await db.query("SELECT set_config('app.patient_id',$1,true)",[link.patient_id]);if((await patientConsent(db,link.patient_id)).healthData!==true)fail('Пациент отозвал согласие на обработку данных',403);return callback(db,link);});
+ const authorized=async(session,id,callback,{write=true}={})=>transaction(null,async db=>{const link=await openLink(db,session,id,true,write);await db.query("SELECT set_config('app.patient_id',$1,true)",[link.patient_id]);if((await patientConsent(db,link.patient_id)).healthData!==true)fail('Пациент отозвал согласие на обработку данных',403);return callback(db,link);});
  return {
   async doctor(session,name){if(session.account_role&&session.account_role!=='doctor')fail('Роль аккаунта изменять нельзя',403);return transaction(null,async db=>{await actor(db,session.patient_id);const existing=(await db.query('SELECT payload FROM care_doctors WHERE id=$1',[session.patient_id])).rows[0];const doctorName=name?label(name):existing?unseal(existing.payload,key,'doctor:'+session.patient_id).name:fail('Введите имя врача');await db.query('INSERT INTO care_doctors(id,payload) VALUES($1,$2) ON CONFLICT(id) DO UPDATE SET payload=EXCLUDED.payload',[session.patient_id,seal({name:doctorName},key,'doctor:'+session.patient_id)]);await db.query('UPDATE app_sessions SET doctor_enabled=true WHERE token_hash=$1',[session.token_hash]);return {name:doctorName};});},
   async links(session){return transaction(null,async db=>{await actor(db,session.patient_id);const found=(await db.query('SELECT * FROM care_links ORDER BY created_at DESC')).rows;const doctor=(await db.query('SELECT payload FROM care_doctors WHERE id=$1',[session.patient_id])).rows[0];const profile=(await db.query('SELECT payload FROM care_patient_profiles WHERE patient_id=$1',[session.patient_id])).rows[0];return {profile:profile?unseal(profile.payload,key,'patient-profile:'+session.patient_id):null,patientLinks:found.filter(row=>row.patient_id===session.patient_id).map(row=>linkView(row,session.patient_id)),doctorLinks:session.doctor_enabled?found.filter(row=>row.doctor_id===session.patient_id).map(row=>linkView(row,session.patient_id)):[],doctor:doctor?unseal(doctor.payload,key,'doctor:'+session.patient_id):null,localPrototype:true};});},
@@ -44,9 +45,16 @@ export function createCareStore({transaction,key,decode}) {
   async patient(session,id){return authorized(session,id,async(db,link)=>{
    const consents=await patientConsent(db,link.patient_id),journalShared=consents.journalProcessing===true&&consents.journalSharing===true;
    const account=(await db.query('SELECT id,payload FROM auth_accounts WHERE principal_id=$1',[link.patient_id])).rows[0],profile=account?unseal(account.payload,key,'auth-account:'+account.id).profile:null;
-   const entries=(await db.query("SELECT id,payload FROM patient_entries WHERE type<>'journal' ORDER BY saved_at DESC,id",[])).rows.map(row=>decode(row,link.patient_id)).map(row=>!journalShared&&row.type==='mood'?{...row,note:''}:row);
-   return {link:linkView(link,session.patient_id),entries,journalShared,profile};
-  });},
+   const entries=(await coreEntries(db,link.patient_id,decode)).map(row=>!journalShared&&row.type==='mood'?{...row,note:''}:row);
+   return {link:linkView(link,session.patient_id),entries,journalShared,profile,historyAvailable:true};
+  },{write:false});},
+  async history(session,id,options){return authorized(session,id,async(db,link)=>{
+   if(options.kind==='notes')fail('Используйте раздел заметок',400);
+   const consents=await patientConsent(db,link.patient_id),shared=consents.journalProcessing===true&&consents.journalSharing===true;
+   // Recheck sharing and return a freshly redacted window even when entries did not change.
+   const result=await entryHistory(db,link.patient_id,{...options,since:null},{key,decode,redact:row=>!shared&&row.type==='mood'?{...row,note:''}:row});
+   return result;
+  },{write:false});},
   async medicalProfile(session,id,input){return authorized(session,id,async(db,link)=>{
    const entries=await rows(db,link.patient_id),old=entries.find(row=>row.type==='medical-profile'),names=unseal(link.payload,key,'care-link:'+link.id);
    let record;try{record=makeMedicalProfile(await canonicalMedicalInput(db,input),old||null,new Date(),{type:'doctor',name:names.doctorName,actorId:session.patient_id});}catch(error){error.status=error.status||422;throw error;}

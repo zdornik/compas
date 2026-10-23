@@ -11,6 +11,7 @@ import {createAuthStore,readPatientConsent} from './auth-store.mjs';
 import {createCareChatStore} from './chat-store.mjs';
 import {createJournalStore,syncJournalAccess} from './journal-store.mjs';
 import {createAppointmentStore} from './appointment-store.mjs';
+import {coreEntries,entryHistory,historyRevision} from './history.mjs';
 
 export async function createStore() {
   const password = (await readFile(process.env.DB_PASSWORD_FILE, 'utf8')).trim();
@@ -57,13 +58,22 @@ export async function createStore() {
       });
       return { token, csrfToken };
     },
-    async state(patientId) {
+    async state(patientId,since) {
       return transaction(patientId, async db => {
-        const entries = await db.query('SELECT e.id,e.payload,n.current_revision FROM patient_entries e LEFT JOIN journal_notes n ON n.patient_id=e.patient_id AND n.entry_id=e.id ORDER BY e.saved_at DESC, e.id');
+        const revision=await historyRevision(db,patientId);
+        if(since===revision)return {unchanged:true,revision,historyAvailable:true};
+        const entries=await coreEntries(db,patientId,decode);
         const doses = await db.query('SELECT dose_id,status FROM patient_doses WHERE observation_day = $1', [dayKey()]);
-        return { entries: entries.rows.map(row => ({...decode(row, patientId),...(row.current_revision?{revision:row.current_revision}:{})})), doses: ['one', 'two'].map((id, index) => ({ id, name: `Препарат ${index + 1}`, status: doses.rows.find(row => row.dose_id === id)?.status || 'planned' })) };
+        return {entries,revision,historyAvailable:true,doses:['one','two'].map((id,index)=>({id,name:`Препарат ${index+1}`,status:doses.rows.find(row=>row.dose_id===id)?.status||'planned'}))};
       });
     },
+    async history(patientId,options){return transaction(patientId,db=>entryHistory(db,patientId,options,{key,decode}));},
+    async entry(patientId,id){return transaction(patientId,async db=>{
+      await historyRevision(db,patientId);
+      const row=(await db.query('SELECT e.id,e.payload,n.current_revision FROM patient_entries e LEFT JOIN journal_notes n ON n.patient_id=e.patient_id AND n.entry_id=e.id WHERE e.id=$1',[id])).rows[0];
+      if(!row)throw Object.assign(new Error('Запись не найдена'),{status:404});
+      return {...decode(row,patientId),...(row.current_revision?{revision:row.current_revision}:{})};
+    });},
     async saveEntry(patientId, id, input) {
       return transaction(patientId, async db => {
         // Serialise writes for a patient, including retries of a new record.

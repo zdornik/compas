@@ -1,5 +1,5 @@
 import {medicationDraft} from './medications.js';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, useCallback } from 'react';
 import { House, BookOpen, CalendarBlank, ChatsCircle, Pill, ClipboardText, Plus, Moon, Check, CaretLeft, CaretRight, ArrowUpRight, GearSix, ShieldCheck, DownloadSimple, ArrowCounterClockwise, LockSimple, Bell, CheckCircle } from '@phosphor-icons/react';
 import { Modal, Row, Art } from './components.jsx';
 import { MoodFlow } from './MoodFlow.jsx';
@@ -10,7 +10,7 @@ import { Assessments } from './Assessments.jsx';
 import { SCALES } from './assessments.js';
 import { DiaryCalendar } from './DiaryCalendar.jsx';
 import { appThemeAt } from './mood-motion.js';
-import { PersistenceContext, loadStoredState, storeEntry, loadAuthAccount, authenticateAccount, signOutAccount, updateAccountConsents, setAccountOwner, authSignalRole } from './persistence.js';
+import { PersistenceContext, AccountOwnersContext, loadEntry, loadStoredState, storeEntry, loadAuthAccount, authenticateAccount, signOutAccount, updateAccountConsents, setAccountOwner, authSignalRole } from './persistence.js';
 import { DiaryPage, DoctorPage } from './WorkspacePages.jsx';
 import { TreatmentPage } from './Treatment.jsx';
 import { HomeMedicationReminders } from './HomeMedicationReminders.jsx';
@@ -23,6 +23,8 @@ import {AuthScene,homeSceneTarget} from './AuthScene.jsx';
 import {loginWithRoleDiscovery} from './auth-motion.js';
 import {AccountPreferences} from './AccountPreferences.jsx';
 import {CareChat} from './CareChat.jsx';
+import {HistoryContext,useEntryHistory,HistoryStatus} from './useEntryHistory.jsx';
+import {mergeEntries} from './history-data.js';
 
 const tabs = [{ id: 'today', name: 'Сегодня', icon: House }, { id: 'diary', name: 'Дневник', icon: BookOpen }, { id: 'treatment', name: 'Лечение', icon: CalendarBlank }, { id: 'doctor', name: 'Врач', icon: ChatsCircle }];
 
@@ -41,7 +43,7 @@ export function App() {
  useEffect(()=>{
   const refresh=()=>{if(document.hidden)return;if(role)refreshAccount(role);else for(const id of ['patient','doctor'])if(knownAccounts.current[id])refreshAccount(id);};
   const quarantine=id=>{if(!['patient','doctor'].includes(id)||workingFor(id))return;accountRequest.current[id]++;setVisited(old=>({...old,[id]:false}));setGuests(old=>({...old,[id]:false}));setAccounts(old=>({...old,[id]:undefined}));if(id==='patient'){setSeeds({});setPendingIntake(null);setFlight(null);}if(id===role)refreshAccount(id);};
-  const mismatch=event=>quarantine(event.detail),timer=setInterval(refresh,8000);
+  const mismatch=event=>quarantine(event.detail),timer=setInterval(refresh,60000);
   window.addEventListener('focus',refresh);window.addEventListener('compass-account-mismatch',mismatch);
   const channel='BroadcastChannel' in window?new BroadcastChannel('compass-local-updates'):null;
   if(channel)channel.onmessage=event=>{if(event.data==='changed')refresh();else{const id=authSignalRole(event.data);if(id)quarantine(id);}};
@@ -89,14 +91,14 @@ export function App() {
  },[flight,role]);
  const logout=async id=>{accountRequest.current[id]++;authWorking.current=id;try{await signOutAccount(id);knownAccounts.current[id]=null;setAccounts(old=>({...old,[id]:null}));setGuests(old=>({...old,[id]:false}));setVisited(old=>({...old,[id]:false}));setAccountWindow(null);setSeeds({});setPendingIntake(null);setFlight(null);setGateLeaving(false);}finally{authWorking.current=null;}};
  const updateConsents=async(id,value)=>{const result=await updateAccountConsents(value,id);setAccounts(old=>({...old,[id]:result.account||result}));return result;};
- return <>
+ return <AccountOwnersContext.Provider value={{patient:accounts.patient?.id||'local',doctor:accounts.doctor?.id||'local'}}>
   {(!role||!allowed(role))&&<AccountGate role={role||(accounts.doctor&&!accounts.patient?'doctor':'patient')} sceneRef={sharedScene} leaving={gateLeaving} onBack={()=>chooseRole(null)} onGuest={accounts[role||'patient']===null?useGuest:undefined} onLogin={input=>authenticate('login',input)} onRegister={input=>authenticate('register',input)} onAuthenticated={authenticated}/>}
   {accountError&&(!role||!allowed(role))&&<p className="auth-connection-error" role="status">{accountError}</p>}
   {visited.patient&&<div className={flight?'auth-arrival':''} hidden={role!=='patient'||!allowed('patient')} inert={role!=='patient'||!allowed('patient')||Boolean(flight)}><PatientApp key={(accounts.patient?.id||'local')+':'+workspaceEpoch.patient} initialState={seeds[accounts.patient?.id||'local']} pendingIntake={pendingIntake&&pendingIntake.accountId===accounts.patient?.id?pendingIntake.entry:null} onIntakeSaved={()=>setPendingIntake(null)} account={accounts.patient} onUpdateConsents={value=>updateConsents('patient',value)} onSignOut={()=>logout('patient')} onRequestAuth={()=>setGuests(old=>({...old,patient:false}))} active={role==='patient'&&allowed('patient')} onSwitchRole={()=>chooseRole(null)}/></div>}
   {visited.doctor&&<div hidden={role!=='doctor'||!allowed('doctor')} inert={role!=='doctor'||!allowed('doctor')}><DoctorWorkspace key={(accounts.doctor?.id||'local')+':'+workspaceEpoch.doctor} account={accounts.doctor} onAccount={()=>accounts.doctor?setAccountWindow('doctor'):setGuests(old=>({...old,doctor:false}))} active={role==='doctor'&&allowed('doctor')} onSwitchRole={()=>chooseRole(null)}/></div>}
   {(!role||!allowed(role)||flight)&&<AuthScene ref={sharedScene} target={flight?.to} onArrive={()=>{setFlight(null);setGateLeaving(false);}}/>}
   {accountWindow&&accounts[accountWindow]&&<Modal title="Учётная запись" onClose={()=>setAccountWindow(null)}><div className="modal-body settings-body"><AccountPreferences account={accounts[accountWindow]} onUpdate={value=>updateConsents(accountWindow,value)} onSignOut={()=>logout(accountWindow)}/></div></Modal>}
- </>;
+ </AccountOwnersContext.Provider>;
 }
 
 function PatientApp({ active, onSwitchRole, account, onUpdateConsents, onSignOut, onRequestAuth,initialState,pendingIntake,onIntakeSaved }) {
@@ -122,6 +124,9 @@ function PatientApp({ active, onSwitchRole, account, onUpdateConsents, onSignOut
   };
   useEffect(() => () => { clearTimeout(closeTimer.current); }, []);
   const [entries, setEntries] = useState(initialState?.entries||[]);
+  const [historyAvailable,setHistoryAvailable]=useState(Boolean(initialState?.historyAvailable));
+  const stateRevision=useRef(initialState?.revision),journalRequest=useRef({sequence:0,controller:null});
+  useEffect(()=>{journalRequest.current.sequence++;journalRequest.current.controller?.abort();},[active,page]);
   const [clock, setClock] = useState(() => new Date());
   useEffect(() => {
     let timer;
@@ -143,8 +148,10 @@ function PatientApp({ active, onSwitchRole, account, onUpdateConsents, onSignOut
       lastRefresh = Date.now();
       const request = ++refreshRevision.current, revision = mutationRevision.current;
       try {
-        const state = await loadStoredState();
+        const state = await loadStoredState(undefined,stateRevision.current);
         if (alive && request === refreshRevision.current && revision === mutationRevision.current) {
+          setStorage('ready');if(state.unchanged)return;
+          stateRevision.current=state.revision;setHistoryAvailable(Boolean(state.historyAvailable));
           const delivered=state.entries.filter(entry=>entry.type==='medication-plan'&&entry.origin==='doctor');
           if(receivedPlans.current&&delivered.some(entry=>receivedPlans.current.get(entry.id)!==entry.revision))setToast('Врач обновил ваш план лечения');
           receivedPlans.current=new Map(delivered.map(entry=>[entry.id,entry.revision]));
@@ -158,7 +165,7 @@ function PatientApp({ active, onSwitchRole, account, onUpdateConsents, onSignOut
     window.addEventListener('focus', refresh);
     document.addEventListener('visibilitychange', visible);
     refresh();
-    const timer=setInterval(()=>{if(!document.hidden)refresh();},4000);
+    const timer=setInterval(()=>{if(!document.hidden)refresh();},15000);
     return () => { alive = false; clearInterval(timer); channel?.close(); window.removeEventListener('focus', refresh); document.removeEventListener('visibilitychange', visible); };
   }, [active]);
   const [toast, setToast] = useState(pendingIntake?'Аккаунт создан. Медицинские сведения оставлены в черновике — сохраните их после подключения.':'');
@@ -181,7 +188,12 @@ function PatientApp({ active, onSwitchRole, account, onUpdateConsents, onSignOut
     window.scrollTo({ top: 0, behavior: 'instant' });
   };
   const openSectionModal = type => { if (type === 'questionnaire') setViewingAssessment(null); setModal(type); };
-  const openJournal = (entry = null, date = dayKey()) => {
+  const openJournal = async (entry = null, date = dayKey()) => {
+    const current=journalRequest.current;current.controller?.abort();current.controller=new AbortController();const sequence=++current.sequence;
+    if(entry&&entry.body===undefined){
+      try{entry=await loadEntry(entry.id,current.controller.signal);if(sequence!==current.sequence)return;}
+      catch(error){if(sequence===current.sequence&&!current.controller.signal.aborted)setToast(error.message);return;}
+    }
     if (entry) setJournalDraft(old => old?.id === entry.id ? old : { ...entry, date: entry.day || dayKey(new Date(entry.at)) });
     else setJournalDraft(old => old && !old.id ? old : { title: '', body: '', date, clientId: crypto.randomUUID() });
     setModal('journal');
@@ -192,15 +204,15 @@ function PatientApp({ active, onSwitchRole, account, onUpdateConsents, onSignOut
     mutationRevision.current++;
     const saved = await storeEntry(entry);
     setEntries(old => old.some(e => e.id === saved.id) ? old.map(e => e.id === saved.id ? (e.revision>saved.revision?e:saved) : e) : [saved, ...old]);
-    if(saved.type==='journal'&&saved.currentRevision>saved.revision){const latest=await loadStoredState();setEntries(latest.entries);return latest.entries.find(row=>row.id===saved.id)||saved;}
+    if(saved.type==='journal'&&saved.currentRevision>saved.revision)return loadEntry(saved.id);
     if (page === 'diary' && ['mood', 'sleep', 'assessment', 'journal'].includes(saved.type)) setDiaryDay(saved.day || dayKey(new Date(saved.at)));
     return saved;
   };
   const reloadState = async () => {
     const state = await loadStoredState();
-    refreshRevision.current++; setEntries(state.entries); setStorage('ready'); return state;
+    refreshRevision.current++; stateRevision.current=state.revision;setHistoryAvailable(Boolean(state.historyAvailable));setEntries(state.entries); setStorage('ready'); return state;
   };
-  return <PersistenceContext.Provider value={storage === 'ready'}><div className={`app tone-${MOODS[Math.round(themePosition)].tone} ${closing ? 'closing' : ''}`} style={{ ...appThemeAt(themePosition), '--section-index': sectionIndex }}>
+  return <HistoryContext.Provider value={historyAvailable}><PersistenceContext.Provider value={storage === 'ready'}><div className={`app tone-${MOODS[Math.round(themePosition)].tone} ${closing ? 'closing' : ''}`} style={{ ...appThemeAt(themePosition), '--section-index': sectionIndex }}>
     <a className="skip-link" href="#main-content" onClick={event => { event.preventDefault(); document.getElementById('main-content')?.focus(); }}>Перейти к содержимому</a>
     <aside className="sidebar">
       <div className="wordmark">компас<span className="wordmark-dot"/></div><div className="sidebar-caption">Пространство заботы о себе</div>
@@ -225,15 +237,15 @@ function PatientApp({ active, onSwitchRole, account, onUpdateConsents, onSignOut
         </div><button className="mobile-info" onClick={() => setModal('settings')}>Локальный прототип · о данных и приложении</button></section>
         </> : <div className="page-content content-width workspace-page">
           <header className="page-header"><div><p className="eyebrow desktop-only">ЛИЧНОЕ ПРОСТРАНСТВО</p><h1>{tab.name}</h1></div></header>
-          {tab.id === 'diary' && <DiaryPage entries={entries} selectedId={selectedJournalId} onSelect={setSelectedJournalId} onNew={() => openJournal()} onAdd={date => { if (date) setDiaryDay(date); setModal('add'); }} onEdit={openJournal} hasDraft={Boolean(journalDraft && !journalDraft.id && journalDraft.body.trim())}><MoodHistory entries={entries.filter(entry => ['mood', 'sleep', 'assessment'].includes(entry.type))} selected={diaryDay} setSelected={setDiaryDay} onEdit={openMood} onAssessment={entry => { setViewingAssessment(entry); setModal('questionnaire'); }} onAdd={() => setModal('add')}/></DiaryPage>}
-          {tab.id === 'treatment' && <TreatmentPage entries={entries} themeValue={themePosition} now={clock} onOpen={openSectionModal} onSave={save} onReload={reloadState} onToast={setToast}/>}
+          {tab.id === 'diary' && <DiaryPage active={active&&page==='diary'} entries={entries} selectedId={selectedJournalId} onSelect={setSelectedJournalId} onNew={() => openJournal()} onAdd={date => { if (date) setDiaryDay(date); setModal('add'); }} onEdit={openJournal} hasDraft={Boolean(journalDraft && !journalDraft.id && journalDraft.body.trim())}><MoodHistory entries={entries.filter(entry => ['mood', 'sleep', 'assessment'].includes(entry.type))} selected={diaryDay} setSelected={setDiaryDay} onEdit={openMood} onAssessment={entry => { setViewingAssessment(entry); setModal('questionnaire'); }} onAdd={() => setModal('add')}/></DiaryPage>}
+          {tab.id === 'treatment' && <TreatmentPage active={active&&page==='treatment'} entries={entries} themeValue={themePosition} now={clock} onOpen={openSectionModal} onSave={save} onReload={reloadState} onToast={setToast}/>}
           {tab.id === 'doctor' && <DoctorPage owner={account?.id} active={active&&page==='doctor'} onRequestAuth={onRequestAuth} onOpen={setModal} onNavigate={navigate}><PatientConnections active={active&&page==='doctor'} account={account} onUpdateConsents={onUpdateConsents} onRequestAuth={onRequestAuth} onHealth={()=>setModal('health')}/></DoctorPage>}
         </div>}
       </section>)}</div>
     </main>
     <nav className="bottom-nav" aria-label="Навигация по приложению"><span className="bottom-nav-glider" aria-hidden="true"/>{tabs.map(({ id, name, icon: Icon }) => <button key={id} onClick={() => navigate(id)} className={page === id ? 'current' : ''} aria-current={page === id ? 'page' : undefined}><Icon size={24}/><span>{name}</span></button>)}</nav>
     {toast && <div role="status" className="toast"><CheckCircle size={20}/>{toast}</div>}
-    {modal === 'journal' && journalDraft && <JournalEditor onReload={async()=>{const state=await loadStoredState();const latest=state.entries.find(row=>row.id===journalDraft.id);if(latest)setJournalDraft({...latest,date:latest.day});setEntries(state.entries);}} draft={journalDraft} onChange={setJournalDraft} onClose={closeModal} onSave={async entry => { const saved = await save(entry); setSelectedJournalId(saved.id); setJournalDraft({ ...saved, date: saved.day }); closeModal(); setToast('Запись сохранена в дневнике'); }}/>}
+    {modal === 'journal' && journalDraft && <JournalEditor onReload={async()=>{const latest=await loadEntry(journalDraft.id);setJournalDraft({...latest,date:latest.day});}} draft={journalDraft} onChange={setJournalDraft} onClose={closeModal} onSave={async entry => { const saved = await save(entry); setSelectedJournalId(saved.id); setJournalDraft({ ...saved, date: saved.day }); closeModal(); setToast('Запись сохранена в дневнике'); }}/>}
     {modal === 'mood' && <MoodFlow initialEntry={editingMood} initialDate={page === 'diary' ? diaryDay : dayKey()} onPreview={(editingMood?.day || (editingMood ? dayKey(new Date(editingMood.at)) : page === 'diary' ? diaryDay : dayKey())) === dayKey() ? setMoodPreview : undefined} onClose={() => closeModal()} onSave={save}/>}
     {modal === 'questionnaire' && <Assessments moodValue={themePosition} initialEntry={viewingAssessment} entries={entries} onClose={closeModal} onSave={async entry => { const saved = await save(entry); setToast('Результат сохранён в дневнике'); return saved; }}/ >}
     {modal === 'sleep' && <Sleep initialDate={page === 'diary' ? diaryDay : dayKey()} onClose={() => closeModal()} onSave={async entry => { await save(entry); closeModal(); setToast('Сон отмечен в дневнике'); }}/ >}
@@ -242,13 +254,18 @@ function PatientApp({ active, onSwitchRole, account, onUpdateConsents, onSignOut
     {modal==='health'&&<MedicalProfile entries={entries} onArchivePlan={plan=>save({...medicationDraft(plan),type:'medication-plan',archived:true})} profile={entries.find(entry=>entry.type==='medical-profile')} draft={medicalDraft} onChange={setMedicalDraft} onSave={async value=>{const saved=await save(value);onIntakeSaved?.();return saved;}} storageReady={storage==='ready'} onClose={closeModal}/>}
     {modal==='chat'&&<Modal title="Сообщения" className="patient-chat-modal" onClose={closeModal}><div className="modal-body"><CareChat role="patient" drafts={chatDrafts} onDraftsChange={setChatDrafts} active={active} onManageConnections={()=>{setModal(null);setPage('doctor');}}/></div></Modal>}
     {['change-doctor', 'appointment', 'recommendations'].includes(modal) && <Unavailable type={modal} onClose={() => closeModal()}/>}
-  </div></PersistenceContext.Provider>;
+  </div></PersistenceContext.Provider></HistoryContext.Provider>;
 }
 
-function MoodHistory({ entries, selected, setSelected, onAdd, onEdit, onAssessment }) {
+function MoodHistory({ entries:localEntries, active, selected, setSelected, onAdd, onEdit, onAssessment }) {
   const today = dayKey();
+  const [period,setPeriod]=useState({from:selected,to:selected});
+  const onPeriodChange=useCallback(value=>setPeriod(old=>old.from===value.from&&old.to===value.to?old:value),[]);
+  const history=useEntryHistory({kind:'observations',...period,active});
+  const day=useEntryHistory({kind:'observations',from:selected,to:selected,active:active&&(selected<period.from||selected>period.to)});
+  const entries=mergeEntries(history.entries,day.entries,localEntries);
   const filtered = entries.filter(e => (e.day || dayKey(new Date(e.at))) === selected);
-  return <><DiaryCalendar entries={entries} selected={selected} onSelect={setSelected}/>
+  return <><HistoryStatus resource={history}/><HistoryStatus resource={day}/><DiaryCalendar entries={entries} selected={selected} onSelect={setSelected} onPeriodChange={onPeriodChange}/>
     <div className="section-heading"><h2>{selected === today ? 'Сегодня' : dateLabel(`${selected}T12:00:00Z`)}</h2><button className="text-button" onClick={onAdd} disabled={selected > today}>Добавить <Plus size={17}/></button></div>
     <div className="timeline">{filtered.length ? filtered.map(entry => <article className="timeline-row" key={entry.id}><time>{entry.kind === 'day' ? 'За день' : timeLabel(entry.at)}</time><div className="timeline-dot"/><div className="entry surface"><div className="entry-title">{entry.type === 'mood' ? <><Art tone={MOODS[entry.value].tone} className="entry-orb"/><h3>{MOODS[entry.value].short}</h3></> : entry.type === 'assessment' ? <><ClipboardText size={23}/><h3>{SCALES[entry.scaleId].name} · {entry.score} из {entry.max}</h3></> : <><Moon size={23}/><h3>Сон · {entry.hours} ч {entry.minutes} мин</h3></>}{entry.sample && <span className="sample-label">пример</span>}</div>{entry.type === 'mood' && <small className="secondary">{entry.kind === 'day' ? 'Состояние за день' : 'Состояние в моменте'}</small>}{entry.note && <p className="entry-note">{entry.note}</p>}{entry.type === 'sleep' && <p className="secondary">Качество сна: {entry.quality.toLowerCase()}</p>}{entry.type === 'assessment' && <><p className="secondary">{entry.severity}</p><button className="text-button edit-entry" onClick={() => onAssessment(entry)}>Открыть результат</button></>}{entry.words?.length > 0 && <div className="entry-tags">{entry.words.map(word => <span key={word}>{word}</span>)}</div>}{entry.factors?.length > 0 && <p className="entry-factors">Повлияло: {entry.factors.join(', ').toLowerCase()}</p>}{entry.type === 'mood' && <button className="text-button edit-entry" onClick={() => onEdit(entry)}>Изменить отметку</button>}</div></article>) : <div className="empty-state"><BookOpen size={32}/><h3>Пока нет отметок</h3><p>Здесь будут настроение, сон и результаты опросников.</p><button className="text-button" onClick={onAdd} disabled={selected > today}>Добавить отметку <Plus size={17}/></button></div>}</div>
     <p className="page-footnote">Записи сохраняются в локальной базе. Доступ подключённого врача к личным текстам настраивается отдельно.</p>

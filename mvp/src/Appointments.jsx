@@ -2,6 +2,7 @@ import {useCallback,useEffect,useRef,useState} from 'react';
 import {CalendarBlank,Check,Plus,ArrowClockwise} from '@phosphor-icons/react';
 import {appointmentRequest} from './persistence.js';
 import {useCareUpdates} from './MedicalProfile.jsx';
+import {usePollingResource} from './usePollingResource.js';
 import {Modal} from './components.jsx';
 import {DatePicker,TimeWheel} from './DateTimeControls.jsx';
 import {DiaryCalendar} from './DiaryCalendar.jsx';
@@ -11,24 +12,11 @@ import {appointmentDay,appointmentDays,appointmentDate,appointmentTime,appointme
 import './appointments.css';
 
 function useAppointments({owner,role,active,query}){
- const [after,setAfter]=useState(''),[state,setState]=useState({key:'',data:null,error:''});
+ const [after,setAfter]=useState('');
  const base=owner+':'+role+':'+query,selection=after.startsWith(base+'|')?after.slice(base.length+1):'';
- const path='/api/appointments?'+query+(selection?'&after='+encodeURIComponent(selection):''),key=owner+':'+role+':'+path;
- const current=useRef(key);current.current=key;
- const load=useCallback(async()=>{
-  if(!owner||!active)return;
-  try{const data=await appointmentRequest(path,{role});if(current.current===key)setState({key,data,error:''});return data;}
-  catch(error){if(current.current===key)setState(old=>({key,data:old.key===key?old.data:null,error:error.message}));}
- },[owner,active,key,path,role]);
- useEffect(()=>{
-  if(!owner||!active)return;let alive=true,running=false;
-  const poll=async()=>{if(!alive||running||document.hidden)return;running=true;await load();running=false;};
-  poll();const timer=setInterval(poll,10000);window.addEventListener('focus',poll);
-  const channel='BroadcastChannel' in window?new BroadcastChannel('compass-local-updates'):null;
-  if(channel)channel.onmessage=event=>{if(event.data==='changed')poll();};
-  return()=>{alive=false;clearInterval(timer);window.removeEventListener('focus',poll);channel?.close();};
- },[key,active,owner,load]);
- return {data:state.key===key?state.data:null,error:state.key===key?state.error:'',reload:load,next:()=>setAfter(base+'|'+state.data.nextAfter),first:()=>setAfter(''),paged:Boolean(selection)};
+ const path='/api/appointments?'+query+(selection?'&after='+encodeURIComponent(selection):'');
+ const state=usePollingResource({path,role,owner,active:active&&Boolean(owner),interval:10000,load:signal=>appointmentRequest(path,{role,signal})});
+ return {...state,next:()=>setAfter(base+'|'+state.data.nextAfter),first:()=>setAfter(''),paged:Boolean(selection)};
 }
 
 function AppointmentForm({role,links,draft,onChange,onClose,onSaved}){

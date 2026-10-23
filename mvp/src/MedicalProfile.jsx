@@ -8,6 +8,7 @@ import {MeasuredDisclosure} from './MeasuredDisclosure.jsx';
 import {useMeasuredDialog} from './useMeasuredDialog.js';
 import {currentMedicationRows} from './current-medications.js';
 import {AccountPermissions} from './AccountPreferences.jsx';
+import {usePollingResource} from './usePollingResource.js';
 import './care.css';
 
 function useSuggestions(path,active,empty) {
@@ -49,10 +50,8 @@ export function MedicalProfile({profile,draft,onChange,onSave,onClose,storageRea
 }
 
 export function useCareUpdates(active=true,role='patient') {
- const [care,setCare]=useState(null),[error,setError]=useState('');
- const refresh=async()=>{try{const data=await loadCare(role);setCare(data);setError('');return data;}catch(error){setError(error.message);}};
- useEffect(()=>{if(!active)return;let alive=true,running=false;const poll=async()=>{if(!alive||running||document.hidden)return;running=true;try{const data=await loadCare(role);if(alive){setCare(data);setError('');}}catch(error){if(alive)setError(error.message);}finally{running=false;}};poll();const timer=setInterval(poll,5000);window.addEventListener('focus',poll);const channel='BroadcastChannel' in window?new BroadcastChannel('compass-local-updates'):null;if(channel)channel.onmessage=event=>{if(event.data==='changed')poll();};return()=>{alive=false;clearInterval(timer);window.removeEventListener('focus',poll);channel?.close();};},[active,role]);
- return {care,error,refresh};
+ const state=usePollingResource({path:'/api/care',role,active,load:signal=>loadCare(role,signal)});
+ return {care:state.data,error:state.error,refresh:state.reload};
 }
 
 export function PatientConnections({active,onHealth,account,onUpdateConsents,onRequestAuth}) {

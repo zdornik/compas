@@ -46,6 +46,16 @@ try{
  const routine=input(randomUUID(),'Синтетическая обычная запись');await save(routine);await processJournalJob(worker,key);
  const notes=(await request('doctor','/api/care/patients/'+link.id+'/notes',{expected:200})).data;
  assert.ok(notes.items.every(note=>note.body===undefined));assert.equal(notes.items.find(note=>note.id===routine.id).analysis.result.synthetic,true);
+ const reader=await admin.connect();
+ try{
+  const patientId=(await reader.query('SELECT patient_id FROM care_links WHERE id=$1',[link.id])).rows[0].patient_id;
+  await reader.query('BEGIN');await reader.query('SELECT id FROM local_patients WHERE id=$1 FOR SHARE',[patientId]);
+  let timer;
+  try{await Promise.race([
+   Promise.all([request('doctor','/api/care/patients/'+link.id+'/notes',{expected:200}),request('doctor','/api/care/patients/'+link.id,{expected:200})]),
+   new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('Read endpoints must not require an exclusive patient lock')),3000);})
+  ]);}finally{clearTimeout(timer);}
+ }finally{await reader.query('ROLLBACK');reader.release();}
  assert.equal((await request('doctor','/api/care/patients/'+link.id,{expected:200})).data.entries.some(e=>e.type==='journal'),false);
  const elevated=input(randomUUID(),'[TEST:elevated] Синтетический сигнал');await save(elevated);
  await Promise.all([processJournalJob(worker,key),processJournalJob(worker,key)]);

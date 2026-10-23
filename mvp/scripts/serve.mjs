@@ -3,7 +3,8 @@ import { readFile, stat } from 'node:fs/promises';
 import { resolve, extname, sep } from 'node:path';
 import { securityHeaders } from './security-headers.mjs';
 const root = resolve('dist/client');
-const api = process.env.DB_HOST ? await (await import('../server/api.mjs')).createApi() : null;
+const build=await readFile(resolve(root,'build-info.json'),'utf8').then(JSON.parse).catch(()=>null);
+const api = process.env.DB_HOST ? await (await import('../server/api.mjs')).createApi({buildId:build?.sourceSha256,instanceId:process.env.COMPASS_INSTANCE_ID}) : null;
 const port = Number(process.env.PORT || 4174);
 const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.webmanifest': 'application/manifest+json', '.png': 'image/png', '.webp': 'image/webp', '.svg': 'image/svg+xml', '.json': 'application/json' };
 createServer(async (req, res) => {

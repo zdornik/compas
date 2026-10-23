@@ -1,5 +1,7 @@
+import {useEntryHistory,HistoryStatus} from './useEntryHistory.jsx';
+import {mergeEntries} from './history-data.js';
 import {JournalNotes} from './JournalNotes.jsx';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { BookOpen, CaretRight, Check, Clock, FileText, MagnifyingGlass, Moon, Pill, Plus, X } from '@phosphor-icons/react';
 import { Modal } from './components.jsx';
 import { DiaryCalendar } from './DiaryCalendar.jsx';
@@ -27,11 +29,18 @@ export function CareDynamics({entries,days,onDays,selected,onSelect,demo=true}) 
  </section>;
 }
 
-export function CareDiary({patient,entries,days,onDays,selected,onSelect,showCharts=true,demo=true,linkId,owner}) {
+export function CareDiary({patient,entries:localEntries,active=true,historyAvailable=false,days,onDays,selected,onSelect,showCharts=true,demo=true,linkId,owner}) {
  const [filter,setFilter]=useState('Все записи'),[mode,setMode]=useState('Самочувствие');
+ const [period,setPeriod]=useState({from:selected,to:selected});
+ const onPeriodChange=useCallback(value=>setPeriod(old=>old.from===value.from&&old.to===value.to?old:value),[]);
+ const enabled=!demo&&historyAvailable,reading=active&&mode!=='Записи';
+ const history=useEntryHistory({kind:'observations',...period,active:reading,enabled,linkId,owner});
+ const chart=useEntryHistory({kind:'observations',from:addDays(dayKey(),1-days),to:dayKey(),active:reading&&mode==='Самочувствие'&&showCharts,enabled,linkId,owner});
+ const day=useEntryHistory({kind:'observations',from:selected,to:selected,active:reading&&(selected<period.from||selected>period.to),enabled,linkId,owner});
+ const entries=mergeEntries(history.entries,day.entries,chart.entries,localEntries);
  const dayRows=entries.filter(row=>['mood','sleep'].includes(row.type)&&row.day===selected&&(filter==='Все записи'||row.type===(filter==='Сон'?'sleep':'mood')));
- return <><div className="dw-record-toolbar"><div><h2>Дневник пациента</h2><p>Исходные отметки состояния и сна</p></div></div><SlidingTabs items={['Самочувствие','Записи','Опросники']} value={mode} onChange={setMode} label="Раздел дневника пациента" className="dc-diary-modes"/>{mode==='Самочувствие'?<>{showCharts&&<CareDynamics demo={demo} entries={entries} days={days} onDays={onDays} selected={selected} onSelect={onSelect}/>}
- <div className="dc-diary-layout"><DiaryCalendar entries={entries} selected={selected} onSelect={onSelect}/><section className="dc-day-records"><header><h3>{date(selected)}</h3><SlidingTabs items={['Все записи','Состояние','Сон']} value={filter} onChange={setFilter} label="Тип записей дневника"/></header>{dayRows.map(entry=><article key={entry.id} className="dc-source-entry"><small>{timeLabel(entry.at)} · {demo?'вымышленная запись':'отметка пациента'}</small>{entry.type==='mood'?<><h3 className={'dc-entry-tone tone-'+MOODS[entry.value].tone}><BookOpen size={19}/>{MOODS[entry.value].name}</h3><div className="dw-emotion-words">{(entry.words||[]).map(word=><span key={word}>{word}</span>)}</div><p>{entry.note}</p><small>Факторы: {(entry.factors||[]).join(', ')}</small></>:<><h3><Moon size={19}/>Сон · {durationLabel(sleepMinutes(entry))}</h3><p>Качество: {entry.quality}</p>{entry.note&&<p>{entry.note}</p>}</>}</article>)}{!dayRows.length&&<div className="dw-empty"><BookOpen size={26}/><h3>За этот день нет записей</h3><p>Выберите другую дату или тип записи.</p></div>}</section></div></>:mode==='Записи'?(demo?<CareNotes entries={entries} demo/>:<JournalNotes linkId={linkId} owner={owner}/>):<CareAssessments entries={entries} demo={demo}/>}</>;
+ return <><div className="dw-record-toolbar"><div><h2>Дневник пациента</h2><p>Исходные отметки состояния и сна</p></div></div><SlidingTabs items={['Самочувствие','Записи','Опросники']} value={mode} onChange={setMode} label="Раздел дневника пациента" className="dc-diary-modes"/>{mode!=='Записи'&&<><HistoryStatus resource={history}/><HistoryStatus resource={chart}/><HistoryStatus resource={day}/></>}{mode==='Самочувствие'?<>{showCharts&&<CareDynamics demo={demo} entries={entries} days={days} onDays={onDays} selected={selected} onSelect={onSelect}/>}
+ <div className="dc-diary-layout"><DiaryCalendar entries={entries} selected={selected} onSelect={onSelect} onPeriodChange={onPeriodChange}/><section className="dc-day-records"><header><h3>{date(selected)}</h3><SlidingTabs items={['Все записи','Состояние','Сон']} value={filter} onChange={setFilter} label="Тип записей дневника"/></header>{dayRows.map(entry=><article key={entry.id} className="dc-source-entry"><small>{timeLabel(entry.at)} · {demo?'вымышленная запись':'отметка пациента'}</small>{entry.type==='mood'?<><h3 className={'dc-entry-tone tone-'+MOODS[entry.value].tone}><BookOpen size={19}/>{MOODS[entry.value].name}</h3><div className="dw-emotion-words">{(entry.words||[]).map(word=><span key={word}>{word}</span>)}</div><p>{entry.note}</p><small>Факторы: {(entry.factors||[]).join(', ')}</small></>:<><h3><Moon size={19}/>Сон · {durationLabel(sleepMinutes(entry))}</h3><p>Качество: {entry.quality}</p>{entry.note&&<p>{entry.note}</p>}</>}</article>)}{!dayRows.length&&<div className="dw-empty"><BookOpen size={26}/><h3>За этот день нет записей</h3><p>Выберите другую дату или тип записи.</p></div>}</section></div></>:mode==='Записи'?(demo?<CareNotes entries={entries} demo/>:<JournalNotes active={active} linkId={linkId} owner={owner}/>):<>{!demo&&<><p className="dc-care-caption">Результаты за выбранный период календаря.</p><DiaryCalendar entries={entries} selected={selected} onSelect={onSelect} onPeriodChange={onPeriodChange}/></>}<CareAssessments entries={demo?entries:entries.filter(row=>row.day>=period.from&&row.day<=period.to)} demo={demo}/></>}</>;
 }
 
 function CareNotes({entries,demo=true}) {

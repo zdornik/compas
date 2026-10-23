@@ -22,8 +22,9 @@ assert.equal((await request(`/api/entries/${id}`, a, note, { Origin: 'https://ot
 assert.equal((await request(`/api/entries/${id}`, a, note)).response.status, 200);
 assert.equal((await request(`/api/entries/${id}`, a, { ...note,expectedRevision:1,mutationId:randomUUID(), body: note.body + ' edited' })).response.status, 200);
 const aState = await request('/api/state', a), bState = await request('/api/state', b);
-assert.equal(aState.data.entries.filter(entry => entry.id === id).length, 1);
-assert.equal(aState.data.entries.find(entry => entry.id === id).body, note.body + ' edited');
+assert.equal(aState.data.entries.some(entry => entry.id === id),false);
+assert.equal((await request('/api/entries/'+id,a)).data.body,note.body+' edited');
+assert.equal((await request('/api/history?kind=notes',a)).data.entries.filter(entry=>entry.id===id).length,1);
 assert.equal(bState.data.entries.some(entry => entry.id === id), false);
 const resultId = randomUUID();
 const clinical = await request(`/api/entries/${resultId}`, a, { id: resultId, type: 'assessment', scaleId: 'gad7', answers: Array(7).fill(2), score: 0 });

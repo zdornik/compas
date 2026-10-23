@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { cloneElement,useContext,useEffect,useState } from 'react';
+import {HistoryContext,useEntryHistory,HistoryStatus} from './useEntryHistory.jsx';
 import { ChatCircle, NotePencil, MagnifyingGlass, ArrowUpRight, BookOpen, Pill, Plus, Check, ArrowCounterClockwise, Clock, Moon, ClipboardText, ShieldCheck, Bell, ChatsCircle, CalendarBlank, CaretRight } from '@phosphor-icons/react';
 import { Row } from './components.jsx';
 import { dayKey, dateLabel } from './domain.js';
@@ -14,20 +15,24 @@ function Switch({ value, onChange }) {
   }}><span className="switch-glider" style={{ transform: `translateX(${active * 100}%)` }} aria-hidden="true"/>{options.map(option => <button key={option.id} id={`tab-${option.id}`} role="tab" aria-selected={value === option.id} aria-controls={`diary-${option.id}`} tabIndex={value === option.id ? 0 : -1} onClick={() => onChange(option.id)}>{option.label}</button>)}</div>;
 }
 
-export function DiaryPage({ entries, selectedId, onSelect, onNew, onAdd, onEdit, hasDraft, children }) {
+export function DiaryPage({ active=true,entries, selectedId, onSelect, onNew, onAdd, onEdit, hasDraft, children }) {
   const [view, setView] = useState('notes');
   const [query, setQuery] = useState('');
-  const notes = entries.filter(entry => entry.type === 'journal').sort((a, b) => Number(Boolean(a.sample)) - Number(Boolean(b.sample)) || new Date(b.updatedAt || b.at) - new Date(a.updatedAt || a.at));
-  const filtered = notes.filter(entry => `${entry.title}\n${entry.body}`.toLocaleLowerCase('ru').includes(query.toLocaleLowerCase('ru')));
+  const enabled=useContext(HistoryContext),[page,setPage]=useState({q:'',before:null});
+  useEffect(()=>{const timer=setTimeout(()=>setPage({q:query.trim(),before:null}),300);return()=>clearTimeout(timer);},[query]);
+  const history=useEntryHistory({kind:'notes',q:page.q,before:page.before,active:active&&view==='notes',paged:true});
+  const notes = enabled?history.entries:entries.filter(entry => entry.type === 'journal').sort((a, b) => Number(Boolean(a.sample)) - Number(Boolean(b.sample)) || new Date(b.updatedAt || b.at) - new Date(a.updatedAt || a.at));
+  const filtered = enabled?notes:notes.filter(entry => `${entry.title}\n${entry.body}`.toLocaleLowerCase('ru').includes(query.toLocaleLowerCase('ru')));
   const countWord = { one: 'запись', few: 'записи', many: 'записей', other: 'записи' }[new Intl.PluralRules('ru').select(notes.length)];
   const choose = entry => { onSelect(entry.id); onEdit(entry); };
   return <>
     <div className="workspace-intro"><p>Мысли, чувства и маленькие наблюдения.</p><div className="diary-add-actions"><button className="primary notebook-new" onClick={onNew}><NotePencil size={19}/>{hasDraft ? 'Продолжить запись' : 'Новая запись'}</button><button className="icon-button diary-add-button" aria-label="Добавить в дневник" onClick={() => onAdd(view === 'notes' ? dayKey() : undefined)}><Plus size={23}/></button></div></div>
     <Switch value={view} onChange={setView}/>
     {view === 'notes' ? <section id="diary-notes" role="tabpanel" aria-labelledby="tab-notes" className="notebook-panel">
-      <div className="notebook-tools"><label className="note-search"><MagnifyingGlass size={19}/><input type="search" aria-label="Поиск по записям" placeholder="Найти в записях" value={query} onChange={event => setQuery(event.target.value)}/></label><span>{notes.length} {countWord}</span></div>
-      {filtered.length ? <div className="notes-list" aria-label="Ваши записи">{filtered.map(entry => <button key={entry.id} className="notes-list-row" aria-label={`Открыть запись «${entry.title || 'Без названия'}»`} onClick={() => choose(entry)}><span className="notes-row-date"><strong>{new Date(entry.at).toLocaleDateString('ru-RU', { day: 'numeric', timeZone: 'Europe/Moscow' })}</strong><small>{new Date(entry.at).toLocaleDateString('ru-RU', { month: 'short', timeZone: 'Europe/Moscow' })}</small></span><span className="notes-row-copy"><span className="notes-row-heading"><strong>{entry.title || 'Без названия'}</strong>{entry.sample && <em>Пример</em>}</span><span className="notes-row-excerpt">{entry.body}</span><small>{entry.day === dayKey() ? 'Сегодня' : dateLabel(entry.at)} · {new Date(entry.at).getFullYear()}</small></span><CaretRight size={19}/></button>)}</div> : <div className="notebook-empty"><BookOpen size={30}/><h2>{query ? 'Ничего не нашлось' : 'Ваше место для мыслей'}</h2><p>{query ? 'Попробуйте другое слово.' : 'Можно начать с одного предложения и продолжить, когда захочется.'}</p><button className="secondary-button" onClick={query ? () => setQuery('') : onNew}>{query ? 'Сбросить поиск' : 'Создать первую запись'}</button></div>}
-    </section> : <section id="diary-observations" role="tabpanel" aria-labelledby="tab-observations" className="observations-panel">{children}</section>}
+      <div className="notebook-tools"><label className="note-search"><MagnifyingGlass size={19}/><input type="search" aria-label="Поиск по записям" placeholder="Найти в записях" value={query} onChange={event => setQuery(event.target.value)}/></label><span>{notes.length} {countWord}{enabled?' на странице':''}</span></div>
+      <HistoryStatus resource={history}/>{filtered.length ? <div className="notes-list" aria-label="Ваши записи">{filtered.map(entry => <button key={entry.id} className="notes-list-row" aria-label={`Открыть запись «${entry.title || 'Без названия'}»`} onClick={() => choose(entry)}><span className="notes-row-date"><strong>{new Date(entry.at).toLocaleDateString('ru-RU', { day: 'numeric', timeZone: 'Europe/Moscow' })}</strong><small>{new Date(entry.at).toLocaleDateString('ru-RU', { month: 'short', timeZone: 'Europe/Moscow' })}</small></span><span className="notes-row-copy"><span className="notes-row-heading"><strong>{entry.title || 'Без названия'}</strong>{entry.sample && <em>Пример</em>}</span><span className="notes-row-excerpt">{entry.excerpt??entry.body}</span><small>{entry.day === dayKey() ? 'Сегодня' : dateLabel(entry.at)} · {new Date(entry.at).getFullYear()}</small></span><CaretRight size={19}/></button>)}</div> : <div className="notebook-empty"><BookOpen size={30}/><h2>{history.loading?'Загружаем записи…':history.error?'Записи недоступны':history.data?.nextCursor?'На этой странице записей нет':page.before?'Конец списка':query?'Ничего не нашлось':'Ваше место для мыслей'}</h2><p>{history.data?.nextCursor?'Продолжите поиск на следующей странице.':query?'Попробуйте другое слово.':'Можно начать с одного предложения и продолжить, когда захочется.'}</p><button className="secondary-button" onClick={query ? () => setQuery('') : onNew}>{query ? 'Сбросить поиск' : 'Создать первую запись'}</button></div>}
+      {enabled&&<div className="cp-actions">{page.before&&<button className="text-button" onClick={()=>setPage(old=>({...old,before:null}))}>К последним записям</button>}{history.data?.nextCursor&&<button className="secondary-button" disabled={history.loading} onClick={()=>setPage(old=>({...old,before:history.data.nextCursor}))}>{query?'Продолжить поиск':'Более ранние записи'}</button>}</div>}
+    </section> : <section id="diary-observations" role="tabpanel" aria-labelledby="tab-observations" className="observations-panel">{cloneElement(children,{active:active&&view==='observations'})}</section>}
   </>;
 }
 

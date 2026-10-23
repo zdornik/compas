@@ -100,7 +100,7 @@ test('physician journal access checks global consent before decrypting and revoc
  const db={async query(sql,params){
   if(sql.includes('FROM care_links'))return {rows:[link]};
   if(sql.includes('FROM auth_accounts'))return {rows:[{id:accountId,payload:seal({consents:{healthData:health,journalProcessing:shared,journalSharing:shared}},key,'auth-account:'+accountId)}]};
-  if(sql.includes('FROM patient_entries')){assert.match(sql,/type<>'journal'/);return {rows:[{id:'mood',payload:{type:'mood',note:'Private legacy note'}},...(params[0]?[{id:'journal',payload:{type:'journal',body:'Private journal'}}]:[])]};}
+  if(sql.includes('FROM patient_entries')){assert.match(sql,/type IN \('medication-plan','medical-profile'\)/);assert.ok(!sql.includes("'journal'"));return {rows:[{id:'mood',payload:{type:'mood',note:'Private legacy note'}}]};}
   return {rows:[]};
  }};
  const care=createCareStore({transaction:async(_id,callback)=>callback(db),key,decode:row=>{decoded.push(row.id);return row.payload;}}),session={patient_id:doctorId,doctor_enabled:true};

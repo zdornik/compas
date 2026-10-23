@@ -20,6 +20,7 @@ export async function syncJournalAccess(db,patientId,consents){
 const decodeRevision=(row,key)=>({...unseal(row.payload,key,row.cipher_context),revision:row.revision});
 const audit=(db,patient,actor,action,id=null,revision=null)=>db.query('INSERT INTO journal_audit_events(id,patient_id,actor_id,action,entry_id,revision) VALUES($1,$2,$3,$4,$5,$6)',[randomUUID(),patient,actor,action,id,revision]);
 export function createJournalStore({transaction,key}){
+ const statusView=(row,revision)=>row?{status:row.state,revision,synthetic:true,...(row.payload?{result:unseal(row.payload,key,analysisContext(row.id))}:{}),...(row.error_code?{errorCode:row.error_code}:{})}:{status:'not_requested',revision,synthetic:true};
  const enqueue=async(db,patient,id,revision)=>{
   if(!journalEnabled())return;
   await db.query(`INSERT INTO journal_analysis_jobs(id,patient_id,entry_id,revision,spec_id,authorization_epoch)
@@ -30,14 +31,15 @@ export function createJournalStore({transaction,key}){
  const status=async(db,patient,id,revision)=>{
   const row=(await db.query(`SELECT j.id,j.state,j.error_code,a.payload FROM journal_analysis_jobs j
   LEFT JOIN journal_note_analyses a ON a.job_id=j.id WHERE j.patient_id=$1 AND j.entry_id=$2 AND j.revision=$3 ORDER BY j.created_at DESC,j.id DESC LIMIT 1`,[patient,id,revision])).rows[0];
-  return row?{status:row.state,revision,synthetic:true,...(row.payload?{result:unseal(row.payload,key,analysisContext(row.id))}:{}),...(row.error_code?{errorCode:row.error_code}:{})}:{status:'not_requested',revision,synthetic:true};
+  return statusView(row,revision);
  };
  const authorize=async(db,session,linkId)=>{
   if(session.account_role!=='doctor')throw journalError('Войдите в учётную запись врача',403);
   await db.query("SELECT set_config('app.actor_id',$1,true)",[session.patient_id]);
   let link=(await db.query('SELECT * FROM care_links WHERE id=$1',[linkId])).rows[0];
   if(!link||link.doctor_id!==session.patient_id)throw journalError('Подключение не найдено',404);
-  await db.query('SELECT id FROM local_patients WHERE id=$1 FOR UPDATE',[link.patient_id]);
+  // Concurrent readers may share this lock; consent revocation takes FOR UPDATE.
+  await db.query('SELECT id FROM local_patients WHERE id=$1 FOR SHARE',[link.patient_id]);
   link=(await db.query('SELECT * FROM care_links WHERE id=$1 FOR SHARE',[linkId])).rows[0];
   if(!link||link.status!=='active')throw journalError('Доступ отозван',403);
   await db.query("SELECT set_config('app.patient_id',$1,true)",[link.patient_id]);
@@ -94,9 +96,17 @@ export function createJournalStore({transaction,key}){
   async notes(session,linkId,{limit,before}){return transaction(null,async db=>{
    const link=await authorize(db,session,linkId),values=[link.patient_id,limit+1],filter=before?' AND (n.updated_at,n.entry_id)<($3::timestamptz,$4)':'';
    if(before)values.push(before.at,before.id);
-   const rows=(await db.query(`SELECT n.*,r.payload,r.cipher_context,r.revision FROM journal_notes n JOIN journal_note_revisions r ON (r.patient_id,r.entry_id,r.revision)=(n.patient_id,n.entry_id,n.current_revision) WHERE n.patient_id=$1 ${filter} ORDER BY n.updated_at DESC,n.entry_id DESC LIMIT $2`,values)).rows;
+   const rows=(await db.query(`SELECT n.*,r.payload,r.cipher_context,r.revision,j.job_id,j.state,j.error_code,j.analysis_payload
+    FROM journal_notes n JOIN journal_note_revisions r ON (r.patient_id,r.entry_id,r.revision)=(n.patient_id,n.entry_id,n.current_revision)
+    LEFT JOIN LATERAL (
+     SELECT job.id AS job_id,job.state,job.error_code,a.payload AS analysis_payload
+     FROM journal_analysis_jobs job LEFT JOIN journal_note_analyses a ON a.job_id=job.id
+     WHERE job.patient_id=n.patient_id AND job.entry_id=n.entry_id AND job.revision=n.current_revision
+     ORDER BY job.created_at DESC,job.id DESC LIMIT 1
+    ) j ON true
+    WHERE n.patient_id=$1 ${filter} ORDER BY n.updated_at DESC,n.entry_id DESC LIMIT $2`,values)).rows;
    const page=rows.slice(0,limit),items=[];
-   for(const row of page){const note=decodeRevision(row,key);items.push({id:note.id,title:note.title,day:note.day,revision:row.revision,updatedAt:row.updated_at,analysis:await status(db,link.patient_id,note.id,row.revision)});}
+   for(const row of page){const note=decodeRevision(row,key);items.push({id:note.id,title:note.title,day:note.day,revision:row.revision,updatedAt:row.updated_at,analysis:statusView(row.job_id?{id:row.job_id,state:row.state,error_code:row.error_code,payload:row.analysis_payload}:null,row.revision)});}
    await audit(db,link.patient_id,session.patient_id,'list');return {items,nextBefore:rows.length>limit?journalCursor(page.at(-1)):null};
   });},
   async note(session,linkId,id,revision){return transaction(null,async db=>{
@@ -120,7 +130,7 @@ export function createJournalStore({transaction,key}){
     await db.query("SELECT set_config('app.actor_id',$1,true)",[session.patient_id]);
     let row=(await db.query('SELECT * FROM doctor_note_alerts WHERE id=$1',[id])).rows[0];if(!row)throw journalError('Уведомление не найдено',404);
     const link=await authorize(db,session,row.care_link_id);
-    row=(await db.query('SELECT * FROM doctor_note_alerts WHERE id=$1 FOR UPDATE',[id])).rows[0];if(!row)throw journalError('Уведомление недоступно',403);
+    row=(await db.query('SELECT * FROM doctor_note_alerts WHERE id=$1 FOR '+(action?'UPDATE':'SHARE'),[id])).rows[0];if(!row)throw journalError('Уведомление недоступно',403);
     if(action){
      const next=action==='acknowledge'?'acknowledged':'seen';
      if(row.state!=='acknowledged'&&row.state!==next){if(input.expectedStateRevision!==row.state_revision)throw journalError('Состояние уведомления изменилось. Обновите список',409);

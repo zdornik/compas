@@ -3,8 +3,9 @@ import { createStore } from './store.mjs';
 import {createAuthLimiter} from './auth-policy.mjs';
 import {journalPage,uuid} from './journal-policy.mjs';
 import {appointmentPage} from './appointment-policy.mjs';
+import {historyOptions} from './history.mjs';
 const equal = (a = '', b = '') => typeof a === 'string' && typeof b === 'string' && Buffer.byteLength(a) === Buffer.byteLength(b) && timingSafeEqual(Buffer.from(a), Buffer.from(b));
-export async function createApi({store:providedStore,siteOrigin}={}) {
+export async function createApi({store:providedStore,siteOrigin,buildId,instanceId}={}) {
   const store = providedStore||await createStore();
   const origin = siteOrigin||process.env.SITE_ORIGIN || 'http://127.0.0.1:4174';
   const expectedHost = new URL(origin).host;
@@ -33,7 +34,7 @@ export async function createApi({store:providedStore,siteOrigin}={}) {
   return async (req, res, pathname) => {
     try {
       if (req.headers.host !== expectedHost || (req.headers.origin && req.headers.origin !== origin) || req.headers['sec-fetch-site'] === 'cross-site') { json(res, 403, { error: 'Запрос из другого источника запрещён' }); return; }
-      if (pathname === '/api/health' && req.method === 'GET') { await store.health(); json(res, 200, { status: 'ok' }); return; }
+      if (pathname === '/api/health' && req.method === 'GET') { await store.health(); json(res, 200, { status: 'ok',...(buildId?{buildId}:{}),...(instanceId?{instanceId}:{}) }); return; }
       if (pathname.startsWith('/api/knowledge/')) {
         if (!rateAllowed(req.socket.remoteAddress)) { json(res, 429, { error: 'Слишком много запросов. Попробуйте немного позже' }); return; }
         await store.reference(req, res, pathname); return;
@@ -94,7 +95,21 @@ export async function createApi({store:providedStore,siteOrigin}={}) {
         json(res,404,{error:'Неизвестный запрос'});return;
       }
       if (pathname === '/api/session' && req.method === 'GET') { json(res, 200, { csrfToken: session.csrf_token }); return; }
-      if (pathname === '/api/state' && req.method === 'GET') { json(res, 200, await store.state(session.patient_id)); return; }
+      if (pathname === '/api/state' && req.method === 'GET') { json(res, 200, await store.state(session.patient_id,new URL(req.url,origin).searchParams.get('since'))); return; }
+      if(req.method==='GET'&&pathname==='/api/history'){
+        if(role!=='patient'){json(res,403,{error:'Откройте историю через карту пациента'});return;}
+        json(res,200,await store.history(session.patient_id,historyOptions(new URL(req.url,origin).searchParams)));return;
+      }
+      const ownEntry=pathname.match(/^\/api\/entries\/([a-zA-Z0-9-]{1,80})$/);
+      if(req.method==='GET'&&ownEntry){
+        if(role!=='patient'){json(res,403,{error:'Откройте запись через карту пациента'});return;}
+        json(res,200,await store.entry(session.patient_id,ownEntry[1]));return;
+      }
+      const careHistory=pathname.match(/^\/api\/care\/patients\/([a-f0-9-]{36})\/history$/i);
+      if(req.method==='GET'&&careHistory){
+        await store.auth.requireHealthConsent(session);
+        json(res,200,await store.care.history(session,careHistory[1],historyOptions(new URL(req.url,origin).searchParams)));return;
+      }
       const appointmentPath=pathname.match(/^\/api\/appointments(?:\/([a-f0-9-]{36})\/(confirm|decline|cancel))?$/i);
       if(appointmentPath){
         if(req.method==='GET'&&!appointmentPath[1]){
@@ -172,6 +187,6 @@ export async function createApi({store:providedStore,siteOrigin}={}) {
         }
       }
       json(res, 404, { error: 'Неизвестный запрос' });
-    } catch (error) { json(res, error.status || 503, { error: error.status ? error.message : 'Хранилище недоступно. Запись не сохранена — повторите попытку' }); }
+    } catch (error) { json(res, error.status || 503, { error: error.status ? error.message : 'Хранилище недоступно. Запись не сохранена — повторите попытку',...(error.status&&error.code?{code:error.code}:{}) }); }
   };
 }
