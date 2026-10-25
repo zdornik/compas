@@ -20,7 +20,7 @@
 
 ## Изолированный стенд для презентации
 
-Инструкция — [PRESENTATION.md](PRESENTATION.md). Нужны Node 22+ и PostgreSQL **17** с initdb/pg_ctl/psql; Docker этому режиму не нужен.
+Инструкция — [PRESENTATION.md](PRESENTATION.md). Для передачи коллеге — [пошаговый гайд для агента с аккаунтами и сценарием входа](PRESENTATION-HANDOFF.md). Нужны Node 22+ и PostgreSQL **17** с initdb/pg_ctl/psql; Docker этому режиму не нужен.
 
 ```sh
 npm ci
