@@ -1,4 +1,4 @@
-// Allowlisted source + compiled UI + pure-JS runtime deps + ONE verified public sample.
+// Allowlisted source, compiled UI, pure-JS runtime deps and an optional verified public sample.
 import {mkdir,readdir,readFile,writeFile,copyFile,lstat,chmod,stat} from 'node:fs/promises';
 import {createReadStream} from 'node:fs';
 import {resolve,join,dirname,relative} from 'node:path';
@@ -24,7 +24,7 @@ async function copyTree(from,to,path=''){
  else throw Error('Unsupported distribution file: '+path);
 }
 for(const directory of ['src','server','scripts','docker','tests','public','dist','distribution'])await copyTree(join(root,directory),join(stage,directory),directory);
-const documents=['README.md','SECURITY.md','ASSESSMENTS.md','ASSETS.md','ARCHITECTURE.md','JOURNAL.md','APPOINTMENTS.md','HISTORY.md','BACKUP.md','TRACKING.md','PRESENTATION.md','PRESENTATION-HANDOFF.md','PERFORMANCE.md','REFERENCE-PERFORMANCE.md','CHRONIC-CATALOG.md','INGREDIENT-MAPPING.md','DOCTOR-UX.md','REFERENCE-FILES.md','KNOWLEDGE.md','TASKS.md','DEMO-SCRIPT.md'];
+const documents=['README.md','SECURITY.md','ASSESSMENTS.md','ASSETS.md','ARCHITECTURE.md','JOURNAL.md','APPOINTMENTS.md','HISTORY.md','BACKUP.md','TRACKING.md','PRESENTATION.md','PRESENTATION-HANDOFF.md','PERFORMANCE.md','REFERENCE-PERFORMANCE.md','CHRONIC-CATALOG.md','INGREDIENT-MAPPING.md','REFERENCE-FILES.md','KNOWLEDGE.md','ROADMAP.md','DEMO-SCRIPT.md'];
 for(const file of ['package.json','package-lock.json','index.html','vite.config.mjs','Dockerfile','Dockerfile.knowledge','compose.yaml','compose.demo.yaml','.dockerignore','.gitignore',...documents])await copyTree(join(root,file),join(stage,file),file);
 for(const file of await readdir(join(root,'distribution/macos'))){await copyFile(join(root,'distribution/macos',file),join(stage,file));if(file.endsWith('.command'))await chmod(join(stage,file),0o755);}
 await copyFile(join(stage,'README.md'),join(stage,'PROJECT-README.md'));
@@ -45,15 +45,19 @@ for(const item of (await readdir(join(root,'node_modules'))).filter(name=>!name.
 }
 await writeFile(join(stage,'THIRD-PARTY-NOTICES.md'),'# npm dependency notices\n\nRuntime packages are in node_modules. Frontend/build packages are recorded here with their notices in licenses/npm. Full development dependencies can be installed with npm ci.\n\n| Package | Version | License | Notice files |\n|---|---|---|---|\n'+notices.map(row=>`| ${row.name} | ${row.version} | ${typeof row.license==='string'?row.license:JSON.stringify(row.license)} | ${row.notice||'See package source'} |`).join('\n')+'\n');
 // The only allowed qa content is this pre-existing public reference sample; never copy a cluster or keys.
-const reference=join(root,'qa/presentation/reference'),envelope=JSON.parse(await readFile(join(reference,'sample.json'),'utf8'));
-if(sha(envelope.payload)!==envelope.sha256)throw Error('Public sample checksum mismatch');
-const sample=JSON.parse(envelope.payload);
-if(sample.version!==1||sample.id!=='cr:301_3'||JSON.stringify(Object.keys(sample.tables).sort())!==JSON.stringify(['documents','page_assets','pages','sources'])||sample.tables.documents.length!==1||sample.tables.documents[0].id!==sample.id)throw Error('Not the allowlisted public sample');
-await copyTree(join(reference,'sample.json'),join(stage,'qa/presentation/reference/sample.json'),'reference/sample.json');
-for(const object of sample.objects){await verifyBlob(join(reference,'blobs'),object.sha256,object.bytes);await copyTree(blobPath(join(reference,'blobs'),object.sha256),blobPath(join(stage,'qa/presentation/reference/blobs'),object.sha256),'reference/'+object.sha256);}
+const reference=join(root,'qa/presentation/reference');
+let sample=null;
+try{
+ const envelope=JSON.parse(await readFile(join(reference,'sample.json'),'utf8'));
+ if(sha(envelope.payload)!==envelope.sha256)throw Error('Public sample checksum mismatch');
+ sample=JSON.parse(envelope.payload);
+ if(sample.version!==1||sample.id!=='cr:301_3'||JSON.stringify(Object.keys(sample.tables).sort())!==JSON.stringify(['documents','page_assets','pages','sources'])||sample.tables.documents.length!==1||sample.tables.documents[0].id!==sample.id)throw Error('Not the allowlisted public sample');
+ await copyTree(join(reference,'sample.json'),join(stage,'qa/presentation/reference/sample.json'),'reference/sample.json');
+ for(const object of sample.objects){await verifyBlob(join(reference,'blobs'),object.sha256,object.bytes);await copyTree(blobPath(join(reference,'blobs'),object.sha256),blobPath(join(stage,'qa/presentation/reference/blobs'),object.sha256),'reference/'+object.sha256);}
+}catch(error){if(error.code!=='ENOENT'||sample)throw error;console.log('No public reference sample supplied; bundle will use an empty reference catalog.');}
 const build=JSON.parse(await readFile(join(stage,'dist/client/build-info.json'),'utf8'));
 await writeFile(join(stage,'.compass-bundle.json'),JSON.stringify({version:1,purpose:'compass-macos-demo',syntheticOnly:true,demoPassword:'Compass-Demo-2026!',sourceBuild:build.sourceSha256,createdAt:new Date().toISOString(),systemDependencies:['Node.js >=22','PostgreSQL 17'],runtimePackages:packages.map(({name,version})=>({name,version}))},null,2));
-await writeFile(join(stage,'BUNDLE-INFO.md'),`# Комплект ${date}\n\nСборка приложения: ${build.sourceSha256}.\n\nСерверные npm-зависимости включены (${packages.length} пакетов); готовый интерфейс и исходники включены. Системные Node.js/PostgreSQL устанавливаются при первом запуске через Homebrew при необходимости. Полный справочник, приватные БД, ключи и сессии не включены.\n\nПубличный образец: ${sample.id}, ${sample.tables.pages.length} страниц, ${sample.objects.length} файлов. Контрольные суммы всех файлов — BUNDLE-MANIFEST.json.\n`);
+await writeFile(join(stage,'BUNDLE-INFO.md'),`# Комплект ${date}\n\nСборка приложения: ${build.sourceSha256}.\n\nСерверные npm-зависимости включены (${packages.length} пакетов); готовый интерфейс и исходники включены. Системные Node.js/PostgreSQL устанавливаются при первом запуске через Homebrew при необходимости. Полный справочник, приватные БД, ключи и сессии не включены.\n\nПубличный образец: ${sample?sample.id+', '+sample.tables.pages.length+' страниц, '+sample.objects.length+' файлов':'не включён; справочник пуст'}. Контрольные суммы всех файлов — BUNDLE-MANIFEST.json.\n`);
 const files=[];
 async function inventory(directory){for(const name of (await readdir(directory)).sort()){const path=join(directory,name),info=await lstat(path);if(info.isDirectory())await inventory(path);else{const hash=createHash('sha256');for await(const chunk of createReadStream(path))hash.update(chunk);files.push({path:relative(stage,path).split('\\').join('/'),bytes:info.size,sha256:hash.digest('hex')});}}}
 await inventory(stage);await writeFile(join(stage,'BUNDLE-MANIFEST.json'),JSON.stringify({version:1,syntheticOnly:true,files},null,2));

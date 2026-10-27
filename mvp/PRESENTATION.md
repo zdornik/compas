@@ -1,6 +1,6 @@
 # Локальный стенд для презентации
 
-Первый запуск на компьютере коллеги, аккаунты, два кабинета и руководство по разработке — [PRESENTATION-HANDOFF.md](PRESENTATION-HANDOFF.md).
+Первый запуск на компьютере коллеги, аккаунты, два кабинета и сценарии проверки — [PRESENTATION-HANDOFF.md](PRESENTATION-HANDOFF.md).
 
 Нужны Node 22+ и PostgreSQL **17** с initdb/pg_ctl/psql. Автоматически обнаруживается Homebrew или /usr/lib/postgresql/17/bin, иначе PATH; каталог можно задать PG_BIN. POSIX-управление процессами на Windows не проверено.
 

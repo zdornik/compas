@@ -4,7 +4,7 @@
 
 ## Точные формы и права
 
-- PHQ-9: [PHQ9_Russian for Russia, форма разработчиков, размещённая ECFS](https://www.ecfs.eu/sites/default/files/general-content-files/working-groups/Mental%20Health/PHQ9_Russian%20for%20Russia.pdf). Русские формулировки, инструкция о последних двух неделях и ответы перенесены без смысловых изменений. При проверке прочитан индексированный полный текст формы; прямое скачивание через инструмент поиска возвращало 403.
+- PHQ-9: [PHQ9_Russian for Russia, форма разработчиков, размещённая ECFS](https://www.ecfs.eu/sites/default/files/general-content-files/working-groups/Mental%20Health/PHQ9_Russian%20for%20Russia.pdf). Русские формулировки, инструкция о последних двух неделях и ответы перенесены без смысловых изменений.
 - GAD-7: [GAD7_Russian for Russia, форма разработчиков, размещённая Project TEACH](https://projectteachny.org/app/uploads/2022/07/GAD7_Russian-for-Russia.pdf). Инструкция о последних 14 днях и семь пунктов сверены с PDF.
 - [Руководство авторов PHQ и GAD-7, копия Joint Commission](https://manual.jointcommission.org/pub/BHCInstruments/RomInstr00054/instructions_PHQ.pdf?_t=1721803001), страницы 2, 5–8: подсчёт, границы выраженности, дополнительный функциональный вопрос, пункт 9 и условия использования.
 

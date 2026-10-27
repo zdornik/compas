@@ -1,8 +1,10 @@
 import {createRequire} from 'node:module';
 import {readFile,lstat,realpath} from 'node:fs/promises';
 import {resolve,dirname,sep} from 'node:path';
-const forbidden=new Set(['.git','.DS_Store','.local-secrets','.demo-secrets','.aws','__pycache__','backups']);
+import {privateReleaseFile} from './release-policy.mjs';
+const forbidden=new Set(['.git','.DS_Store','.local-secrets','.demo-secrets','.codex','.agents','.openai','.claude','.cursor','.aws','__pycache__','backups']);
 export function distributionSourcePath(path){
+ if(privateReleaseFile(path.replaceAll('\\','/').split('/').at(-1)))return false;
  const parts=path.replaceAll('\\','/').split('/');
  return !parts.some(part=>part==='..'||(part.startsWith('.')&&!['.dockerignore','.gitignore','.env.example'].includes(part))||forbidden.has(part)||part==='.env'||part.startsWith('.env.')||part.endsWith('.log')||part.endsWith('.pid')||part.endsWith('.pyc'));
 }
