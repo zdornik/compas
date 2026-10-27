@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/prepare-pdf-assets.mjs && vite build && node scripts/prepare-pwa.mjs && node scripts/compress-static.mjs && node scripts/write-build-info.mjs",
+    "build": "node scripts/clean-build.mjs && node scripts/prepare-pdf-assets.mjs && vite build && node scripts/prepare-pwa.mjs && node scripts/compress-static.mjs && node scripts/write-build-info.mjs",
     "preview": "vite preview",
     "start": "node scripts/serve.mjs",
     "test": "node --test tests/*.test.mjs",

@@ -22,7 +22,7 @@ git pull --ff-only origin main
 cd mvp
 ```
 
-Перед изменением проекта ознакомьтесь с [правилами проекта](README.md).
+Перед изменением проекта ознакомьтесь с [руководством по разработке](../CONTRIBUTING.md).
 
 Скрипт ищет PostgreSQL в `/opt/homebrew/opt/postgresql@17/bin`, затем `/usr/lib/postgresql/17/bin`, затем в `PATH`. Для другого расположения задайте `PG_BIN`, например:
 
