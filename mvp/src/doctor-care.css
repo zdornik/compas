@@ -6,3 +6,14 @@
 .dc-dynamics .dw-record-toolbar{align-items:center}
 .dc-period-tabs{width:min(100%,270px);flex-shrink:0}
 @media(max-width:760px){.dc-period-tabs{width:100%}.dc-dynamics .dw-record-toolbar{gap:15px}}
+
+/* Both diary charts share the same card and plotting geometry. Details live in the selected-day list below. */
+.dc-charts{align-items:stretch}
+.dc-charts>.dc-chart-card{display:flex;flex-direction:column;margin:0;min-height:330px;padding:20px;background:var(--ui-paper);border-color:var(--ui-line)}
+.dc-charts>.dc-chart-card>header{min-height:28px;margin-bottom:18px;flex:none;color:var(--ui-text)}
+.dc-charts>.dc-chart-card>header h3{font-size:13px;line-height:1.5;font-weight:550}
+.dc-charts>.dc-chart-card>header>span{font-size:10px;color:var(--ui-muted)}
+.dc-charts .trk-mood-scroll,.dc-charts .dc-sleep-plot{height:190px;min-height:190px;padding:5px 0;flex:none}
+.dc-charts .trk-chart-labels,.dc-charts .dc-chart-dates{min-height:15px;margin-top:12px;font-size:10px;color:var(--ui-muted)}
+.dc-charts .trk-help,.dc-charts .dc-chart-help{min-height:36px;margin:14px 0 0;font-size:11px;line-height:1.6;color:var(--ui-muted)}
+@media(max-width:760px){.dc-charts>.dc-chart-card{padding:18px 14px}}

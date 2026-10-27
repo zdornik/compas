@@ -14,3 +14,9 @@
 .trk-mood-canvas>.trk-mood-dot{transition:none}.trk-mood-canvas>.trk-mood-dot:active{transform:translate(-50%,-50%)}.trk-mood-dot:active i{transform:scale(.9)}
 
 .trk-mood-card.dc-chart-card{background:var(--ui-paper);border-color:var(--ui-line);color:var(--ui-text)}.trk-mood-card.dc-chart-card>header{color:var(--ui-text)}.trk-mood-card.dc-chart-card>header>span{color:var(--ui-muted)}
+
+/* Roster search uses name, diagnosis and medication without an alphabet step. */
+.trk-roster>.trk-filters{grid-template-columns:minmax(180px,1.2fr) repeat(2,minmax(140px,1fr)) auto}
+.trk-roster>.trk-filters>label{grid-column:auto}
+@media(max-width:1050px){.trk-roster>.trk-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.trk-roster>.trk-filters>label:first-child{grid-column:1/-1}.trk-roster>.trk-filters>.text-button{grid-column:1/-1;justify-self:end}}
+@media(max-width:760px){.trk-roster>.trk-filters{grid-template-columns:1fr}.trk-roster>.trk-filters>label{grid-column:1/-1}}
