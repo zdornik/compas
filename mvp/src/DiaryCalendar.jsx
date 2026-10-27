@@ -1,6 +1,6 @@
 import { useEffect,useState } from 'react';
 import { CaretLeft, CaretRight } from '@phosphor-icons/react';
-import { Art } from './components.jsx';
+import { MoodDayScale, moodScaleLabel } from './MoodDayScale.jsx';
 import { MOODS, dateLabel, dayKey, latestMoodForDay } from './domain.js';
 import { calendarPeriod, moveCalendar } from './calendar.js';
 import { CalendarMotion } from './CalendarMotion.jsx';
@@ -26,7 +26,7 @@ export function DiaryCalendar({ entries, selected, onSelect, purpose='diary',onP
   const move = amount => { setDirection(amount); setAnchor(old => moveCalendar(view, old, amount)); };
   const selectedEntries = entries.filter(entry => (entry.day || dayKey(new Date(entry.at))) === selected);
   const mood = latestMoodForDay(entries, selected);
-  return <section className="surface calendar-surface" aria-label={purpose==='appointments'?'Календарь приёмов':'Календарь самочувствия'}>
+  return <section className={`surface calendar-surface ${purpose === 'diary' ? 'mood-calendar' : ''}`} aria-label={purpose==='appointments'?'Календарь приёмов':'Календарь самочувствия'}>
     <div className="calendar-toolbar">
       <div className="segmented calendar-view-switch" role="group" aria-label="Период календаря" onKeyDown={event => {
         if (!['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
@@ -41,11 +41,12 @@ export function DiaryCalendar({ entries, selected, onSelect, purpose='diary',onP
       <div className={`calendar-grid ${view === 'month' ? 'month' : ''}`}>
         {Array.from({ length: offset }, (_, i) => <span key={`space-${i}`} aria-hidden="true"/>)}
         {days.map(key => {
+          const moods = entries.filter(entry => entry.type === 'mood' && (entry.day || dayKey(new Date(entry.at))) === key).sort((a,b) => new Date(a.at) - new Date(b.at));
           const record = latestMoodForDay(entries, key), count = entries.filter(entry => (entry.day || dayKey(new Date(entry.at))) === key).length;
-          return <button key={key} className={`calendar-day ${key === selected ? 'selected' : ''} ${key === today ? 'is-today' : ''}`} aria-label={`${dateLabel(dateFor(key))}${record ? `, ${MOODS[record.value].short}` : count ? (purpose==='appointments'?`, приёмов и запросов: ${count}`:`, записей: ${count}`) : purpose==='appointments'?', нет приёмов':', нет записей'}`} aria-current={key === today ? 'date' : undefined} aria-pressed={key === selected} onClick={() => { setAnchor(key); onSelect(key); }}><span>{Number(key.slice(-2))}</span>{record ? <Art tone={MOODS[record.value].tone} className="calendar-orb"/> : <span className={`empty-day ${count ? 'has-records' : ''}`} aria-hidden="true">·</span>}</button>;
+          return <button key={key} className={`calendar-day ${key === selected ? 'selected' : ''} ${key === today ? 'is-today' : ''}`} aria-label={`${dateLabel(dateFor(key))}${record ? `, отметок настроения: ${moods.length}; ${moodScaleLabel(moods)}` : count ? (purpose==='appointments'?`, приёмов и запросов: ${count}`:`, записей: ${count}`) : purpose==='appointments'?', нет приёмов':', нет записей'}`} aria-current={key === today ? 'date' : undefined} aria-pressed={key === selected} onClick={() => { setAnchor(key); onSelect(key); }}><span>{Number(key.slice(-2))}</span>{record ? <MoodDayScale records={moods}/> : <span className={`empty-day ${count ? 'has-records' : ''}`} aria-hidden="true">·</span>}</button>;
         })}
       </div>
     </CalendarMotion>
-    <div className="calendar-summary"><strong>{purpose==='appointments'?'Приёмы':mood ? MOODS[mood.value].short : selectedEntries.length ? 'Самочувствие' : 'Нет записей'}</strong><span>{purpose==='appointments'?`Приёмов и запросов: ${selectedEntries.length}`:selectedEntries.length ? `Записей: ${selectedEntries.length}` : 'День ещё не заполнен'}</span></div>
+    {purpose === 'diary' && <p className="mood-calendar-hint">Цвета сверху вниз — отметки настроения от утра к вечеру. Каждая отметка добавляет свой цвет.</p>}<div className="calendar-summary"><strong>{purpose==='appointments'?'Приёмы':mood ? MOODS[mood.value].short : selectedEntries.length ? 'Самочувствие' : 'Нет записей'}</strong><span>{purpose==='appointments'?`Приёмов и запросов: ${selectedEntries.length}`:selectedEntries.length ? `Записей: ${selectedEntries.length}` : 'День ещё не заполнен'}</span></div>
   </section>;
 }

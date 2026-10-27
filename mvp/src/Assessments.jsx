@@ -139,10 +139,10 @@ export function Assessments({ entries:localEntries, initialEntry, onSave, onClos
         <div className="assessment-intro-hero" ref={artSlot}><div><h3 className="assessment-title" ref={heading} tabIndex={-1}>{scale.title}</h3></div></div>
         <p className="assessment-intro">{scale.instruction}</p>
         <p className="assessment-intro-caption">Скрининг не ставит диагноз. Результат можно сохранить и обсудить со специалистом.</p>
-        <details className="assessment-about"><summary>О шкале</summary><p>{scale.questions.length} вопросов о последних двух неделях. Выберите один ответ к каждому пункту. В прототипе используйте вымышленные ответы.</p><a href={scale.source} target="_blank" rel="noopener noreferrer">Русская форма {scale.name}</a></details>
+        <details className="assessment-about"><summary>О шкале</summary><p>{scale.questions.length} вопросов о последних двух неделях. Выберите один ответ к каждому пункту.</p><a href={scale.source} target="_blank" rel="noopener noreferrer">Русская форма {scale.name}</a></details>
       </>}
       {stage === 'questions' && <>
-        <div className="assessment-question-scene" ref={artSlot}><p className="assessment-period">{isImpact ? 'Влияние на повседневные дела · не входит в балл' : 'За последние две недели'}</p></div>
+        <div className="assessment-question-scene" ref={artSlot}><p className="assessment-period">{isImpact ? 'Влияние на повседневные дела · не входит в балл' : 'Насколько часто за последние две недели вас беспокоило следующее?'}</p></div>
         <h3 className="assessment-question-title" ref={heading} tabIndex={-1} id="assessment-question">{isImpact ? scale.impact : scale.questions[question]}</h3>
         <fieldset className="assessment-options" disabled={busy} aria-labelledby="assessment-question">{options.map((option, index) => <label key={option} className={answer === index ? 'selected' : ''}><input type="radio" name={`assessment-${question}`} value={index} checked={answer === index} onChange={() => isImpact ? setImpact(index) : setAnswers(old => old.map((value, i) => i === question ? index : value))}/><span className="assessment-radio">{answer === index && <Check size={13} weight="bold"/>}</span><span>{option}</span></label>)}</fieldset>
         {scaleId === 'phq9' && question === 8 && answers[8] > 0 && <SupportNotice/>}

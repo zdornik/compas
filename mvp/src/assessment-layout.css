@@ -1,0 +1,6 @@
+/* Leave the original instrument, options, scoring and mood theme intact. */
+:is(.assessment-stage-questions,.assessment-stage-result) .assessment-environment .mascot-figure{display:none}
+.assessment-stage-questions .assessment-question-scene{min-height:0;margin:12px 0 22px}
+.assessment-stage-questions .assessment-question-scene .assessment-period{max-width:100%;line-height:1.6}
+.assessment-result-art{position:relative;display:flex;align-items:center;justify-content:center}
+.assessment-result-art .assessment-score{position:static;max-width:100%;padding:16px 21px;margin:0;justify-content:center}

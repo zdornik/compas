@@ -1,0 +1,14 @@
+.cp-patient-connections.cp-leading-doctor{padding:20px 24px;border-radius:20px;margin-bottom:24px}
+.cp-leading-doctor-heading>span{font-size:11px;color:var(--muted)}
+.cp-leading-doctor-heading h2{font-size:19px;margin:5px 0 16px;line-height:1.4}
+.cp-doctor-invitation{display:flex;align-items:flex-end;gap:12px}
+.cp-doctor-invitation .med-field{flex:1;min-width:0;margin:0}
+.cp-doctor-invitation input{width:100%;min-width:0;min-height:46px;border:1px solid var(--line);border-radius:12px;padding:11px 13px;background:var(--ui-paper,#fff);color:var(--ui-ink);font:inherit;font-size:13px}
+.cp-doctor-invitation .med-field>span{display:block;font-size:12px;color:var(--muted);margin-bottom:7px}
+.cp-doctor-invitation button{flex-shrink:0;min-height:46px}
+.cp-invitation-hint{font-size:11px;line-height:1.6;color:var(--muted);margin:9px 0 0}
+.cp-connection-settings{margin-top:14px;border-top:1px solid var(--line)}
+.cp-connection-settings>summary{font-size:12px;line-height:1.5;padding:13px 0;cursor:pointer;color:var(--muted)}
+.cp-connection-settings>.secondary{font-size:12px}
+.cp-connection-settings .cp-pairing{margin-top:12px}
+@media(max-width:650px){.cp-patient-connections.cp-leading-doctor{padding:18px}.cp-doctor-invitation{flex-direction:column;align-items:stretch;gap:10px}.cp-doctor-invitation button{min-height:42px}}

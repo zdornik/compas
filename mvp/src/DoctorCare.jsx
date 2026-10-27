@@ -4,9 +4,7 @@ import {mergeEntries} from './history-data.js';
 import {JournalNotes} from './JournalNotes.jsx';
 import { useCallback, useMemo, useState } from 'react';
 import { BookOpen, CaretRight, Check, Clock, FileText, MagnifyingGlass, Moon, Pill, Plus, X } from '@phosphor-icons/react';
-import { Modal } from './components.jsx';
 import { DiaryCalendar } from './DiaryCalendar.jsx';
-import { MedicationEditor } from './MedicationEditor.jsx';
 import { SlidingTabs } from './SlidingTabs.jsx';
 import { MOODS, dateLabel, timeLabel, dayKey } from './domain.js';
 import { addDays, doseLabel, makeMedicationPlan, mealLabel, normalizeMedicationConfig, stageForDay } from './medications.js';
@@ -56,17 +54,4 @@ export function CareAssessments({entries,demo=true}) {
 export function PlanDetails({plan}) {
  let start=plan.startDate;
  return <><dl className="dw-definition"><div><dt>Начало</dt><dd>{date(plan.startDate)}</dd></div>{plan.endDate&&<div><dt>Окончание</dt><dd>{date(plan.endDate)}</dd></div>}<div><dt>Ежедневно</dt><dd>{plan.times.join(' · ')}</dd></div>{!plan.titration.enabled&&<div><dt>На один приём</dt><dd>{doseLabel(plan)}</dd></div>}{mealLabel(plan.meal)&&<div><dt>Связь с едой</dt><dd>{mealLabel(plan.meal)}</dd></div>}</dl>{plan.titration.enabled&&<ol className="dc-plan-stages">{plan.titration.stages.map((stage,index)=>{const end=addDays(start,stage.days-1),from=start;start=addDays(end,1);return <li key={index}><span>{index+1}</span><div><strong>{doseLabel({...plan,...stage})}</strong><small>{date(from)} — {date(end)} · {stage.days} дн.</small></div></li>;})}</ol>}{plan.titration.enabled&&<p className="dw-help-text">После этапов: {plan.titration.after==='maintain'?'продолжать последнюю дозу':'завершить схему'}.</p>}{plan.instructions&&<p className="dc-plan-note">{plan.instructions}</p>}</>;
-}
-export function CareTreatment({patient,plans,onEdit,onArchive}) {
- const [filter,setFilter]=useState('Действующие'),[confirm,setConfirm]=useState(null);
- const visible=plans.filter(plan=>filter==='История'?plan.archived:!plan.archived);
- return <><div className="dw-record-toolbar"><div><h2>План лечения</h2><p>Схемы для вымышленного пациента {patient.name}. Сохраняются до перезагрузки.</p></div><button className="dw-primary" onClick={()=>onEdit(null)}><Plus size={18}/>Новое назначение</button></div><SlidingTabs items={['Действующие','История']} value={filter} onChange={setFilter} label="Назначения пациента" className="dc-treatment-tabs"/>
- <div className="dc-plans">{visible.map(plan=><article className="dw-panel dc-plan" key={plan.id}><header><Pill size={22}/><div><h3>{plan.name}</h3><small>{plan.archived?'Завершена':plan.startDate>DOCTOR_DEMO_DAY?'Начнётся '+date(plan.startDate):'Схема в демо'} · версия {plan.revision}</small></div></header><PlanDetails plan={plan}/><div className="dc-plan-actions">{!plan.archived&&<><button className="dw-outline-button" onClick={()=>onEdit(plan)}>Изменить схему</button><button className="dw-text-button" onClick={()=>setConfirm(plan.id)}>Завершить</button></>}{confirm===plan.id&&<div className="dc-archive-confirm"><p>Завершить эту схему? Она останется в истории.</p><button className="dw-outline-button" onClick={()=>{onArchive(plan);setConfirm(null);}}>Завершить в демо</button><button className="dw-text-button" onClick={()=>setConfirm(null)}>Отмена</button></div>}</div>{plan.history.length>0&&<details className="dc-plan-history"><summary>Предыдущие версии · {plan.history.length}</summary>{plan.history.map(version=><section key={version.revision}><h4>Версия {version.revision}</h4><PlanDetails plan={version}/></section>)}</details>}</article>)}</div>{!visible.length&&<div className="dw-empty"><Pill size={29}/><h3>{filter==='История'?'Завершённых схем пока нет':'Назначений пока нет'}</h3><p>{filter==='История'?'После завершения схема появится здесь.':'Добавьте препарат и точную схему приёма для проверки сценария.'}</p></div>}</>;
-}
-
-export function PrescriptionSheet({patient,draft,onChange,onClose,onSave}) {
- const [review,setReview]=useState(null),[error,setError]=useState('');
- return <Modal title={review?'Проверить назначение':'Назначение · '+patient.name} className="medication-sheet dc-prescription" onClose={onClose} headerDetail={<p>Демонстрация · данные сохранятся до перезагрузки страницы</p>}>
- {review?<div className="dc-prescription-review"><p className="dc-review-person">{patient.name}</p><h3>{review.name}</h3><PlanDetails plan={review}/><p className="dw-help-text">Схема введена вручную. Автоматическая проверка доз, противопоказаний и совместимости не выполнена.</p>{error&&<p role="alert" className="journal-error">{error}</p>}<div className="dc-review-actions"><button className="dw-outline-button" onClick={()=>setReview(null)}>Вернуться к форме</button><button className="dw-primary" onClick={()=>{try{onSave(draft);onClose();}catch(error){setError(error.message);}}}><Check size={17}/>Сохранить назначение в демо</button></div></div>:<MedicationEditor draft={draft} onChange={value=>{onChange(value);setError('');}} onSubmit={()=>{try{setReview(normalizeMedicationConfig(draft));setError('');}catch(error){setError(error.message);}}} storageReady pending={false} error={error} caption="Введите препарат и точную схему приёма. Дозы не подбираются автоматически." submitLabel="Проверить назначение"/>}
- </Modal>;
 }

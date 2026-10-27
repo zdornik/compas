@@ -38,6 +38,6 @@ export async function browserAppointments(patient,doctor,{pause=async()=>{},revo
     await doctor.locator('.ap-calendar-day .ap-row').filter({hasText:'Синтетическое назначение врача'}).waitFor({state:'visible'});
   }
   await patientNav.getByRole('button',{name:'Сегодня',exact:true}).click();
-  await doctorNav.getByRole('button',{name:'Обзор',exact:true}).click();
+  await doctorNav.getByRole('button',{name:'Пациенты',exact:true}).click();
   return ['patient request','doctor confirmation','slot conflict preserves draft','direct doctor appointment','patient receives both appointments',...(revokeDoctor?['doctor consent withdrawal clears appointment cache','reapproval refreshes appointments']:[])];
 }

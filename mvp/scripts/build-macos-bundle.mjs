@@ -24,7 +24,7 @@ async function copyTree(from,to,path=''){
  else throw Error('Unsupported distribution file: '+path);
 }
 for(const directory of ['src','server','scripts','docker','tests','public','dist','distribution'])await copyTree(join(root,directory),join(stage,directory),directory);
-const documents=['README.md','SECURITY.md','ASSESSMENTS.md','ASSETS.md','ARCHITECTURE.md','ARCHITECTURE-REVIEW-2026-10-23.md','JOURNAL.md','APPOINTMENTS.md','HISTORY.md','BACKUP.md','TRACKING.md','PRODUCT-GROWTH-2026-10-27.md','READINESS-CHECK-2026-10-27.md','PRODUCT-READINESS-PLAN.md','PRESENTATION.md','PRESENTATION-HANDOFF.md','SESSION-REPORT-2026-10-24.md','READINESS-CHECK-2026-10-24.md','PERFORMANCE.md','REFERENCE-PERFORMANCE.md','CHRONIC-CATALOG.md','INGREDIENT-MAPPING.md','DOCTOR-UX.md','NOTE-ANALYSIS-PLAN.md','REFERENCE-FILES.md','KNOWLEDGE.md','TASKS.md','DEMO-SCRIPT.md'];
+const documents=['README.md','SECURITY.md','ASSESSMENTS.md','ASSETS.md','ARCHITECTURE.md','JOURNAL.md','APPOINTMENTS.md','HISTORY.md','BACKUP.md','TRACKING.md','PRESENTATION.md','PRESENTATION-HANDOFF.md','PERFORMANCE.md','REFERENCE-PERFORMANCE.md','CHRONIC-CATALOG.md','INGREDIENT-MAPPING.md','DOCTOR-UX.md','REFERENCE-FILES.md','KNOWLEDGE.md','TASKS.md','DEMO-SCRIPT.md'];
 for(const file of ['package.json','package-lock.json','index.html','vite.config.mjs','Dockerfile','Dockerfile.knowledge','compose.yaml','compose.demo.yaml','.dockerignore','.gitignore',...documents])await copyTree(join(root,file),join(stage,file),file);
 for(const file of await readdir(join(root,'distribution/macos'))){await copyFile(join(root,'distribution/macos',file),join(stage,file));if(file.endsWith('.command'))await chmod(join(stage,file),0o755);}
 await copyFile(join(stage,'README.md'),join(stage,'PROJECT-README.md'));

@@ -115,7 +115,7 @@ try{
   // A new unsaved draft survives section and role changes and polling in both windows.
   await pageA.getByRole('button',{name:'Новая запись',exact:true}).click();await pageA.getByLabel('Текст записи').fill('Несохранённый синтетический черновик');
   await pageA.getByRole('dialog').getByRole('button',{name:'Закрыть',exact:true}).click();
-  await nav.getByRole('button',{name:'Лечение',exact:true}).click();await visible(pageA.getByRole('button',{name:'Синтетическая схема 0',exact:true}));
+  await nav.getByRole('button',{name:'Терапия',exact:true}).click();await visible(pageA.getByRole('button',{name:'Синтетическая схема 0',exact:true}));
   await nav.getByRole('button',{name:'Дневник',exact:true}).click();
   await pageA.evaluate(()=>{location.hash='doctor';});await visible(pageA.locator('.dw-sidebar'));
   await pageA.evaluate(()=>{location.hash='patient';});await visible(pageA.locator('.sidebar'));

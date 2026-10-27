@@ -1,0 +1,26 @@
+/* Main visual variant: p1; the original static renderer remains selectable. */
+/* The home mascot target follows MoodScene's measured figure box. */
+.home-hero>.mood-scene{pointer-events:none}
+.home-hero>.mood-scene .mascot-hit-area{position:absolute;z-index:1;aspect-ratio:1126/1408;transform:translate(-50%,-50%) rotate(var(--head-tilt));transition:transform 950ms cubic-bezier(.22,.68,.25,1);pointer-events:none}
+.home-hero>.mood-scene .mascot-hit-button{position:absolute;inset:13.14% 12.43% 9.83%;width:auto;height:auto;padding:0;border:0;border-radius:0;background:transparent;pointer-events:auto;cursor:pointer}
+.home-hero>.mood-scene .mascot-hit-button:focus-visible{outline:3px solid var(--accent);outline-offset:5px;border-radius:45%}
+.home-hero>.hero-inner{pointer-events:none}
+.home-hero>.hero-inner .mood-cta{pointer-events:auto}
+
+/* The lower shoreline breathes without changing the hero's layout height. */
+:root[data-contour-variant="p1"] .home-hero{animation:contour-shoreline 18s ease-in-out infinite}
+:root[data-contour-variant="p1"] .page-pane:not(.active) .home-hero,:root[data-contour-variant="p1"] .app:has(dialog[open]) .home-hero,:root[data-contour-variant="p1"] [hidden] .home-hero,:root[data-contour-variant="p1"] .auth-arrival .home-hero{animation-play-state:paused}
+@keyframes contour-shoreline{
+  0%,100%{border-radius:0 0 48% 9% / 0 0 10% 8%}
+  32%{border-radius:0 0 41% 22% / 0 0 14% 5%}
+  68%{border-radius:0 0 54% 17% / 0 0 6% 12%}
+}
+@media(max-width:760px){
+  :root[data-contour-variant="p1"] .home-hero{animation-name:contour-shoreline-mobile}
+  @keyframes contour-shoreline-mobile{
+    0%,100%{border-radius:0 0 50% 48% / 0 0 9% 5%}
+    32%{border-radius:0 0 44% 54% / 0 0 13% 9%}
+    68%{border-radius:0 0 55% 43% / 0 0 6% 7.5%}
+  }
+}
+@media(prefers-reduced-motion:reduce){:root[data-contour-variant="p1"] .home-hero{animation:none}}

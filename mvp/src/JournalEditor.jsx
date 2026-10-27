@@ -30,7 +30,7 @@ export function JournalEditor({ draft, onChange, onSave, onClose, onReload }) {
       <textarea className="journal-body-input" disabled={pending} aria-label="Текст записи" placeholder="О чём вы думаете? Что чувствуете? Здесь есть место для ваших мыслей." maxLength={JOURNAL_LIMIT} value={draft.body} onChange={event => change({ body: event.target.value })}/>
       {error && <p className="journal-error" role="alert">{error}</p>}
       {conflict&&onReload&&<button type="button" className="text-button" onClick={async()=>{setCopy(draft.title+"\n\n"+draft.body);try{await onReload();attempt.current=null;setConflict(false);setError('Актуальная версия загружена. Предыдущий черновик сохранён ниже.');}catch(error){setError(error.message);}}}>Загрузить актуальную версию</button>}{copy&&<details><summary>Предыдущий черновик</summary><textarea className="jn-conflict-copy" readOnly value={copy}/></details>}
-      <div className="journal-editor-footer"><span>{persistent ? 'Сохранение в локальную базу' : 'Хранилище недоступно'}</span><button type="submit" className="primary" disabled={pending}><Check size={18}/>{pending ? 'Сохраняем…' : 'Сохранить запись'}</button></div>
+      <div className="journal-editor-footer">{!persistent && <span role="status">Хранилище недоступно</span>}<button type="submit" className="primary" disabled={pending}><Check size={18}/>{pending ? 'Сохраняем…' : 'Сохранить запись'}</button></div>
     </form>
   </Modal>;
 }

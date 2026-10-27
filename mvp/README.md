@@ -20,11 +20,11 @@
 
 Отсутствие взаимодействия в источнике не доказывает безопасность назначения. Справочник исследовательский; права коммерческого использования и медицинское применение требуют отдельной проверки.
 
-Итог обновления и проверки — [READINESS-CHECK-2026-10-27.md](READINESS-CHECK-2026-10-27.md). Новые компоненты и API для объединения с дизайном — [TRACKING.md](TRACKING.md). Развитие продукта и формулировки для презентации/постера — [PRODUCT-GROWTH-2026-10-27.md](PRODUCT-GROWTH-2026-10-27.md).
+Контракт компонентов и API описан в [TRACKING.md](TRACKING.md), незавершённые задачи — в [TASKS.md](TASKS.md).
 
 ## Изолированный стенд для презентации
 
-Инструкция — [PRESENTATION.md](PRESENTATION.md). Для передачи коллеге — [пошаговый гайд для агента с аккаунтами и сценарием входа](PRESENTATION-HANDOFF.md). Нужны Node 22+ и PostgreSQL **17** с initdb/pg_ctl/psql; Docker этому режиму не нужен.
+Инструкция — [PRESENTATION.md](PRESENTATION.md). Для передачи коллеге — [пошаговое руководство с аккаунтами и сценарием входа](PRESENTATION-HANDOFF.md). Нужны Node 22+ и PostgreSQL **17** с initdb/pg_ctl/psql; Docker этому режиму не нужен.
 
 ```sh
 npm ci
@@ -69,13 +69,13 @@ npm run test:browser
 
 Замороженное внешнее демо эти команды не обновляют. Его старая конфигурация не соответствует текущей схеме; новая публикация требует отдельной подготовки. Sites-упаковка сохраняет статический интерфейс, но сама не переносит PostgreSQL API.
 
-Документы: [ARCHITECTURE.md](ARCHITECTURE.md), [SECURITY.md](SECURITY.md), [JOURNAL.md](JOURNAL.md), [APPOINTMENTS.md](APPOINTMENTS.md), [TASKS.md](TASKS.md), [ревью](ARCHITECTURE-REVIEW-2026-10-23.md), [план](PRODUCT-READINESS-PLAN.md).
+Документы: [ARCHITECTURE.md](ARCHITECTURE.md), [SECURITY.md](SECURITY.md), [JOURNAL.md](JOURNAL.md), [APPOINTMENTS.md](APPOINTMENTS.md), [TASKS.md](TASKS.md).
 
 ## Бэкап и репетиция
 
 `npm run presentation:backup` создаёт зашифрованный комплект небольшого стенда, `npm run presentation:restore-check` проверяет его в новой БД. Состав, независимый ключ и ограничения — [BACKUP.md](BACKUP.md). Не заменяет вынос бэкапа с компьютера.
 
-`npm run test:rehearsal` запускает 20-минутный локальный браузерный прогон. `npm run presentation:video` записывает синтетические кабинеты и создаёт офлайн-плеер `qa/video/index.html`; для записи нужен `npx playwright install ffmpeg`. Обе команды создают/удаляют собственные QA-БД. Сводный результат подготовки — [SESSION-REPORT-2026-10-24.md](SESSION-REPORT-2026-10-24.md).
+`npm run test:rehearsal` запускает 20-минутный локальный браузерный прогон. `npm run presentation:video` записывает синтетические кабинеты и создаёт офлайн-плеер `qa/video/index.html`; для записи нужен `npx playwright install ffmpeg`. Обе команды создают/удаляют собственные QA-БД.
 
 
 ## ZIP для коллег на macOS

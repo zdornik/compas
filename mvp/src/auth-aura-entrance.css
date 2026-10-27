@@ -1,0 +1,9 @@
+.auth-scene .aura-anchor{animation:auth-aura-unfold 1.8s cubic-bezier(.2,.7,.2,1) both}
+.auth-aura-seed{position:absolute;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:#fff;box-shadow:0 0 8px 5px #9bc2aeaa,0 0 25px 12px #9bc2ae66;animation:auth-seed-flight 1.8s cubic-bezier(.2,.7,.2,1) both;pointer-events:none}
+.auth-scene .mascot-figure{animation:auth-mascot-reveal 1.8s ease both}
+@keyframes auth-seed-flight{0%{opacity:0;transform:translate(var(--aura-fly-x),var(--aura-fly-y)) scale(.65)}12%{opacity:1}48%{opacity:1;transform:translate(0,0) scale(1)}72%{opacity:.65;transform:translate(0,0) scale(4)}100%{opacity:0;transform:translate(0,0) scale(8)}}
+@keyframes auth-aura-unfold{0%,32%{opacity:0;transform:translate(-50%,-50%) scale(.025)}52%{opacity:.8;transform:translate(-50%,-50%) scale(.15)}100%{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+@keyframes auth-mascot-reveal{0%,45%{opacity:0}100%{opacity:1}}
+.auth-scene.is-travelling .aura-anchor,.auth-scene.is-travelling .mascot-figure{animation:none}
+.auth-scene.is-travelling .auth-aura-seed{display:none}
+@media(prefers-reduced-motion:reduce){.auth-scene .aura-anchor,.auth-scene .mascot-figure{animation:none}.auth-aura-seed{display:none}}

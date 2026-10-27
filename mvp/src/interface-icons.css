@@ -1,0 +1,7 @@
+/* Neutral controls; mood illustrations and clinical status colors stay semantic. */
+:root { --interface-icon: #707975; }
+:is(.sidebar nav, .sidebar-setting, .bottom-nav, .row-icon, .icon-button,
+    .calendar-arrows, .dw-sidebar nav, .dw-icon-button) svg,
+svg.chevron {
+  color: var(--interface-icon);
+}

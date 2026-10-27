@@ -1,7 +1,8 @@
+import './mood-journal-step.css';
 import { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, Check, ArrowRight } from '@phosphor-icons/react';
 import { Modal, Chips } from './components.jsx';
-import { MOODS, FACTORS, makeMoodEntry, dayKey, dateLabel, validEntryDate } from './domain.js';
+import { MOODS, FACTORS, makeMoodEntry, makeJournalEntry, JOURNAL_LIMIT, dayKey, dateLabel, validEntryDate } from './domain.js';
 import { appThemeAt } from './mood-motion.js';
 import { MoodComposition } from './MoodComposition.jsx';
 
@@ -34,6 +35,8 @@ export function MoodFlow({ initialDate = dayKey(), initialEntry = null, onClose,
   const [words, setWords] = useState(initialEntry?.words || []);
   const [factors, setFactors] = useState(initialEntry?.factors || []);
   const note = initialEntry?.note || '';
+  const [journalText,setJournalText]=useState(''),[journalSaved,setJournalSaved]=useState(false);
+  const journalId=useRef(crypto.randomUUID()),journalAttempt=useRef(null);
   const activePointer = useRef(null);
   const positionFromPointer = event => {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -68,11 +71,27 @@ export function MoodFlow({ initialDate = dayKey(), initialEntry = null, onClose,
         await onSave(initialEntry ? { ...entry, id: initialEntry.id, at: initialEntry.at, createdAt: initialEntry.createdAt || initialEntry.at, updatedAt: entry.createdAt } : { ...entry, id: entryId.current });
       } catch (error) { setError(error.message); setPending(false); return; }
       setPending(false);
+      transitionStep(kind === 'day' ? 3 : 4);
+      return;
+    }
+    if (step === 3) {
+      if (!journalText.trim()) return;
+      setPending(true);
+      try {
+        const entry=makeJournalEntry({clientId:journalId.current,title:'',body:journalText,date});
+        if(journalAttempt.current?.body!==journalText)journalAttempt.current={body:journalText,input:{...entry,expectedRevision:0,mutationId:crypto.randomUUID()}};
+        await onSave(journalAttempt.current.input);
+        setJournalSaved(true);
+      } catch(error) {setError(error.message);setPending(false);return;}
+      setPending(false);
+      transitionStep(4);
+      return;
     }
     transitionStep(step + 1);
   };
-  const progress = step < 3 ? <div className="flow-progress" aria-label={`Шаг ${step + 1} из 3`}>{[0, 1, 2].map(i => <span key={i} className={i <= step ? 'filled' : ''}/>)}</div> : null;
-  return <Modal title={step === 3 ? 'Отметка сохранена' : 'Ваше состояние'} onClose={onClose} style={appThemeAt(position)} headerLead={progress} className={`mood-modal living-mood tone-${mood.tone} mood-level-${value} mood-step-${step} ${tracking ? 'tracking' : ''}`}>
+  const stepCount=kind==='day'?4:3;
+  const progress = step < 4 ? <div className="flow-progress" aria-label={`Шаг ${step + 1} из ${stepCount}`}>{Array.from({length:stepCount},(_,i)=>i).map(i => <span key={i} className={i <= step ? 'filled' : ''}/>)}</div> : null;
+  return <Modal title={step === 4 ? 'Отметка сохранена' : 'Ваше состояние'} onClose={() => {if(!pending)onClose();}} closeDisabled={pending} style={appThemeAt(position)} headerLead={progress} className={`mood-modal living-mood tone-${mood.tone} mood-level-${value} mood-step-${step} ${tracking ? 'tracking' : ''}`}>
     <MoodComposition position={position} tracking={tracking} step={step} label={`Маскот: ${mood.short.toLowerCase()}`}/>
     <div className={`flow-content flow-${phase}`} key={step} aria-busy={phase !== 'idle' || pending} inert={pending}>
       {step === 0 && <>
@@ -84,11 +103,12 @@ export function MoodFlow({ initialDate = dayKey(), initialEntry = null, onClose,
       </>}
       {step === 1 && <><div className="scene-slot compact" aria-hidden="true"/><h3>Что точнее описывает<br/>это чувство?</h3><p className="secondary centered">Можно выбрать несколько слов или пропустить</p><Chips items={mood.words} selected={words} onChange={setWords}/></>}
       {step === 2 && <div className="mood-context"><h3>Что повлияло на вас?</h3><p className="secondary centered">Можно отметить несколько вещей или пропустить</p><Chips items={FACTORS} selected={factors} onChange={setFactors}/></div>}
-      {step === 3 && <div className="success-view"><span className="success-icon"><Check size={28}/></span><h3>Спасибо, что заметили<br/>своё состояние</h3><p className="secondary centered">{mood.name}{words.length ? ` · ${words.join(', ').toLowerCase()}` : ''}</p><p className="secondary centered">Отметка за {dateLabel(`${date}T12:00:00+03:00`)} появилась в дневнике.</p></div>}
+      {step === 3 && <div className="mood-day-journal"><h3>Что хочется запомнить об этом дне?</h3><p className="secondary centered">Настроение уже сохранено. Можно оставить запись в дневнике или пропустить этот шаг.</p><label htmlFor="mood-journal-text">Запись о дне</label><textarea id="mood-journal-text" value={journalText} maxLength={JOURNAL_LIMIT} onChange={event=>{setJournalText(event.target.value);setError('');}} placeholder="Что сегодня поддержало вас? О чём хочется написать?"/></div>}
+      {step === 4 && <div className="success-view"><span className="success-icon"><Check size={28}/></span><h3>Спасибо, что заметили<br/>своё состояние</h3><p className="secondary centered">{mood.name}{words.length ? ` · ${words.join(', ').toLowerCase()}` : ''}</p><p className="secondary centered">Отметка за {dateLabel(`${date}T12:00:00+03:00`)} появилась в дневнике.</p>{journalSaved && <p className="secondary centered">Ваша запись о дне тоже сохранена.</p>}</div>}
     </div>
     {step > 0 && step < 3 && date !== dayKey() && <p className="flow-date-caption">Запись за {dateLabel(`${date}T12:00:00+03:00`)}</p>}
     {!validEntryDate(date) && <p role="alert" className="date-error">Выберите существующую дату не позднее сегодняшней.</p>}
     {error && <p className="mood-save-error" role="alert">{error}</p>}
-    <div className="flow-actions">{step > 0 && step < 3 && <button className="icon-button back" disabled={pending} aria-label="Предыдущий шаг" onClick={() => transitionStep(step - 1)}><ArrowLeft size={22}/></button>}<button className="primary" disabled={!validEntryDate(date) || pending} onClick={step === 3 ? onClose : next}>{pending ? 'Сохраняем…' : step === 2 ? 'Сохранить отметку' : step === 3 ? 'Готово' : 'Продолжить'}{step < 2 && <ArrowRight size={19}/>}</button></div>
+    <div className="flow-actions">{step > 0 && step < 3 && <button className="icon-button back" disabled={pending} aria-label="Предыдущий шаг" onClick={() => transitionStep(step - 1)}><ArrowLeft size={22}/></button>}{step === 3 && <button className="mood-journal-skip" disabled={pending} onClick={()=>transitionStep(4)}>Пропустить</button>}<button className="primary" disabled={!validEntryDate(date) || pending || (step===3&&!journalText.trim())} onClick={step === 4 ? onClose : next}>{pending ? 'Сохраняем…' : step === 2 ? 'Сохранить отметку' : step === 3 ? 'Сохранить запись' : step === 4 ? 'Готово' : 'Продолжить'}{step < 2 && <ArrowRight size={19}/>}</button></div>
   </Modal>;
 }
