@@ -10,6 +10,7 @@ import {createStore} from '../server/store.mjs';
 import {seedSyntheticHistory} from './synthetic-history.mjs';
 import {processJournalJob} from './run-journal-worker.mjs';
 import {browserAppointments} from './browser-appointments.mjs';
+import {browserRegistration,browserTracking} from './browser-tracking.mjs';
 import {JOURNAL_POLICY} from '../server/journal-policy.mjs';
 
 const rehearsal=process.env.BROWSER_REHEARSAL==='1',recordVideo=process.env.BROWSER_VIDEO==='1';
@@ -28,16 +29,27 @@ try{
   let executablePath=process.env.BROWSER_EXECUTABLE;
   if(!executablePath&&process.platform==='darwin'){const chrome='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';try{await access(chrome);executablePath=chrome;}catch{}}
   browser=await chromium.launch({headless:true,...(executablePath?{executablePath}:{})});
+  const registrationChecks=await browserRegistration(browser,origin,output);
   const context=await browser.newContext({viewport:{width:1440,height:1000},reducedMotion:'reduce',serviceWorkers:'block',...(recordVideo?{recordVideo:{dir:output+'/raw',size:{width:1280,height:800}}}:{})});
   pageA=await context.newPage();pageB=await context.newPage();const errors=[];
   for(const page of [pageA,pageB]){page.setDefaultTimeout(15000);page.on('pageerror',error=>errors.push(error.message));}
   const visible=async locator=>{await locator.waitFor({state:'visible'});};
-  const login=async(page,role)=>{
-    await page.goto(origin+'/#'+role);await page.getByLabel('Электронная почта').fill(accounts[role].email);
+  const login=async(page,role,{navigate=true}={})=>{
+    if(navigate)await page.goto(origin+'/#'+role);await page.getByLabel('Электронная почта').fill(accounts[role].email);
     await page.getByLabel('Пароль',{exact:true}).fill(accounts[role].password);await page.getByRole('button',{name:'Войти',exact:true}).click();
     await visible(page.locator(role==='patient'?'.sidebar':'.dw-sidebar'));await videoPause();
   };
-  await login(pageA,'patient');await login(pageB,'doctor');
+  // A second tab can replace the shared anonymous cookie while the first keeps its old token.
+  await pageA.goto(origin+'/#patient');await visible(pageA.getByRole('button',{name:'Открыть прежний локальный профиль',exact:true}));
+  const anonymousCookie=(await context.cookies(origin+'/api')).find(cookie=>cookie.name==='compass_browser_qa');assert.ok(anonymousCookie);
+  await context.clearCookies({name:'compass_browser_qa'});
+  await pageB.goto(origin+'/#patient');await visible(pageB.getByRole('button',{name:'Открыть прежний локальный профиль',exact:true}));
+  assert.notEqual((await context.cookies(origin+'/api')).find(cookie=>cookie.name==='compass_browser_qa')?.value,anonymousCookie.value);
+  const loginStatuses=[],observeLogin=response=>{if(new URL(response.url()).pathname==='/api/auth/login')loginStatuses.push(response.status());};
+  pageA.on('response',observeLogin);await login(pageA,'patient',{navigate:false});pageA.off('response',observeLogin);
+  assert.deepEqual(loginStatuses,[403,200],'The stale tab must refresh CSRF and sign in once without a reload');
+  const authChecks=[...registrationChecks,'cross-tab stale CSRF recovers password login without reloading'];
+  await login(pageB,'doctor');
   const appointmentChecks=await browserAppointments(pageA,pageB,{pause:()=>recordVideo?sleep(1200):Promise.resolve(),...(!recordVideo?{revokeDoctor:()=>store.auth.consents(accounts.doctor.session,{healthData:false,journalProcessing:false,journalSharing:false}),restoreDoctor:()=>store.auth.consents(accounts.doctor.session,{healthData:true,journalProcessing:false,journalSharing:false})}:{})});
   const nav=pageA.getByRole('navigation',{name:'Основная навигация',exact:true});
   await nav.getByRole('button',{name:'Дневник',exact:true}).click();
@@ -89,7 +101,7 @@ try{
     for(const [index,page] of [pageA,pageB].entries()){
       const listener=request=>{
         if(!new URL(request.url()).pathname.startsWith('/api/'))return;
-        const task=(async()=>{const response=await request.response();if(!response)return;const body=await response.body();records.push({window:index+1,status:response.status(),ms:Math.round(request.timing().responseEnd),bytes:body.length});})();
+        const task=(async()=>{const response=await request.response();if(!response)return;const body=await response.body();records.push({window:index+1,route:new URL(request.url()).pathname.replace(/[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}/gi,':id'),status:response.status(),ms:Math.round(request.timing().responseEnd),bytes:body.length});})();
         pending.add(task);task.catch(()=>errors.push('Measurement request failed')).finally(()=>pending.delete(task));
       };
       page.on('requestfinished',listener);listeners.push(listener);
@@ -107,7 +119,7 @@ try{
     }
     for(const [i,page] of [pageA,pageB].entries())page.off('requestfinished',listeners[i]);await Promise.all(pending);
     const windows=[1,2].map(window=>{const rows=records.filter(row=>row.window===window),times=rows.map(row=>row.ms).sort((a,b)=>a-b);return {window,requests:rows.length,requestsPerMinute:Number((rows.length*60000/ms).toFixed(1)),p95Ms:times[Math.max(0,Math.ceil(times.length*.95)-1)]||0,responseBytes:rows.reduce((sum,row)=>sum+row.bytes,0),errors:rows.filter(row=>row.status>=400).length};});
-    for(const result of windows){assert.equal(result.errors,0);assert.ok(result.requestsPerMinute<=40,'Polling budget exceeded: '+JSON.stringify(result));assert.ok(result.p95Ms<1000,'Local p95 exceeded one second');}
+    for(const result of windows){assert.equal(result.errors,0,JSON.stringify(records.filter(row=>row.status>=400).map(({window,status,route})=>({window,status,route}))));assert.ok(result.requestsPerMinute<=40,'Polling budget exceeded: '+JSON.stringify(result));assert.ok(result.p95Ms<1000,'Local p95 exceeded one second');}
     return {name,durationMs:ms,windows};
   };
   console.log('Browser smoke passed.');
@@ -117,6 +129,9 @@ try{
   await pageA.getByRole('button',{name:'Записи',exact:true}).click();await visible(pageA.getByText(noteTitle,{exact:true}));
   if(!recordVideo)measurements.push(await measure('two windows of the same doctor session',30000));
   await pageA.evaluate(()=>{location.hash='patient';});await visible(pageA.locator('.sidebar'));
+  // Keep independent functional batches apart; do not weaken the 120/minute protection for a robot's burst.
+  authChecks.push(...await browserTracking(pageA,pageB,{output}));
+  await nav.getByRole('button',{name:'Дневник',exact:true}).click();
   await pageA.getByRole('button',{name:'Продолжить запись',exact:true}).click();
   assert.equal(await pageA.getByLabel('Текст записи').inputValue(),'Несохранённый синтетический черновик');
   await context.setOffline(true);await pageA.getByRole('button',{name:'Сохранить запись',exact:true}).click();
@@ -137,7 +152,7 @@ try{
   await pageA.getByRole('button',{name:'Новая запись',exact:true}).click();assert.equal(await pageA.getByLabel('Текст записи').inputValue(),'');
   assert.deepEqual(errors,[]);
   const state=await store.state(accounts.patient.session.patient_id);
-  const report={syntheticOnly:true,fixture:{notes:fixture.notes,observationDays:fixture.days,plans:fixture.plans},measurements,bootstrapBytes:Buffer.byteLength(JSON.stringify(state)),checks:[...appointmentChecks,'password login in both roles','patient pagination and full original','patient note → stub worker → doctor alert → acknowledgement','period observations','old active plan','draft across sections, roles and polling','390px width','offline draft','owner switch quarantine','no browser health storage','revocation'],limits:rehearsal?'Twenty-minute local warm browser rehearsal; not production capacity, cold-start performance or a medical SLA.':recordVideo?'Synthetic recorded browser demonstration. No capacity measurement.':'Local visible pages: patient + doctor for 60 seconds and two windows of the same doctor for 30 seconds. Not production capacity.'};
+  const report={syntheticOnly:true,fixture:{notes:fixture.notes,observationDays:fixture.days,plans:fixture.plans},measurements,bootstrapBytes:Buffer.byteLength(JSON.stringify(state)),checks:[...authChecks,...appointmentChecks,'password login in both roles','patient pagination and full original','patient note → stub worker → doctor alert → acknowledgement','period observations','old active plan','draft across sections, roles and polling','390px width','offline draft','owner switch quarantine','no browser health storage','revocation'],limits:rehearsal?'Twenty-minute local warm browser rehearsal; not production capacity, cold-start performance or a medical SLA.':recordVideo?'Synthetic recorded browser demonstration. No capacity measurement.':`Local visible pages: patient + doctor for ${durationMs/1000} seconds and two windows of the same doctor for 30 seconds. Not production capacity.`};
   await writeFile(output+'/report.json',JSON.stringify(report,null,2));console.log(JSON.stringify(report));
   if(recordVideo){await pageA.close();await pageB.close();await pageA.video().saveAs(output+'/patient.webm');await pageB.video().saveAs(output+'/doctor.webm');}
 }catch(error){for(const [name,page] of [['patient',pageA],['doctor',pageB]])if(page)await page.screenshot({path:output+'/failure-'+name+'.png'}).catch(()=>{});throw error;}

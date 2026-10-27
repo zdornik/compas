@@ -4,6 +4,7 @@ export const PersistenceContext = createContext(false);
 export const AccountOwnersContext=createContext({patient:'local',doctor:'local'});
 export const usePersistentStorage = () => useContext(PersistenceContext);
 const csrfTokens={patient:null,doctor:null};
+const csrfRefreshes={patient:null,doctor:null};
 const authEpoch={patient:0,doctor:0};
 const staleAuth=()=>Object.assign(new Error('Учётная запись изменилась. Повторите загрузку.'),{code:'STALE_AUTH_REFRESH'});
 const accountOwners={patient:undefined,doctor:undefined};
@@ -13,14 +14,37 @@ export function setAccountOwner(role,id){const next=id||'local';if(accountOwners
 function announceAuthChange(role){pollingResources.clearRole(role);if(!('BroadcastChannel' in window))return;const channel=new BroadcastChannel('compass-local-updates');channel.postMessage({type:'auth-changed',role,source:authSource});channel.close();}
 async function request(path, options = {}) {
   if (!path.startsWith('/api/')) throw new Error('Недопустимый адрес хранилища');
-  const {role='patient',expectedAccount,...requestOptions}=options;let response;
+  const {role='patient',expectedAccount,csrfRetried=false,...requestOptions}=options;let response;
+  const epoch=authEpoch[role],owner=accountOwners[role],sentCsrf=csrfTokens[role];
   const identity=expectedAccount??accountOwners[role],unguarded=path==='/api/session'||path==='/api/auth'||/^\/api\/auth\/(login|register)$/.test(path);
   const timeout=AbortSignal.timeout(15000),signal=requestOptions.signal?AbortSignal.any([timeout,requestOptions.signal]):timeout;
-  try { response = await fetch(path, { credentials: 'same-origin', cache: 'no-store', ...requestOptions, signal, headers: { Accept: 'application/json', 'Content-Type': 'application/json', 'X-Compass-Client': 'web', 'X-Compass-Role':role,...(!unguarded&&identity?{'X-Compass-Account':identity}:{}),...(csrfTokens[role] ? { 'X-CSRF-Token': csrfTokens[role] } : {}), ...requestOptions.headers } }); }
+  try { response = await fetch(path, { credentials: 'same-origin', cache: 'no-store', ...requestOptions, signal, headers: { Accept: 'application/json', 'Content-Type': 'application/json', 'X-Compass-Client': 'web', 'X-Compass-Role':role,...(!unguarded&&identity?{'X-Compass-Account':identity}:{}),...(sentCsrf ? { 'X-CSRF-Token': sentCsrf } : {}), ...requestOptions.headers } }); }
   catch(error) { if(requestOptions.signal?.aborted)throw error;throw new Error('Нет связи с хранилищем. Изменения остаются в форме — попробуйте сохранить ещё раз'); }
   const data = await response.json().catch(() => ({}));
+  if(response.status===403&&data.code==='CSRF_INVALID'&&!csrfRetried&&!['GET','HEAD'].includes(requestOptions.method||'GET')){
+    if(epoch!==authEpoch[role]||owner!==accountOwners[role])throw staleAuth();
+    if(csrfTokens[role]===sentCsrf)await refreshCsrf(role,epoch,owner);
+    if(epoch!==authEpoch[role]||owner!==accountOwners[role])throw staleAuth();
+    // The API rejects CSRF before performing a mutation. Keep the original owner and body.
+    return request(path,{...options,expectedAccount:identity,csrfRetried:true});
+  }
   if (!response.ok){if(data.code==='ACCOUNT_CHANGED'||(response.status===401&&!unguarded))window.dispatchEvent(new CustomEvent('compass-account-mismatch',{detail:role}));throw Object.assign(new Error(data.error||'Не удалось сохранить. Попробуйте ещё раз'),{status:response.status,code:data.code,retryAfterMs:Math.max(0,Number(response.headers.get('Retry-After'))||0)*1000});}
   return data;
+}
+async function refreshCsrf(role,epoch,owner){
+  if(csrfRefreshes[role]?.epoch===epoch&&csrfRefreshes[role].owner===owner)return csrfRefreshes[role].promise;
+  const refresh={epoch,owner};
+  refresh.promise=(async()=>{
+    const session=await request('/api/session',{role});
+    if(epoch!==authEpoch[role]||owner!==accountOwners[role])throw staleAuth();
+    csrfTokens[role]=session.csrfToken;
+  })();
+  csrfRefreshes[role]=refresh;
+  try{return await refresh.promise;}
+  catch(error){
+    if(error.status===401&&epoch===authEpoch[role]&&owner===accountOwners[role]){csrfTokens[role]=null;window.dispatchEvent(new CustomEvent('compass-account-mismatch',{detail:role}));}
+    throw error;
+  }finally{if(csrfRefreshes[role]===refresh)csrfRefreshes[role]=null;}
 }
 export async function loadStoredState(expectedAccount,since) {await loadSession();return request('/api/state'+(since?'?since='+encodeURIComponent(since):''),{expectedAccount});}
 export async function loadEntry(id,signal){return request('/api/entries/'+encodeURIComponent(id),{signal});}
@@ -56,6 +80,12 @@ export async function changeCare(path,input) {
  await loadSession(role);const result=await request(path,{method:'POST',body:JSON.stringify(input),role});announceChange();return result;
 }
 export async function loadCarePatient(id) { await loadSession('doctor');return request('/api/care/patients/'+encodeURIComponent(id),{role:'doctor'}); }
+export async function loadCareRoster(params,signal){await loadSession('doctor');return request('/api/care/roster?'+new URLSearchParams(params),{role:'doctor',signal});}
+export async function clinicalNotesRequest(linkId,{body,params={},signal}={}){
+  if(!/^[a-f0-9-]{36}$/i.test(linkId))throw Error('Некорректное подключение');
+  await loadSession('doctor');const result=await request('/api/care/patients/'+linkId+'/clinical-notes?'+new URLSearchParams(params),{role:'doctor',signal,...(body?{method:'POST',body:JSON.stringify(body)}:{})});
+  if(body)announceChange();return result;
+}
 
 // Reference data is public and read-only; this does not open a patient session.
 export async function readReference(path, signal) {

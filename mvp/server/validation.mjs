@@ -34,7 +34,11 @@ export function validateEntry(body, id, previous = null, now = new Date(), conte
     } else if (body.type === 'sleep') {
       const hours = Number(body.hours), minutes = Number(body.minutes);
       if (!Number.isInteger(hours) || !Number.isInteger(minutes) || hours < 0 || hours > 24 || minutes < 0 || minutes > 59 || hours * 60 + minutes <= 0 || hours * 60 + minutes > 1440 || !['Плохо', 'Не очень', 'Нормально', 'Хорошо', 'Отлично'].includes(body.quality)) throw new Error('Проверьте длительность и качество сна');
-      record = { type: 'sleep', hours, minutes, quality: body.quality, day: date, at: entryTimestamp(date, now) };
+      if(!text(body.note||'',2000))throw new Error('Комментарий ко сну — до 2000 символов');
+      if(previous&&previous.day!==date)throw Object.assign(new Error('Сохранённую запись сна нельзя переносить на другой день'),{status:409});
+      if(previous&&['hours','minutes','quality'].every(field=>previous[field]===body[field])&&(previous.note||'')===(body.note||''))return previous;
+      if(previous&&body.expectedUpdatedAt!==previous.updatedAt)throw Object.assign(new Error('Запись сна изменилась. Откройте её заново, сохранив свой комментарий'),{status:409});
+      record = { type: 'sleep', hours, minutes, quality: body.quality, note:body.note||'', day: date, at: entryTimestamp(date, now) };
     } else throw new Error('Неизвестный тип записи');
   }
   if (previous && previous.type !== record.type) throw new Error('Тип сохранённой записи нельзя изменить');

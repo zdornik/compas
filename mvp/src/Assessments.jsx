@@ -1,3 +1,7 @@
+import {useEntryHistory,HistoryStatus} from './useEntryHistory.jsx';
+import {mergeEntries} from './history-data.js';
+import {addDays} from './medications.js';
+import {dayKey} from './domain.js';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, ArrowUpRight, CaretDown, Check, HandHeart, ListChecks, FileText, ShieldCheck } from '@phosphor-icons/react';
 import { Modal } from './components.jsx';
@@ -28,14 +32,17 @@ export function AssessmentResult({ entry, children, artSlot }) {
   </div>;
 }
 
-export function Assessments({ entries, initialEntry, onSave, onClose, moodValue = 3 }) {
-  const [scaleId, setScaleId] = useState(initialEntry?.scaleId || null);
-  const [stage, setStage] = useState(initialEntry ? 'result' : 'hub');
-  const [answers, setAnswers] = useState([]);
-  const [question, setQuestion] = useState(0);
-  const [impact, setImpact] = useState(null);
-  const [result, setResult] = useState(initialEntry || null);
-  const [saved, setSaved] = useState(Boolean(initialEntry));
+export function Assessments({ entries:localEntries, initialEntry, onSave, onClose, draft, onDraftChange, moodValue = 3 }) {
+  const today=dayKey(),history=useEntryHistory({kind:'observations',from:addDays(today,-61),to:today,active:!initialEntry});
+  const entries=mergeEntries(history.entries,localEntries).sort((a,b)=>(b.at||'').localeCompare(a.at||''));
+  const [scaleId, setScaleId] = useState(initialEntry?.scaleId || draft?.scaleId || null);
+  const [stage, setStage] = useState(initialEntry ? 'result' : draft?.stage || 'hub');
+  const [answers, setAnswers] = useState(draft?.answers || []);
+  const [question, setQuestion] = useState(draft?.question || 0);
+  const [impact, setImpact] = useState(draft?.impact ?? null);
+  const [result, setResult] = useState(initialEntry || draft?.result || null);
+  const [saved, setSaved] = useState(Boolean(initialEntry || draft?.saved));
+  useEffect(()=>{if(!initialEntry)onDraftChange?.({scaleId,stage,answers,question,impact,result,saved});},[scaleId,stage,answers,question,impact,result,saved,initialEntry,onDraftChange]);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState('');
   const [phase, setPhase] = useState('idle');
@@ -123,7 +130,7 @@ export function Assessments({ entries, initialEntry, onSave, onClose, moodValue 
     <div className="assessment-body" ref={body} onScroll={syncSceneScroll}><div className={`assessment-step assessment-step-${phase}`} aria-busy={busy}>
       {stage === 'hub' && <>
         <div className="assessment-hub-heading" ref={artSlot}><div className="assessment-hub-copy"><h3 ref={heading} tabIndex={-1}>Как прошли<br/>эти две недели?</h3></div></div>
-        <div className="assessment-choices">{Object.values(SCALES).map(item => {
+        <HistoryStatus resource={history}/><p className="input-hint">Последние результаты за 62 дня. Более ранние доступны в дневнике.</p><div className="assessment-choices">{Object.values(SCALES).map(item => {
           const latest = entries.find(entry => entry.type === 'assessment' && entry.scaleId === item.id);
           return <button disabled={busy} key={item.id} className="assessment-choice" onClick={() => start(item.id)}><span className="assessment-card-top"><span className="assessment-choice-code">{item.name}</span><span className="assessment-card-count">{item.questions.length} вопросов</span></span><span className="assessment-card-copy"><strong>{item.title}</strong>{latest && <em>{latest.score} из {item.max} · {dateLabel(latest.at)}</em>}</span><span className="assessment-card-arrow"><ArrowRight size={19}/></span></button>;
         })}</div>
@@ -143,9 +150,9 @@ export function Assessments({ entries, initialEntry, onSave, onClose, moodValue 
       {stage === 'result' && result && <><h3 ref={heading} tabIndex={-1} className="assessment-result-heading">Ваш результат</h3><AssessmentResult entry={result} artSlot={artSlot}/></>}
     </div></div>
     <footer className="assessment-footer">
-      {stage === 'hub' ? <p className="assessment-footer-caption"><ShieldCheck size={17}/>{persistent ? 'Результаты в локальной базе. Врач не уведомляется.' : 'Хранилище недоступно. Сохранение пока отключено.'}</p> : <>
+      {stage === 'hub' ? <p className="assessment-footer-caption"><ShieldCheck size={17}/>{persistent ? 'Результаты в дневнике доступны подключённому врачу с вашим согласием.' : 'Хранилище недоступно. Сохранение пока отключено.'}</p> : <>
         <div className="assessment-footer-actions">{stage !== 'result' && <button className="icon-button" aria-label={stage === 'intro' ? 'К выбору опросника' : 'Предыдущий вопрос'} disabled={busy} onClick={() => stage === 'intro' ? jump('hub') : question ? jump('questions', question - 1) : jump('intro')}><ArrowLeft size={20}/></button>}<button className="primary" disabled={busy || (stage === 'questions' && !Number.isInteger(answer))} onClick={stage === 'intro' ? () => jump('questions', 0) : stage === 'questions' ? next : saveResult}>{pending ? 'Сохраняем…' : stage === 'intro' ? 'Начать' : stage === 'questions' ? (isImpact || (question === scale.questions.length - 1 && !(scale.impact && answers.some(value => value > 0))) ? 'Показать результат' : 'Продолжить') : saved ? 'Готово' : 'Сохранить в дневник'}</button></div>
-        <div className="assessment-footer-status">{error ? <p className="journal-error" role="alert">{error}</p> : stage === 'result' && <p>{saved ? 'Сохранено в дневнике' : 'Врач не получит результат автоматически'}</p>}</div>
+        <div className="assessment-footer-status">{error ? <p className="journal-error" role="alert">{error}</p> : stage === 'result' && <p>{saved ? 'Сохранено в дневнике' : 'После сохранения результат доступен подключённому врачу'}</p>}</div>
       </>}
     </footer>
   </Modal>;

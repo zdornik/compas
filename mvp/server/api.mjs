@@ -24,6 +24,13 @@ export async function createApi({store:providedStore,siteOrigin,buildId,instance
     return ++bucket.count <= 120;
   };
   const json = (res, status, value) => { res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }); res.end(JSON.stringify(value)); };
+  const allowMutation = (req,res,session,requireClient=false) => {
+    const sourceAllowed=req.headers.origin===origin&&(!requireClient||req.headers['x-compass-client']==='web');
+    if(sourceAllowed&&equal(req.headers['x-csrf-token'],session.csrf_token))return true;
+    // Only a rejected token can be refreshed/retried; source and access failures cannot.
+    json(res,403,{error:'Проверка запроса не пройдена. Обновите страницу',...(sourceAllowed?{code:'CSRF_INVALID'}:{})});
+    return false;
+  };
   const readBody = req => new Promise((resolve, reject) => {
     if (!req.headers['content-type']?.startsWith('application/json')) { reject(Object.assign(new Error('Требуется JSON'), { status: 415 })); req.resume(); return; }
     let size = 0, chunks = [], rejected = false;
@@ -58,7 +65,7 @@ export async function createApi({store:providedStore,siteOrigin,buildId,instance
       const identityHint=req.headers['x-compass-account'];
       if(identityHint!==undefined&&pathname!=='/api/session'&&!['/api/auth/login','/api/auth/register'].includes(pathname)&&identityHint!==(session.account_id||'local')){json(res,409,{error:'Учётная запись изменилась. Откройте её заново.',code:'ACCOUNT_CHANGED'});return;}
       if(pathname.startsWith('/api/auth/')&&req.method==='POST'){
-        if(req.headers.origin!==origin||req.headers['x-compass-client']!=='web'||!equal(req.headers['x-csrf-token'],session.csrf_token)){json(res,403,{error:'Проверка запроса не пройдена. Обновите страницу'});return;}
+        if(!allowMutation(req,res,session,true))return;
         const input=await readBody(req);
         if(pathname==='/api/auth/register'||pathname==='/api/auth/login'){
           const address=req.socket.remoteAddress||'local',loginKey=createHash('sha256').update(String(input?.email||'').trim().toLowerCase()).digest('hex');
@@ -106,6 +113,19 @@ export async function createApi({store:providedStore,siteOrigin,buildId,instance
         json(res,200,await store.entry(session.patient_id,ownEntry[1]));return;
       }
       const careHistory=pathname.match(/^\/api\/care\/patients\/([a-f0-9-]{36})\/history$/i);
+      if(pathname==='/api/care/roster'&&req.method==='GET'){
+        await store.auth.requireHealthConsent(session);json(res,200,await store.care.roster(session,new URL(req.url,origin).searchParams));return;
+      }
+      const clinicalNotes=pathname.match(/^\/api\/care\/patients\/([a-f0-9-]{36})\/clinical-notes$/i);
+      if(clinicalNotes){
+        await store.auth.requireHealthConsent(session);
+        if(req.method==='GET'){json(res,200,await store.care.clinicalNotes(session,clinicalNotes[1],new URL(req.url,origin).searchParams));return;}
+        if(req.method==='POST'){
+          if(!allowMutation(req,res,session,true))return;
+          json(res,200,await store.care.saveClinicalNote(session,clinicalNotes[1],await readBody(req)));return;
+        }
+        json(res,405,{error:'Метод не поддерживается'});return;
+      }
       if(req.method==='GET'&&careHistory){
         await store.auth.requireHealthConsent(session);
         json(res,200,await store.care.history(session,careHistory[1],historyOptions(new URL(req.url,origin).searchParams)));return;
@@ -117,7 +137,7 @@ export async function createApi({store:providedStore,siteOrigin,buildId,instance
           json(res,200,await store.appointments.list(session,appointmentPage(new URL(req.url,origin).searchParams)));return;
         }
         if(req.method==='POST'){
-          if(req.headers.origin!==origin||req.headers['x-compass-client']!=='web'||!equal(req.headers['x-csrf-token'],session.csrf_token)){json(res,403,{error:'Проверка запроса не пройдена. Обновите страницу'});return;}
+          if(!allowMutation(req,res,session,true))return;
           await store.auth.requireHealthConsent(session);
           const input=await readBody(req);
           json(res,appointmentPath[1]?200:201,appointmentPath[1]?await store.appointments.change(session,appointmentPath[1],appointmentPath[2],input):await store.appointments.create(session,input));return;
@@ -130,7 +150,7 @@ export async function createApi({store:providedStore,siteOrigin,buildId,instance
       if(ownJournal||careNotes||alertPath){
         const params=new URL(req.url,origin).searchParams;
         if(req.method==='POST'){
-          if(req.headers.origin!==origin||!equal(req.headers['x-csrf-token'],session.csrf_token)){json(res,403,{error:'Проверка запроса не пройдена'});return;}
+          if(!allowMutation(req,res,session))return;
           await store.auth.requireHealthConsent(session);
           const input=await readBody(req);
           if(ownJournal?.[2]){json(res,200,await store.journal.retry(session,ownJournal[1]));return;}
@@ -154,7 +174,7 @@ export async function createApi({store:providedStore,siteOrigin,buildId,instance
       }
       if (carePatient && req.method === 'GET' && !carePatient[2]) { await store.auth.requireHealthConsent(session);json(res, 200, await store.care.patient(session, carePatient[1])); return; }
       if (pathname.startsWith('/api/care') && req.method === 'POST') {
-        if (req.headers.origin !== origin || !equal(req.headers['x-csrf-token'], session.csrf_token)) { json(res,403,{error:'Проверка запроса не пройдена. Обновите страницу'}); return; }
+        if(!allowMutation(req,res,session))return;
         const input = await readBody(req);
         const consent = pathname.match(/^\/api\/care\/links\/([a-f0-9-]{36})$/i);
         if(!consent)await store.auth.requireHealthConsent(session);
@@ -174,7 +194,7 @@ export async function createApi({store:providedStore,siteOrigin,buildId,instance
         return;
       }
       if (req.method === 'PUT') {
-        if (req.headers.origin !== origin || !equal(req.headers['x-csrf-token'], session.csrf_token)) { json(res, 403, { error: 'Проверка запроса не пройдена. Обновите страницу' }); return; }
+        if(!allowMutation(req,res,session))return;
         const entry = pathname.match(/^\/api\/entries\/([a-zA-Z0-9-]{1,80})$/);
         const dose = pathname.match(/^\/api\/doses\/(one|two)$/);
         if (entry || dose) {

@@ -40,8 +40,8 @@ test('stale consent settings cannot restore revoked permissions; identical retri
  assert.equal(consentUpdate(revoked,{...before.consents,expectedConsentUpdatedAt:revoked.consentUpdatedAt}).consents.journalSharing,true);
 });
 const origin='http://127.0.0.1:4174',anonToken='a'.repeat(64),accountToken='b'.repeat(64),anon={patient_id:'11111111-1111-4111-8111-111111111111',token_hash:'anon',csrf_token:'anon-csrf',doctor_enabled:false},account={...anon,token_hash:'account',csrf_token:'account-csrf',account_id:'account-id',account_role:'patient'};
-const makeRequest=async(api,path,{method='GET',input,role='patient',token=anonToken,csrf='anon-csrf',extraCookies='',client='web',accountHint}={})=>{
- const req=Readable.from(input===undefined?[]:[Buffer.from(JSON.stringify(input))]);req.method=method;req.url=path;req.socket={remoteAddress:'127.0.0.1'};req.headers={host:'127.0.0.1:4174',origin,'content-type':'application/json','x-compass-role':role,'x-compass-client':client,...(accountHint!==undefined?{'x-compass-account':accountHint}:{}),...(csrf?{'x-csrf-token':csrf}:{}),cookie:`compass_session=${token}; compass_session_doctor=${token}${extraCookies}`};
+const makeRequest=async(api,path,{method='GET',input,role='patient',token=anonToken,csrf='anon-csrf',extraCookies='',client='web',source=origin,accountHint}={})=>{
+ const req=Readable.from(input===undefined?[]:[Buffer.from(JSON.stringify(input))]);req.method=method;req.url=path;req.socket={remoteAddress:'127.0.0.1'};req.headers={host:'127.0.0.1:4174',origin:source,'content-type':'application/json','x-compass-role':role,'x-compass-client':client,...(accountHint!==undefined?{'x-compass-account':accountHint}:{}),...(csrf?{'x-csrf-token':csrf}:{}),cookie:`compass_session=${token}; compass_session_doctor=${token}${extraCookies}`};
  const result={headers:{}};const res={setHeader(name,value){result.headers[name]=value;},writeHead(status,headers){result.status=status;Object.assign(result.headers,headers);},end(body){result.data=JSON.parse(body);}};await api(req,res,path.split('?')[0]);return result;
 };
 const fakeStore=()=>{
@@ -53,6 +53,24 @@ test('auth endpoints require origin-bound client CSRF and retain anonymous profi
  assert.equal((await makeRequest(api,'/api/auth/register',{method:'POST',input:{...registration,role:'doctor'}})).status,422);
  const created=await makeRequest(api,'/api/auth/register',{method:'POST',input:registration});assert.equal(created.status,201);assert.equal(created.data.csrfToken,'new-csrf');assert.equal(created.data.token,undefined);assert.equal(created.headers['Set-Cookie'].length,2);assert.match(created.headers['Set-Cookie'][0],/HttpOnly; SameSite=Strict; Path=\/api/);assert.match(created.headers['Set-Cookie'][1],/compass_session_local=/);
  const out=await makeRequest(api,'/api/auth/logout',{method:'POST',input:{},token:accountToken,csrf:'account-csrf',extraCookies:'; compass_session_local='+anonToken});assert.equal(out.status,200);assert.equal(out.data.csrfToken,'anon-csrf');assert.match(out.headers['Set-Cookie'],new RegExp(anonToken));
+});
+test('only invalid CSRF tokens receive a recovery code, before any mutation runs',async()=>{
+ const store=fakeStore();store.auth.login=async()=>{store.calls.push(['login']);return {token:accountToken,csrfToken:'login-csrf',account:{id:'new-account',role:'patient'}};};
+ const api=await createApi({store,siteOrigin:origin});
+ for(const [path,method,input] of [['/api/auth/login','POST',registration],['/api/appointments','POST',{}],['/api/journal/note/analysis/retry','POST',{}],['/api/care/profile','POST',{name:'Test'}],['/api/entries/note','PUT',{}]]){
+  const denied=await makeRequest(api,path,{method,input,csrf:'stale-csrf'});
+  assert.equal(denied.status,403);assert.equal(denied.data.code,'CSRF_INVALID');
+  assert.doesNotMatch(JSON.stringify(denied.data),/anon-csrf|stale-csrf/);
+ }
+ const invalidClient=await makeRequest(api,'/api/auth/login',{method:'POST',input:registration,client:'other',csrf:'stale-csrf'});
+ assert.equal(invalidClient.status,403);assert.equal(invalidClient.data.code,undefined);
+ for(const source of [null,'https://other.invalid']){
+  const invalidOrigin=await makeRequest(api,'/api/auth/login',{method:'POST',input:registration,source,csrf:'stale-csrf'});
+  assert.equal(invalidOrigin.status,403);assert.equal(invalidOrigin.data.code,undefined);
+ }
+ assert.deepEqual(store.calls,[]);
+ assert.equal((await makeRequest(api,'/api/auth/login',{method:'POST',input:registration})).status,200);
+ assert.deepEqual(store.calls,[['login']]);
 });
 test('role selection cannot turn a patient account into a clinician and repeated auth failures are throttled',async()=>{
  const store=fakeStore(),api=await createApi({store,siteOrigin:origin});
@@ -100,7 +118,7 @@ test('physician journal access checks global consent before decrypting and revoc
  const db={async query(sql,params){
   if(sql.includes('FROM care_links'))return {rows:[link]};
   if(sql.includes('FROM auth_accounts'))return {rows:[{id:accountId,payload:seal({consents:{healthData:health,journalProcessing:shared,journalSharing:shared}},key,'auth-account:'+accountId)}]};
-  if(sql.includes('FROM patient_entries')){assert.match(sql,/type IN \('medication-plan','medical-profile'\)/);assert.ok(!sql.includes("'journal'"));return {rows:[{id:'mood',payload:{type:'mood',note:'Private legacy note'}}]};}
+  if(sql.includes('FROM patient_entries')){if(!sql.includes('UNION ALL'))assert.match(sql,/type IN \('medication-plan','medical-profile'\)/);else assert.ok(sql.includes('LIMIT 20'));assert.ok(!sql.includes("'journal'"));return {rows:[{id:'mood',payload:{type:'mood',note:'Private legacy note'}}]};}
   return {rows:[]};
  }};
  const care=createCareStore({transaction:async(_id,callback)=>callback(db),key,decode:row=>{decoded.push(row.id);return row.payload;}}),session={patient_id:doctorId,doctor_enabled:true};

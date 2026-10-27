@@ -37,7 +37,8 @@
     "test:rehearsal": "node scripts/check-integration.mjs --rehearsal",
     "presentation:backup": "node scripts/presentation-backup.mjs create",
     "presentation:restore-check": "node scripts/presentation-backup.mjs check",
-    "presentation:video": "node scripts/check-integration.mjs --video && node scripts/build-replay.mjs"
+    "presentation:video": "node scripts/check-integration.mjs --video && node scripts/build-replay.mjs",
+    "package:macos": "node scripts/build-macos-bundle.mjs"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",

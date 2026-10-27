@@ -1,7 +1,7 @@
 import pg from 'pg';
 import { randomBytes, randomUUID } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
-import { dayKey } from '../src/domain.js';
+import { dayKey,validEntryDate } from '../src/domain.js';
 import { seal, unseal, tokenHash } from './crypto.mjs';
 import { validateEntry } from './validation.mjs';
 import { createKnowledgeApi } from './knowledge.mjs';
@@ -80,6 +80,11 @@ export async function createStore() {
         await db.query('SELECT id FROM local_patients WHERE id = $1 FOR UPDATE', [patientId]);
         if((await readPatientConsent(db,patientId,key)).healthData!==true)throw Object.assign(new Error('Согласие на обработку данных отозвано'),{status:403});
         const old = await db.query('SELECT id,payload FROM patient_entries WHERE id = $1', [id]);
+        if(input.type==='sleep'){
+          if(!validEntryDate(input.day,new Date()))throw Object.assign(new Error('Выберите существующую дату не позднее сегодняшней'),{status:422});
+          const daily=(await db.query("SELECT id FROM patient_entries WHERE patient_id=$1 AND type='sleep' AND observation_day=$2::date ORDER BY saved_at DESC,id DESC LIMIT 1",[patientId,input.day])).rows[0];
+          if(daily&&daily.id!==id)throw Object.assign(new Error('Сон за этот день уже отмечен. Откройте сохранённую запись для изменения'),{status:409});
+        }
         if(input.type==='medical-profile')input=await canonicalMedicalInput(db,input);
         if(input.type==='medication-plan')input=await canonicalMedicationInput(db,input);
         let plan = null;

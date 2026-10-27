@@ -1,3 +1,4 @@
+import {bundleAccountPassword,seedPresentationFixture} from './presentation-fixture.mjs';
 // A private, disposable local PostgreSQL cluster. Never targets the primary cluster.
 import {mkdir,readFile,writeFile,chmod,access,unlink,open,readdir} from 'node:fs/promises';
 import {join,resolve} from 'node:path';
@@ -7,7 +8,6 @@ import {setTimeout as delay} from 'node:timers/promises';
 import {root,pgBinary,run,adminClient,createIsolatedDatabase,migrateIsolatedDatabase,dropIsolatedDatabase,applyRepositoryMigrations} from './database-tools.mjs';
 import {presentationReference} from './presentation-reference.mjs';
 import {dayKey} from '../src/domain.js';
-import {JOURNAL_POLICY} from '../server/journal-policy.mjs';
 
 const directory=join(root,'qa/presentation'),configFile=join(directory,'instance.json'),pidFile=join(directory,'processes.json');
 const exists=async path=>access(path).then(()=>true,()=>false);
@@ -21,8 +21,8 @@ if(!await exists(configFile)){
 }
 const config=JSON.parse(await readFile(configFile,'utf8'));
 if(config.version!==1||!/^[a-f0-9]{12}$/.test(config.id)||config.database!=='compass_presentation_'+config.id||config.port!==4176||config.pgPort!==55434)throw Error('Unexpected presentation instance; refusing to start or reset');
-const marker='--instance='+config.id,origin='http://127.0.0.1:'+config.port,data=join(directory,'postgres'),socket=join(directory,'socket'),secrets=join(directory,'secrets');
-await mkdir(secrets,{recursive:true,mode:0o700});await mkdir(socket,{recursive:true,mode:0o700});
+const marker='--instance='+config.id,origin='http://127.0.0.1:'+config.port,data=join(directory,'postgres'),socket='',secrets=join(directory,'secrets');
+await mkdir(secrets,{recursive:true,mode:0o700});
 if(action==='prepare')for(const name of ['admin_db_password','app_db_password','journal_db_password','data_key']){
   if(!await exists(join(secrets,name)))await writeFile(join(secrets,name),randomBytes(32).toString('base64'),{flag:'wx',mode:0o600});
 }
@@ -42,24 +42,10 @@ async function postgres(){
 async function seed(){
   Object.assign(process.env,environment);
   const {createStore}=await import('../server/store.mjs'),store=await createStore();
-  const credentials={instance:config.id,database:config.database,syntheticOnly:true,password:randomBytes(18).toString('base64url'),patient:'patient@compass.example.invalid',doctor:'doctor@compass.example.invalid',otherPatient:'other@compass.example.invalid'};
+  const useBundle=process.argv.includes('--bundle-accounts')||await exists(join(root,'.compass-bundle.json'));
   try{
-    const sessions={};
-    for(const [name,role] of [['patient','patient'],['doctor','doctor'],['otherPatient','patient']]){
-      const value=await store.auth.register({role,email:credentials[name],password:credentials.password,profile:{name:'Тестовый',surname:name==='doctor'?'Врач':name==='patient'?'Пациент':'Другой пациент',...(role==='patient'?{age:30}:{})},consents:{healthData:true}});
-      sessions[name]=await store.session(value.token);
-    }
-    const patient=sessions.patient,doctor=sessions.doctor,care=await store.care.links(patient);
-    const link=await store.care.claim(doctor,care.profile.code);await store.care.consent(patient,link.id,'active');
-    await store.auth.consents(patient,{healthData:true,journalProcessing:true,journalSharing:true,journalAiProcessing:true,providerPolicyVersion:JOURNAL_POLICY});
-    for(let i=13;i>=0;i--){
-      const day=dayKey(new Date(Date.now()-i*86400000));
-      for(const entry of [{id:randomUUID(),type:'mood',value:2+i%3,words:[],factors:[],note:'',kind:'day',day},{id:randomUUID(),type:'sleep',hours:7,minutes:i%2?30:0,quality:'Хорошо',day}])await store.saveEntry(patient.patient_id,entry.id,entry);
-    }
-    for(const [title,body] of [['Вымышленный день','Это синтетическая запись для демонстрации сохранения и тестового саммари.'],['Тестовое уведомление','[TEST:elevated] Вымышленная запись для проверки маршрута уведомления.']]){
-      const entry={id:randomUUID(),type:'journal',title,body,day:dayKey(),expectedRevision:0,mutationId:randomUUID()};await store.saveEntry(patient.patient_id,entry.id,entry);
-    }
-    credentials.linkId=link.id;
+    const password=useBundle?await bundleAccountPassword(join(root,'.compass-bundle.json')):undefined;
+    const credentials={instance:config.id,database:config.database,...await seedPresentationFixture(store,{password,extended:useBundle})};
     await writeFile(join(directory,'accounts.json'),JSON.stringify(credentials,null,2),{mode:0o600});
   }finally{await store.close();}
 }

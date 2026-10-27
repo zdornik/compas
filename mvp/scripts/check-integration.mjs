@@ -16,7 +16,7 @@ try{
   await createIsolatedDatabase(config,database);created=true;
   await migrateIsolatedDatabase(config,database);
   console.log('Fresh isolated schema migrated; only synthetic test accounts will be used.');
-  for(const script of (browser?['check-browser.mjs']:process.argv.includes('--backup')?['check-backup.mjs']:['check-journal.mjs','check-appointments.mjs','check-history.mjs','check-backup.mjs']))await run(process.execPath,['scripts/'+script],{env,timeout:rehearsal?1500000:browser?240000:120000});
+  for(const script of (browser?['check-browser.mjs']:process.argv.includes('--backup')?['check-backup.mjs']:process.argv.includes('--tracking')?['check-tracking.mjs']:['check-journal.mjs','check-appointments.mjs','check-history.mjs','check-tracking.mjs','check-backup.mjs']))await run(process.execPath,['scripts/'+script],{env,timeout:rehearsal?1500000:browser?240000:120000});
   console.log('PostgreSQL integration checks passed.');
 }finally{
   try{if(created)await dropIsolatedDatabase(config,database);}finally{await rm(secrets,{recursive:true,force:true});}

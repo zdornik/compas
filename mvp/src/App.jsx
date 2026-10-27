@@ -1,3 +1,4 @@
+import {MoodTrend} from './MoodTrend.jsx';
 import {medicationDraft} from './medications.js';
 import { useEffect, useLayoutEffect, useRef, useState, useCallback } from 'react';
 import { House, BookOpen, CalendarBlank, ChatsCircle, Pill, ClipboardText, Plus, Moon, Check, CaretLeft, CaretRight, ArrowUpRight, GearSix, ShieldCheck, DownloadSimple, ArrowCounterClockwise, LockSimple, Bell, CheckCircle } from '@phosphor-icons/react';
@@ -107,6 +108,7 @@ function PatientApp({ active, onSwitchRole, account, onUpdateConsents, onSignOut
   const [journalDraft, setJournalDraft] = useState(null);
   const [selectedJournalId, setSelectedJournalId] = useState(null);
   const [viewingAssessment, setViewingAssessment] = useState(null);
+  const [assessmentDraft,setAssessmentDraft]=useState(null);
   const sectionIndex = tabs.findIndex(tab => tab.id === page);
   const [diaryDay, setDiaryDay] = useState(dayKey);
   const [editingMood, setEditingMood] = useState(null);
@@ -233,7 +235,7 @@ function PatientApp({ active, onSwitchRole, account, onUpdateConsents, onSignOut
         </section>
         <section className="today-section content-width"><div className="section-heading"><h2>На сегодня</h2><span className="desktop-only quiet">В своём ритме</span></div><div className="reminder-group">
           <HomeMedicationReminders entries={entries} now={clock} onOpen={() => navigate('treatment')} onSave={save} onReload={reloadState} onToast={setToast}/>
-          <Row icon={ClipboardText} title="Опросники самочувствия" subtitle="Депрессия и тревожность · PHQ-9 и GAD-7" end="3 мин" onClick={() => openSectionModal('questionnaire')}/>
+          <Row icon={Moon} title="Как вы спали?" subtitle="Ежедневная отметка длительности и качества" onClick={() => openSectionModal('sleep')}/><Row icon={ClipboardText} title="Опросники самочувствия" subtitle="Депрессия и тревожность · PHQ-9 и GAD-7" end="3 мин" onClick={() => openSectionModal('questionnaire')}/>
         </div><button className="mobile-info" onClick={() => setModal('settings')}>Локальный прототип · о данных и приложении</button></section>
         </> : <div className="page-content content-width workspace-page">
           <header className="page-header"><div><p className="eyebrow desktop-only">ЛИЧНОЕ ПРОСТРАНСТВО</p><h1>{tab.name}</h1></div></header>
@@ -247,8 +249,8 @@ function PatientApp({ active, onSwitchRole, account, onUpdateConsents, onSignOut
     {toast && <div role="status" className="toast"><CheckCircle size={20}/>{toast}</div>}
     {modal === 'journal' && journalDraft && <JournalEditor onReload={async()=>{const latest=await loadEntry(journalDraft.id);setJournalDraft({...latest,date:latest.day});}} draft={journalDraft} onChange={setJournalDraft} onClose={closeModal} onSave={async entry => { const saved = await save(entry); setSelectedJournalId(saved.id); setJournalDraft({ ...saved, date: saved.day }); closeModal(); setToast('Запись сохранена в дневнике'); }}/>}
     {modal === 'mood' && <MoodFlow initialEntry={editingMood} initialDate={page === 'diary' ? diaryDay : dayKey()} onPreview={(editingMood?.day || (editingMood ? dayKey(new Date(editingMood.at)) : page === 'diary' ? diaryDay : dayKey())) === dayKey() ? setMoodPreview : undefined} onClose={() => closeModal()} onSave={save}/>}
-    {modal === 'questionnaire' && <Assessments moodValue={themePosition} initialEntry={viewingAssessment} entries={entries} onClose={closeModal} onSave={async entry => { const saved = await save(entry); setToast('Результат сохранён в дневнике'); return saved; }}/ >}
-    {modal === 'sleep' && <Sleep initialDate={page === 'diary' ? diaryDay : dayKey()} onClose={() => closeModal()} onSave={async entry => { await save(entry); closeModal(); setToast('Сон отмечен в дневнике'); }}/ >}
+    {modal === 'questionnaire' && <Assessments draft={assessmentDraft} onDraftChange={setAssessmentDraft} moodValue={themePosition} initialEntry={viewingAssessment} entries={entries} onClose={closeModal} onSave={async entry => { const saved = await save(entry); setToast('Результат сохранён в дневнике'); return saved; }}/ >}
+    {modal === 'sleep' && <Sleep entries={entries} initialDate={page === 'diary' ? diaryDay : dayKey()} onClose={() => closeModal()} onSave={async entry => { await save(entry); closeModal(); setToast('Сон отмечен в дневнике'); }}/ >}
     {modal === 'add' && <Modal title="Добавить в дневник" className="diary-add-modal" onClose={() => closeModal()}><div className="modal-body"><Row icon={Plus} title="Состояние" subtitle={`За ${dateLabel(`${diaryDay}T12:00:00+03:00`)}`} onClick={() => openMood()}/><Row icon={Moon} title="Сон" subtitle="Длительность и качество отдыха" onClick={() => setModal('sleep')}/><Row icon={ClipboardText} title="Пройти опросник" subtitle="PHQ-9 и GAD-7 · отметка за сегодня" onClick={() => openSectionModal('questionnaire')}/></div></Modal>}
     {modal === 'settings' && <Settings account={account} onUpdateConsents={onUpdateConsents} onSignOut={onSignOut} onRequestAuth={onRequestAuth} onHealth={()=>setModal('health')} installed={installed} installPrompt={installPrompt} onClose={() => closeModal()} onInstall={async () => { await installPrompt.prompt(); const result = await installPrompt.userChoice; setInstallPrompt(null); if (result.outcome === 'accepted') setInstalled(true); }}/ >}
     {modal==='health'&&<MedicalProfile entries={entries} onArchivePlan={plan=>save({...medicationDraft(plan),type:'medication-plan',archived:true})} profile={entries.find(entry=>entry.type==='medical-profile')} draft={medicalDraft} onChange={setMedicalDraft} onSave={async value=>{const saved=await save(value);onIntakeSaved?.();return saved;}} storageReady={storage==='ready'} onClose={closeModal}/>}
@@ -265,28 +267,29 @@ function MoodHistory({ entries:localEntries, active, selected, setSelected, onAd
   const day=useEntryHistory({kind:'observations',from:selected,to:selected,active:active&&(selected<period.from||selected>period.to)});
   const entries=mergeEntries(history.entries,day.entries,localEntries);
   const filtered = entries.filter(e => (e.day || dayKey(new Date(e.at))) === selected);
-  return <><HistoryStatus resource={history}/><HistoryStatus resource={day}/><DiaryCalendar entries={entries} selected={selected} onSelect={setSelected} onPeriodChange={onPeriodChange}/>
+  return <><HistoryStatus resource={history}/><HistoryStatus resource={day}/><MoodTrend entries={entries} from={period.from} to={period.to>today?today:period.to} selected={selected} onSelect={setSelected}/><DiaryCalendar entries={entries} selected={selected} onSelect={setSelected} onPeriodChange={onPeriodChange}/>
     <div className="section-heading"><h2>{selected === today ? 'Сегодня' : dateLabel(`${selected}T12:00:00Z`)}</h2><button className="text-button" onClick={onAdd} disabled={selected > today}>Добавить <Plus size={17}/></button></div>
     <div className="timeline">{filtered.length ? filtered.map(entry => <article className="timeline-row" key={entry.id}><time>{entry.kind === 'day' ? 'За день' : timeLabel(entry.at)}</time><div className="timeline-dot"/><div className="entry surface"><div className="entry-title">{entry.type === 'mood' ? <><Art tone={MOODS[entry.value].tone} className="entry-orb"/><h3>{MOODS[entry.value].short}</h3></> : entry.type === 'assessment' ? <><ClipboardText size={23}/><h3>{SCALES[entry.scaleId].name} · {entry.score} из {entry.max}</h3></> : <><Moon size={23}/><h3>Сон · {entry.hours} ч {entry.minutes} мин</h3></>}{entry.sample && <span className="sample-label">пример</span>}</div>{entry.type === 'mood' && <small className="secondary">{entry.kind === 'day' ? 'Состояние за день' : 'Состояние в моменте'}</small>}{entry.note && <p className="entry-note">{entry.note}</p>}{entry.type === 'sleep' && <p className="secondary">Качество сна: {entry.quality.toLowerCase()}</p>}{entry.type === 'assessment' && <><p className="secondary">{entry.severity}</p><button className="text-button edit-entry" onClick={() => onAssessment(entry)}>Открыть результат</button></>}{entry.words?.length > 0 && <div className="entry-tags">{entry.words.map(word => <span key={word}>{word}</span>)}</div>}{entry.factors?.length > 0 && <p className="entry-factors">Повлияло: {entry.factors.join(', ').toLowerCase()}</p>}{entry.type === 'mood' && <button className="text-button edit-entry" onClick={() => onEdit(entry)}>Изменить отметку</button>}</div></article>) : <div className="empty-state"><BookOpen size={32}/><h3>Пока нет отметок</h3><p>Здесь будут настроение, сон и результаты опросников.</p><button className="text-button" onClick={onAdd} disabled={selected > today}>Добавить отметку <Plus size={17}/></button></div>}</div>
     <p className="page-footnote">Записи сохраняются в локальной базе. Доступ подключённого врача к личным текстам настраивается отдельно.</p>
   </>;
 }
 
-function Sleep({ initialDate, onClose, onSave }) {
-  const entryId = useRef(crypto.randomUUID());
-  const [sleepDate, setSleepDate] = useState(initialDate);
-  const [duration, setDuration] = useState({ hours: 7, minutes: 0 });
-  const [quality, setQuality] = useState('Хорошо');
-  const [error, setError] = useState('');
-  const [pending, setPending] = useState(false);
-  return <Modal title="Как вы спали?" className="sleep-modal" onClose={onClose}><form className="modal-body" onSubmit={async event => {
-    event.preventDefault();
-    if (pending) return;
-    if (duration.hours * 60 + duration.minutes === 0) { setError('Укажите длительность сна больше нуля'); return; }
-    setPending(true);
-    try { await onSave({ id: entryId.current, type: 'sleep', ...duration, quality, day: sleepDate, at: entryTimestamp(sleepDate), createdAt: new Date().toISOString() }); }
-    catch (error) { setError(error.message); } finally { setPending(false); }
-  }}><p className="secondary">Отметьте длительность и качество последнего сна.</p><DatePicker label="Дата сна" value={sleepDate} onChange={setSleepDate}/><DurationWheel {...duration} onChange={(hours, minutes) => { setDuration({ hours, minutes }); setError(''); }}/><fieldset className="sleep-quality"><legend>Как вы выспались?</legend><div>{['Плохо', 'Не очень', 'Нормально', 'Хорошо', 'Отлично'].map(value => <label key={value} className={quality === value ? 'selected' : ''}><input type="radio" name="sleep-quality" value={value} checked={quality === value} onChange={() => setQuality(value)}/><span>{value}</span></label>)}</div></fieldset>{error && <p className="journal-error" role="alert">{error}</p>}<p className="input-hint">Apple Health не подключён. Запись сохраняется в локальную базу.</p><button className="primary full-width" type="submit" disabled={pending}>{pending ? 'Сохраняем…' : 'Сохранить'}</button></form></Modal>;
+function Sleep({ initialDate, entries, onClose, onSave }) {
+ const [date,setDate]=useState(initialDate);
+ return <Modal title="Как вы спали?" className="sleep-modal" onClose={onClose}><SleepDay key={date} date={date} entries={entries} onDate={setDate} onSave={onSave}/></Modal>;
+}
+function SleepDay({date,entries:localEntries,onDate,onSave}) {
+ const history=useEntryHistory({kind:'observations',from:date,to:date});
+ const entries=mergeEntries(history.entries,localEntries),[record,setRecord]=useState(null),initialized=useRef(false),entryId=useRef(crypto.randomUUID());
+ const [duration,setDuration]=useState({hours:7,minutes:0}),[quality,setQuality]=useState('Хорошо'),[note,setNote]=useState(''),[error,setError]=useState(''),[pending,setPending]=useState(false);
+ const loadCurrent=()=>{const row=entries.filter(e=>e.type==='sleep'&&e.day===date).sort((a,b)=>(b.updatedAt||b.at).localeCompare(a.updatedAt||a.at))[0];setRecord(row||null);setDuration(row?{hours:row.hours,minutes:row.minutes}:{hours:7,minutes:0});setQuality(row?.quality||'Хорошо');setNote(row?.note||'');setError('');};
+ useEffect(()=>{if(initialized.current||(history.enabled&&(!history.data||history.loading)))return;initialized.current=true;loadCurrent();},[history.data,history.loading,history.enabled]);
+ return <form className="modal-body" onSubmit={async event=>{event.preventDefault();if(pending||!initialized.current)return;if(duration.hours*60+duration.minutes===0){setError('Укажите длительность сна больше нуля');return;}setPending(true);try{await onSave({id:record?.id||entryId.current,type:'sleep',...duration,quality,note,day:date,expectedUpdatedAt:record?.updatedAt});}catch(e){setError(e.message);}finally{setPending(false);}}}>
+ <p className="secondary">Ежедневная самооценка сна: длительность, качество и при желании комментарий в дневнике.</p><DatePicker label="Дата сна" value={date} onChange={value=>{if(!pending)onDate(value);}}/><HistoryStatus resource={history}/>
+ <DurationWheel {...duration} onChange={(hours,minutes)=>{setDuration({hours,minutes});setError('');}}/><fieldset className="sleep-quality" disabled={pending}><legend>Как вы выспались?</legend><div>{['Плохо','Не очень','Нормально','Хорошо','Отлично'].map(value=><label key={value} className={quality===value?'selected':''}><input type="radio" name="sleep-quality" value={value} checked={quality===value} onChange={()=>setQuality(value)}/><span>{value}</span></label>)}</div></fieldset>
+ <label className="med-field"><span>Комментарий в дневник · по желанию</span><textarea aria-label="Комментарий в дневник · по желанию" rows={3} maxLength={2000} value={note} disabled={pending} onChange={e=>setNote(e.target.value)} placeholder="Что повлияло на ваш сон?"/></label>
+ {error&&<p className="journal-error" role="alert">{error}</p>}{error&&<button type="button" className="text-button" onClick={async()=>{await history.reload();initialized.current=false;}}>Загрузить актуальную запись вместо черновика</button>}
+ <p className="input-hint">{record?'Вы изменяете сохранённую отметку за этот день.':'Сон сохраняется в дневник.'} Комментарий доступен врачу только при разрешении на личные тексты.</p><button className="primary full-width" type="submit" disabled={pending||history.loading||Boolean(history.error)||!initialized.current}>{pending?'Сохраняем…':record?'Обновить отметку':'Сохранить'}</button></form>;
 }
 
 function Settings({ installed, installPrompt, onInstall, onClose, onHealth,account,onUpdateConsents,onSignOut,onRequestAuth }) {

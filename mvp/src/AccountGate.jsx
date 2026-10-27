@@ -23,11 +23,13 @@ function ResizingPanel({children}) {
     }else if(!previous&&positions.current.size&&!reduced){animations.current.set(key,node.animate([{opacity:0},{opacity:1}],{duration:460,easing:'cubic-bezier(.22,.7,.23,1)'}));}
     next.set(key,{top,node});
    }
-   positions.current=next;const height=Math.ceil(element.getBoundingClientRect().height)+2;
+   for(const [key,animation] of animations.current){if(!next.has(key)){animation.cancel();animations.current.delete(key);}}
+   positions.current=next;const height=element.offsetHeight+2;
    if(Math.abs(parseFloat(panel.current.style.height||'0')-height)>.5)panel.current.style.height=height+'px';
   };
   measureRef.current=measure;measure();const observer=new ResizeObserver(measure);observer.observe(content.current);
-  const frame=requestAnimationFrame(()=>setReady(true));return()=>{observer.disconnect();cancelAnimationFrame(frame);for(const animation of animations.current.values())animation.cancel();};
+  window.addEventListener('resize',measure);let alive=true;document.fonts?.ready.then(()=>{if(alive)measure();});
+  const frame=requestAnimationFrame(()=>setReady(true));return()=>{alive=false;window.removeEventListener('resize',measure);observer.disconnect();cancelAnimationFrame(frame);for(const animation of animations.current.values())animation.cancel();};
  },[]);
  useLayoutEffect(()=>{measureRef.current?.();});
  return <main ref={panel} className={'ag-panel'+(ready?' motion-ready':'')} aria-label="Вход и регистрация в Компас"><div className="ag-panel-content" ref={content}>{children}</div></main>;

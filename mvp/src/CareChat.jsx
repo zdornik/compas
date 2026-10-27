@@ -30,7 +30,7 @@ function CareChatPanel({role='patient',active=true,initialLinkId=null,onManageCo
   nearBottom.current=true;setError('');
   const poll=async()=>{
    if(!alive||running||document.hidden)return;running=true;
-   try{const result=await loadCareMessages(selected,{role});if(alive){setThreads(all=>{const previous=all[selected]||emptyThread(),latestIds=result.messages.map(row=>row.id),gap=previous.loaded&&previous.latestIds?.length>0&&result.hasMore&&!previous.latestIds.some(id=>latestIds.includes(id)),reset=!previous.loaded||gap;return {...all,[selected]:{...previous,messages:mergeMessages(gap?[]:previous.messages,result.messages),latestIds,loaded:true,...(reset?{hasMore:result.hasMore,nextBefore:result.nextBefore}:{})}};});setError('');}}
+   try{const result=await loadCareMessages(selected,{role});if(alive){setThreads(all=>{const previous=all[selected]||emptyThread(),latestIds=result.messages.map(row=>row.id),gap=previous.loaded&&previous.latestIds?.length>0&&result.hasMore&&!previous.latestIds.some(id=>latestIds.includes(id)),cleared=!result.messages.length&&!result.hasMore,reset=!previous.loaded||gap||cleared;return {...all,[selected]:{...previous,messages:mergeMessages(gap||cleared?[]:previous.messages,result.messages),latestIds,loaded:true,...(reset?{hasMore:result.hasMore,nextBefore:result.nextBefore}:{})}};});setError('');}}
    catch(problem){if(alive){setError(problem.message);if([401,403,404].includes(problem.status)){setThreads(all=>{const next={...all};delete next[selected];return next;});setDrafts(all=>{const next={...all};delete next[selected];return next;});await refreshCare();}}}
    finally{running=false;}
   };

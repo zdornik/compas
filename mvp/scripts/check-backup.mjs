@@ -32,6 +32,8 @@ try{
   const admin=await adminClient(config,sourceName);
   try{await admin.query("UPDATE journal_analysis_jobs SET state='running',attempts=4,lease_token=$1,lease_until=now()+interval '2 minutes' WHERE entry_id=$2",[randomUUID(),exhaustedId]);}finally{await admin.end();}
   const message=await source.chat.send(patient.session,fixture.linkId,{id:randomUUID(),body:'Синтетическое сообщение для восстановления'});
+  const comment={id:randomUUID(),expectedRevision:0,kind:'psychotherapy',method:'cbt',title:'Синтетический прогресс',body:'Исходный комментарий врача',day:dayKey()};
+  await source.care.saveClinicalNote(doctor.session,fixture.linkId,comment);await source.care.saveClinicalNote(doctor.session,fixture.linkId,{...comment,expectedRevision:1,body:'Редакция комментария для восстановления'});
   const day=appointmentDayAfter(dayKey(),5),appointment={id:randomUUID(),linkId:fixture.linkId,startsAt:appointmentStart(day,'09:00'),durationMinutes:30,format:'online',note:'Синтетическая тема приёма'};
   await source.appointments.create(patient.session,appointment);await source.appointments.change(doctor.session,appointment.id,'confirm',{expectedRevision:1,mutationId:randomUUID()});
   await writeFile(keyFile,randomBytes(32).toString('base64'),{mode:0o600});
@@ -50,12 +52,13 @@ try{
   assert.equal((await target.entry(p.patient_id,noteId)).body,'[TEST:elevated] Вторая редакция');
   assert.equal((await target.journal.note(d,fixture.linkId,noteId,1)).entry.body,'Первая редакция');
   assert.equal((await target.chat.messages(d,fixture.linkId)).messages.find(row=>row.id===message.id).body,message.body);
+  const restoredComment=(await target.care.clinicalNotes(d,fixture.linkId,new URLSearchParams())).items.find(row=>row.id===comment.id);assert.equal(restoredComment.body,'Редакция комментария для восстановления');assert.equal(restoredComment.revision,2);
   assert.equal((await target.appointments.list(p,appointmentPage(new URLSearchParams({from:day,to:day})))).items.find(row=>row.id===appointment.id).status,'confirmed');
   targetWorker=new pg.Pool({...connection,database:targetName});
   assert.equal((await targetWorker.query('SELECT * FROM journal_load($1,$2)',[claimed.id,oldLease])).rows.length,0,'Lost worker token must be fenced');
   assert.equal((await target.journal.own(p,exhaustedId)).analysis.status,'failed','A recovered fourth attempt must not be stuck in retry_wait');
   assert.equal(await processJournalJob(targetWorker,sourceCipherKey),true);assert.equal((await target.journal.own(p,pendingId)).analysis.status,'succeeded');
-  const a=await adminClient(config,targetName);try{assert.equal((await a.query('SELECT attempts FROM journal_analysis_jobs WHERE id=$1',[claimed.id])).rows[0].attempts,2);}finally{await a.end();}
+  const a=await adminClient(config,targetName);try{assert.equal((await a.query('SELECT attempts FROM journal_analysis_jobs WHERE id=$1',[claimed.id])).rows[0].attempts,2);assert.equal(Number((await a.query('SELECT count(*) FROM care_clinical_note_versions WHERE note_id=$1',[comment.id])).rows[0].count),2);}finally{await a.end();}
   await assert.rejects(()=>targetWorker.query('SELECT payload FROM patient_entries'),{code:'42501'});
   console.log('Private backup integration passed: encrypted database, old sessions rejected, preserved note versions/chat/appointments, owner and RLS parity, lost-lease fencing/recovery, exhausted attempts, wrong-key rejection and existing-target refusal.');
 }finally{
