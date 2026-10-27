@@ -82,14 +82,20 @@ export function App() {
   setRole(meta.role);window.location.hash=meta.role;
   knownAccounts.current[meta.role]=result.account.id;accountRequest.current[meta.role]++;setAccounts(old=>({...old,[meta.role]:result.account}));setGuests(old=>({...old,[meta.role]:false}));setVisited(old=>({...old,[meta.role]:true}));authWorking.current=null;window.scrollTo({top:0,behavior:'instant'});
  };
+ const awaitingScene=Boolean(flight&&!flight.to),flightMood=flight?.value;
  useLayoutEffect(()=>{
-  if(!flight||role!=='patient')return;
+  if(!awaitingScene||role!=='patient')return;
   let frame,active=true;const began=performance.now();
   const measure=()=>{if(!active)return;const scene=document.querySelector('.auth-arrival .home-hero .mood-scene');
-   if(scene&&scene.clientWidth){const next=homeSceneTarget(scene,flight.value);setFlight(old=>old&&JSON.stringify(old.to)!==JSON.stringify(next)?{...old,to:next}:old);}
-   else if(performance.now()-began<4000)frame=requestAnimationFrame(measure);else{setFlight(null);setGateLeaving(false);}
+   if(scene?.dataset.sceneReady==='true'&&scene.clientWidth){
+    const next=homeSceneTarget(scene,flightMood);
+    // Freeze the destination once. A moving p1 shoreline must never restart
+    // the whole flight by providing a slightly different radius every frame.
+    if(next){setFlight(old=>old&&!old.to?{...old,to:next}:old);return;}
+   }
+   if(performance.now()-began<4000)frame=requestAnimationFrame(measure);else{setFlight(null);setGateLeaving(false);}
   };frame=requestAnimationFrame(measure);window.addEventListener('resize',measure);return()=>{active=false;cancelAnimationFrame(frame);window.removeEventListener('resize',measure);};
- },[flight,role]);
+ },[awaitingScene,flightMood,role]);
  const logout=async id=>{accountRequest.current[id]++;authWorking.current=id;try{await signOutAccount(id);knownAccounts.current[id]=null;setAccounts(old=>({...old,[id]:null}));setGuests(old=>({...old,[id]:false}));setVisited(old=>({...old,[id]:false}));setAccountWindow(null);setSeeds({});setPendingIntake(null);setFlight(null);setGateLeaving(false);}finally{authWorking.current=null;}};
  const updateConsents=async(id,value)=>{const result=await updateAccountConsents(value,id);setAccounts(old=>({...old,[id]:result.account||result}));return result;};
  return <AccountOwnersContext.Provider value={{patient:accounts.patient?.id||'local',doctor:accounts.doctor?.id||'local'}}>
@@ -227,9 +233,8 @@ function PatientApp({ active, onSwitchRole, account, onUpdateConsents, onSignOut
       <div className="page-window">{tabs.map(tab => <section key={tab.id} className={`page-pane page-${tab.id} ${page === tab.id ? 'active' : ''}`} inert={page !== tab.id} aria-hidden={page !== tab.id} aria-label={tab.name}>
         {tab.id === 'today' ? <>
         <section className="home-hero">
-          <MoodScene value={themePosition}/>
+          <MoodScene value={themePosition} onActivate={() => openMood()}/>
           <div className="hero-inner"><h1>Сегодня</h1><div className="hero-state"><h2>{mood.short}</h2><p>Последняя отметка<br/>{latest ? timeLabel(latest.at) : 'Пока нет отметки'}</p></div>
-            <button className="mascot-target" aria-label="Оценить настроение, нажав на маскота" onClick={() => openMood()}/>
             <button className="mood-cta" onClick={() => openMood()}>Отметить настроение<Plus size={25}/></button>
           </div>
         </section>

@@ -14,11 +14,11 @@ export function rosterOptions(params){
  return {...filters,before,limit};
 }
 const sign=(key,scope,body)=>createHmac('sha256',key).update('care-roster-v1:'+scope+':'+body).digest('base64url');
-export async function readPatientTracking(db,patientId,decode){
+export async function readPatientTracking(db,patientId,decode,doctorId){
  const today=dayKey(),rows=(await db.query(`
  SELECT id,payload FROM patient_entries WHERE patient_id=$1 AND (type='medication-plan' OR (observation_day>=$2::date AND type IN ('mood','sleep','medication-dose')))
  UNION ALL (SELECT id,payload FROM patient_entries WHERE patient_id=$1 AND type='assessment' ORDER BY saved_at DESC,id DESC LIMIT 20)`,[patientId,addDays(today,-13)])).rows;
- return trackingSnapshot(rows.map(row=>decode(row,patientId)),today);
+ return trackingSnapshot(rows.map(row=>decode(row,patientId)),today,doctorId);
 }
 export async function readCareRoster(db,session,params,key,decode){
  if(session.account_role!=='doctor'||!session.account_id)fail('Войдите в аккаунт врача',403);
@@ -56,7 +56,7 @@ export async function readCareRoster(db,session,params,key,decode){
   if(options.letter&&!normalize(names.patientName).startsWith(normalize(options.letter)))continue;
   if(options.diagnosis&&!conditions.some(item=>normalize(item.name+' '+(item.code||'')).includes(normalize(options.diagnosis))))continue;
   if(options.medication&&!medications.some(item=>normalize(item.name).includes(normalize(options.medication))))continue;
-  items.push({id:row.id,patientName:names.patientName,status:entries?'active':'restricted',medications,conditions,tracking:entries?trackingSnapshot(entries,today):null});
+  items.push({id:row.id,patientName:names.patientName,status:entries?'active':'restricted',medications,conditions,tracking:entries?trackingSnapshot(entries,today,session.patient_id):null});
   if(items.length===options.limit)break;
  }
  const body=lastScanned?Buffer.from(lastScanned).toString('base64url'):null;

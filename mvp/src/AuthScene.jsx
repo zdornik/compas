@@ -8,7 +8,9 @@ import {AUTH_TRAVEL_MS,entranceScene,sceneAt} from './auth-motion.js';
 // texture and figure use one anchor/scale throughout the shared scene.
 export function homeSceneTarget(scene,value){
  const hero=scene.closest('.home-hero'),bounds=scene.getBoundingClientRect(),clip=hero.getBoundingClientRect(),figure=scene.querySelector('.mascot-figure'),style=getComputedStyle(hero);
+ if(!figure)return null;
  const figureStyle=getComputedStyle(figure),point={x:bounds.left+parseFloat(figure.style.left),y:bounds.top+parseFloat(figure.style.top),width:parseFloat(figureStyle.width)};
+ if(![point.x,point.y,point.width,clip.left,clip.top,clip.width,clip.height].every(Number.isFinite)||point.width<=0||clip.width<=0||clip.height<=0)return null;
  const pixels=(value,size)=>value.endsWith('%')?parseFloat(value)*size/100:parseFloat(value)||0;
  const corners=['borderTopLeftRadius','borderTopRightRadius','borderBottomRightRadius','borderBottomLeftRadius'].map(key=>style[key].split(' '));
  const radii=[...corners.map(parts=>pixels(parts[0],clip.width)),...corners.map(parts=>pixels(parts[1]||parts[0],clip.height))];

@@ -50,8 +50,9 @@ async function withMigrationLock(config,callback){
   try{await lock.query('SELECT pg_advisory_lock(20261024,1701)');await verifyExistingRolePasswords(config,lock);return await callback();}
   finally{await lock.query('SELECT pg_advisory_unlock(20261024,1701)').catch(()=>{});await lock.end();}
 }
-export async function migrateIsolatedDatabase(config,name){
+export async function migrateIsolatedDatabase(config,name,{through=Infinity}={}){
   if(!isolatedName(name))throw Error('Refusing a non-isolated database name');
+  if(through!==Infinity&&(!Number.isSafeInteger(through)||through<1||through>999))throw Error('Invalid migration boundary');
   return withMigrationLock(config,async()=>{
   const env={...process.env,PGHOST:config.host,PGPORT:String(config.port),PGUSER:config.user,PGPASSWORD:config.adminPassword,COMPASS_APP_PASSWORD:config.appPassword,COMPASS_JOURNAL_PASSWORD:config.workerPassword};
   const psql=await pgBinary('psql'),args=['-X','-q','-v','ON_ERROR_STOP=1','-d',name];
@@ -64,17 +65,17 @@ ${schema[1]}
 \\endif
 `;
   await run(psql,args,{env,input:role+schema.slice(2).join('\n'),quiet:true});
-  await applyMigrationFiles(config,name);
+  await applyMigrationFiles(config,name,through);
   });
 }
 export async function applyRepositoryMigrations(config,name){
   if(!isolatedName(name))throw Error('Refusing a non-isolated database name');
   return withMigrationLock(config,()=>applyMigrationFiles(config,name));
 }
-async function applyMigrationFiles(config,name){
+async function applyMigrationFiles(config,name,through=Infinity){
   const env={...process.env,PGHOST:config.host,PGPORT:String(config.port),PGUSER:config.user,PGPASSWORD:config.adminPassword,COMPASS_JOURNAL_PASSWORD:config.workerPassword};
   const psql=await pgBinary('psql'),args=['-X','-q','-v','ON_ERROR_STOP=1','-d',name];
-  for(const filename of (await readdir(join(root,'docker/migrations'))).filter(file=>/^\d{3}-.*\.sql$/.test(file)).sort()){
+  for(const filename of (await readdir(join(root,'docker/migrations'))).filter(file=>/^\d{3}-.*\.sql$/.test(file)&&Number(file.slice(0,3))<=through).sort()){
     await run(psql,[...args,'-f',join(root,'docker/migrations',filename)],{env,quiet:true});
   }
 }

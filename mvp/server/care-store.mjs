@@ -57,7 +57,7 @@ export function createCareStore({transaction,key,decode}) {
    const consents=await patientConsent(db,link.patient_id),journalShared=consents.journalProcessing===true&&consents.journalSharing===true;
    const account=(await db.query('SELECT id,payload FROM auth_accounts WHERE principal_id=$1',[link.patient_id])).rows[0],profile=account?unseal(account.payload,key,'auth-account:'+account.id).profile:null;
    const entries=(await coreEntries(db,link.patient_id,decode)).map(row=>!journalShared&&['mood','sleep'].includes(row.type)?{...row,note:''}:row);
-   return {link:linkView(link,session.patient_id),entries,journalShared,profile,historyAvailable:true,tracking:await readPatientTracking(db,link.patient_id,decode)};
+   return {link:linkView(link,session.patient_id),entries,journalShared,profile,historyAvailable:true,trackingDoctorId:session.patient_id,tracking:await readPatientTracking(db,link.patient_id,decode,session.patient_id)};
   },{write:false});},
   async history(session,id,options){return authorized(session,id,async(db,link)=>{
    if(options.kind==='notes')fail('Используйте раздел заметок',400);

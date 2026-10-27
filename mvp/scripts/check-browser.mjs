@@ -11,6 +11,7 @@ import {seedSyntheticHistory} from './synthetic-history.mjs';
 import {processJournalJob} from './run-journal-worker.mjs';
 import {browserAppointments} from './browser-appointments.mjs';
 import {browserRegistration,browserTracking} from './browser-tracking.mjs';
+import {browserAuthMotion} from './browser-auth-motion.mjs';
 import {JOURNAL_POLICY} from '../server/journal-policy.mjs';
 
 const rehearsal=process.env.BROWSER_REHEARSAL==='1',recordVideo=process.env.BROWSER_VIDEO==='1';
@@ -30,6 +31,7 @@ try{
   if(!executablePath&&process.platform==='darwin'){const chrome='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';try{await access(chrome);executablePath=chrome;}catch{}}
   browser=await chromium.launch({headless:true,...(executablePath?{executablePath}:{})});
   const registrationChecks=await browserRegistration(browser,origin,output);
+  const motionChecks=await browserAuthMotion(browser,origin,output,accounts.patient);
   const context=await browser.newContext({viewport:{width:1440,height:1000},reducedMotion:'reduce',serviceWorkers:'block',...(recordVideo?{recordVideo:{dir:output+'/raw',size:{width:1280,height:800}}}:{})});
   pageA=await context.newPage();pageB=await context.newPage();const errors=[];
   for(const page of [pageA,pageB]){page.setDefaultTimeout(15000);page.on('pageerror',error=>errors.push(error.message));}
@@ -48,8 +50,34 @@ try{
   const loginStatuses=[],observeLogin=response=>{if(new URL(response.url()).pathname==='/api/auth/login')loginStatuses.push(response.status());};
   pageA.on('response',observeLogin);await login(pageA,'patient',{navigate:false});pageA.off('response',observeLogin);
   assert.deepEqual(loginStatuses,[403,200],'The stale tab must refresh CSRF and sign in once without a reload');
-  const authChecks=[...registrationChecks,'cross-tab stale CSRF recovers password login without reloading'];
+  const authChecks=[...registrationChecks,...motionChecks,'cross-tab stale CSRF recovers password login without reloading'];
   await login(pageB,'doctor');
+  // Exercise the real patient conversation with a long synthetic message.
+  const patientNav=pageA.getByRole('navigation',{name:'Основная навигация',exact:true});
+  await patientNav.getByRole('button',{name:'Врач',exact:true}).click();
+  await pageA.getByRole('button',{name:'Открыть чат',exact:true}).click();
+  const chat=pageA.locator('.patient-chat-modal');
+  await chat.locator('.care-chat-compose textarea').waitFor({state:'visible'});
+  const longMessage='Синтетическая проверка прокрутки. '.repeat(100);
+  await chat.locator('.care-chat-compose textarea').fill(longMessage);
+  await chat.getByRole('button',{name:'Отправить сообщение',exact:true}).click();
+  await chat.locator('.care-chat-message').filter({hasText:longMessage}).waitFor({state:'visible'});
+  for(const [name,width,height] of [['desktop',1440,1000],['mobile',390,844],['narrow',320,700]]){
+    await pageA.setViewportSize({width,height});
+    if(width<=760&&await chat.locator('.care-chat-people button').first().isVisible())await chat.locator('.care-chat-people button').first().click();
+    const geometry=await chat.evaluate(dialog=>{
+      const history=dialog.querySelector('.care-chat-history'),compose=dialog.querySelector('.care-chat-compose');
+      const d=dialog.getBoundingClientRect(),h=history.getBoundingClientRect(),c=compose.getBoundingClientRect();
+      return {width:d.width,height:d.height,bottom:d.bottom,historyHeight:h.height,scrolls:history.scrollHeight>history.clientHeight,composeBottom:c.bottom,overflow:document.documentElement.scrollWidth>innerWidth};
+    });
+    assert.ok(geometry.width>=width-(width>760?600:20)&&geometry.height>=height*(width>760?.75:.9),`${name}: chat too small: ${JSON.stringify(geometry)}`);
+    assert.ok(geometry.scrolls&&geometry.historyHeight>0&&geometry.composeBottom<=geometry.bottom+1&&!geometry.overflow,`${name}: chat layout: ${JSON.stringify(geometry)}`);
+    await chat.locator('.care-chat-compose textarea').focus();
+    await pageA.screenshot({path:output+'/patient-chat-'+name+'.png'});
+  }
+  await pageA.setViewportSize({width:1440,height:1000});
+  await chat.getByRole('button',{name:'Закрыть',exact:true}).click();
+  authChecks.push('patient chat sizing and long-message scrolling at 1440, 390 and 320px');
   const appointmentChecks=await browserAppointments(pageA,pageB,{pause:()=>recordVideo?sleep(1200):Promise.resolve(),...(!recordVideo?{revokeDoctor:()=>store.auth.consents(accounts.doctor.session,{healthData:false,journalProcessing:false,journalSharing:false}),restoreDoctor:()=>store.auth.consents(accounts.doctor.session,{healthData:true,journalProcessing:false,journalSharing:false})}:{})});
   const nav=pageA.getByRole('navigation',{name:'Основная навигация',exact:true});
   await nav.getByRole('button',{name:'Дневник',exact:true}).click();

@@ -55,6 +55,9 @@ CREATE TABLE public.journal_audit_events(
 INSERT INTO public.journal_notes(patient_id,entry_id,current_revision,updated_at) SELECT patient_id,id,1,saved_at FROM public.patient_entries WHERE type='journal';
 INSERT INTO public.journal_note_revisions(patient_id,entry_id,revision,payload,cipher_context,observation_day,saved_at)
  SELECT patient_id,id,1,payload,patient_id::text||':'||id,observation_day,saved_at FROM public.patient_entries WHERE type='journal';
+-- Resolve the circular deferred foreign key before indexing backfilled rows.
+-- A populated legacy database otherwise has pending trigger events here.
+SET CONSTRAINTS ALL IMMEDIATE;
 CREATE INDEX journal_notes_page ON public.journal_notes(patient_id,updated_at DESC,entry_id DESC);
 CREATE INDEX journal_jobs_ready ON public.journal_analysis_jobs(available_at,id) WHERE state IN('queued','retry_wait');
 CREATE INDEX journal_jobs_leases ON public.journal_analysis_jobs(lease_until) WHERE state='running';

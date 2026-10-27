@@ -4,7 +4,7 @@ import { ContourField } from './ContourField.jsx';
 import { contourPlacement } from './contour-placement.js';
 import { moodVisualAt } from './mood-motion.js';
 
-export function MoodScene({ value = 3, label, variant = 'hero' }) {
+export function MoodScene({ value = 3, label, variant = 'hero', onActivate }) {
   const scene = useRef(null);
   const [layout, setLayout] = useState(null);
   const [painted,setPainted]=useState(false);
@@ -36,8 +36,11 @@ export function MoodScene({ value = 3, label, variant = 'hero' }) {
     '--brow-y': `${visual.browY}px`, '--brow-left': `${visual.browAngle}deg`, '--brow-right': `${-visual.browAngle}deg`,
     '--brow-opacity': visual.browOpacity, '--head-tilt': `${visual.tilt}deg`,
   };
-  return <div data-scene-ready={painted} ref={scene} className={`mood-scene scene-hero ${variant.startsWith('assessment') ? 'scene-assessment' : ''}`} style={style} role={label ? 'img' : undefined} aria-label={label} aria-hidden={label ? undefined : true}>
+  return <div data-scene-ready={painted} ref={scene} className={`mood-scene scene-hero ${variant.startsWith('assessment') ? 'scene-assessment' : ''}`} style={style} role={label ? 'img' : undefined} aria-label={label} aria-hidden={label ? undefined : onActivate ? undefined : true}>
     <ContourField onReady={setPainted} value={value} placement={layout?.image} viewport={layout ? { left:0, top:0, width:layout.width, height:layout.height } : undefined}/>
+    {onActivate && layout && <div className="mascot-hit-area" style={layout.figure}>
+      <button className="mascot-hit-button" type="button" aria-label="Оценить настроение, нажав на маскота" onClick={onActivate}/>
+    </div>}
     <div className="mascot-figure" style={layout?.figure}><div className="mascot-breath">
       <img className="mascot-body" src="/art/mascot-rig-v2.webp" alt="" draggable="false"/>
       <MascotFace value={value}/>

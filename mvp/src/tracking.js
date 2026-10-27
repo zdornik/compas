@@ -15,11 +15,11 @@ export function dailyMoodSeries(entries,from,to){
 }
 
 // This describes saved self-reports, not verified ingestion or a clinical adherence score.
-export function medicationTracking(entries,{from,to=dayKey(),now=new Date(),doctorOnly=false}={}){
+export function medicationTracking(entries,{from,to=dayKey(),now=new Date(),doctorOnly=false,doctorId=null}={}){
   from??=addDays(to,-13);
   dailyMoodSeries([],from,to);
   const today=dayKey(now),time=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Moscow',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(now);
-  const planIds=new Set(entries.filter(row=>row.type==='medication-plan'&&(!doctorOnly||row.origin==='doctor')).map(row=>row.id));
+  const planIds=new Set(entries.filter(row=>row.type==='medication-plan'&&(!doctorOnly||(doctorId && row.origin==='doctor' && row.prescriberId===doctorId))).map(row=>row.id));
   const relevant=entries.filter(row=>row.type==='medication-plan'?planIds.has(row.id):row.type==='medication-dose'&&planIds.has(row.planId));
   const days=[];
   for(let day=from;day<=to;day=addDays(day,1)){
@@ -35,10 +35,10 @@ export function medicationTracking(entries,{from,to=dayKey(),now=new Date(),doct
   return {days,due,taken,skipped,unmarked:due-taken-skipped,percent:due?Math.round(taken/due*100):null,streak,streakAtLeast:streak>0&&addDays(end,1-streak)===from&&earliest<from};
 }
 
-export function trackingSnapshot(entries,end=dayKey()){
+export function trackingSnapshot(entries,end=dayKey(),doctorId=null){
   const from=addDays(end,-13),moods=dailyMoodSeries(entries,from,end),latest=moods.filter(row=>row.value!==null).at(-1);
   const sleep=entries.filter(row=>row.type==='sleep'&&row.day>=from&&row.day<=end).sort((a,b)=>b.day.localeCompare(a.day)||newest(a,b))[0];
   const scales=Object.fromEntries(['phq9','gad7'].map(id=>{const row=entries.filter(row=>row.type==='assessment'&&row.scaleId===id).sort(newest)[0];return [id,row?{score:row.score,max:row.max,day:row.day,severity:row.severity}:null];}));
-  const medication=medicationTracking(entries,{from,to:end,doctorOnly:true});
+  const medication=medicationTracking(entries,{from,to:end,doctorOnly:true,doctorId});
   return {from,to:end,mood:latest?{day:latest.day,value:latest.value,label:latest.label,source:latest.source}:null,moodDays:moods.filter(row=>row.value!==null).length,sleep:sleep?{day:sleep.day,minutes:Number(sleep.hours)*60+Number(sleep.minutes),quality:sleep.quality}:null,scales,medication:{percent:medication.percent,due:medication.due,taken:medication.taken,skipped:medication.skipped,unmarked:medication.unmarked}};
 }

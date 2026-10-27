@@ -1,0 +1,22 @@
+# Reuse an existing primary database and secret files from another checkout.
+# Pass --env-file .primary-runtime.env and never recreate the db service here.
+services:
+  web:
+    image: compass-mvp-integrated:latest
+    volumes:
+      - ${COMPASS_PRIMARY_ROOT:?Set the preserved MVP directory}/knowledge:/app/knowledge:ro
+  journal-worker:
+    image: compass-mvp-integrated:latest
+  reference-publish:
+    image: compass-mvp-integrated:latest
+    volumes:
+      - ${COMPASS_PRIMARY_ROOT:?Set the preserved MVP directory}/knowledge:/app/knowledge
+secrets:
+  admin_db_password:
+    file: ${COMPASS_PRIMARY_ROOT:?Set the preserved MVP directory}/.local-secrets/admin_db_password
+  app_db_password:
+    file: ${COMPASS_PRIMARY_ROOT:?Set the preserved MVP directory}/.local-secrets/app_db_password
+  data_key:
+    file: ${COMPASS_PRIMARY_ROOT:?Set the preserved MVP directory}/.local-secrets/data_key
+  journal_db_password:
+    file: ${COMPASS_PRIMARY_ROOT:?Set the preserved MVP directory}/.local-secrets/journal_db_password

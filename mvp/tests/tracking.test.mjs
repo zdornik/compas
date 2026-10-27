@@ -31,11 +31,16 @@ test('streak counts complete consecutive days and does not erase yesterday while
  assert.equal(medicationTracking(entries,{from:'2026-10-25',to:'2026-10-27',now}).streak,2);
  assert.equal(medicationTracking([p],{from:'2026-10-25',to:'2026-10-27',now}).streak,0);
 });
-test('physician completion excludes patient-created plans and missing prescriptions have no invented percent',()=>{
- const p=plan(),doctor={...plan(),origin:'doctor'};
- const result=medicationTracking([p,doctor,mark(p,'2026-10-26','09:00')],{from:'2026-10-26',to:'2026-10-26',now,doctorOnly:true});
- assert.equal(result.due,2);assert.equal(result.taken,0);
- assert.equal(medicationTracking([p],{from:'2026-10-26',to:'2026-10-26',now,doctorOnly:true}).percent,null);
+test('physician completion counts only this physician’s prescriptions in detail and overview',()=>{
+ const doctorA=randomUUID(),doctorB=randomUUID(),p=plan(),a={...plan(),origin:'doctor',prescriberId:doctorA},b={...plan(),origin:'doctor',prescriberId:doctorB},unknown={...plan(),origin:'doctor'};
+ const entries=[p,a,b,unknown,mark(a,'2026-10-26','09:00'),mark(b,'2026-10-26','09:00'),mark(b,'2026-10-26','18:00')];
+ const opts={from:'2026-10-26',to:'2026-10-26',now,doctorOnly:true};
+ const first=medicationTracking(entries,{...opts,doctorId:doctorA}),second=medicationTracking(entries,{...opts,doctorId:doctorB});
+ assert.deepEqual([first.due,first.taken,first.percent],[2,1,50]);
+ assert.deepEqual([second.due,second.taken,second.percent],[2,2,100]);
+ assert.equal(medicationTracking(entries,opts).percent,null);
+ const snapshot=trackingSnapshot(entries,'2026-10-26',doctorA);
+ assert.deepEqual([snapshot.medication.due,snapshot.medication.taken,snapshot.medication.percent],[4,1,25]);
 });
 test('a previous plan version and recorded snapshots survive edits and archiving in tracking',()=>{
  const p=plan(),event=mark(p,'2026-10-26','09:00');

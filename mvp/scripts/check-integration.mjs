@@ -13,6 +13,7 @@ try{
   for(const [name,value,variable] of [['admin',config.adminPassword,'ADMIN_DB_PASSWORD_FILE'],['app',config.appPassword,'DB_PASSWORD_FILE'],['worker',config.workerPassword,'JOURNAL_DB_PASSWORD_FILE'],['key',randomBytes(32).toString('base64'),'DATA_KEY_FILE']]){
     const path=join(secrets,name);await writeFile(path,value,{mode:0o600});env[variable]=path;
   }
+  await run(process.execPath,['scripts/check-legacy-journal-migration.mjs'],{timeout:120000});
   await createIsolatedDatabase(config,database);created=true;
   await migrateIsolatedDatabase(config,database);
   console.log('Fresh isolated schema migrated; only synthetic test accounts will be used.');

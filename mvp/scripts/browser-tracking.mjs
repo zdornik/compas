@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 export async function browserRegistration(browser,origin,output){
  const context=await browser.newContext({viewport:{width:1440,height:1000},serviceWorkers:'block'}),page=await context.newPage();
  try{
-  await page.goto(origin+'/#patient');await page.getByRole('button',{name:'Регистрация',exact:true}).click();
+  await page.goto(origin+'/#patient',{waitUntil:'domcontentloaded'});await page.getByRole('button',{name:'Регистрация',exact:true}).click();
   await page.getByLabel('Электронная почта').fill('layout-check@example.invalid');await page.getByLabel('Пароль',{exact:true}).fill('Synthetic-layout-2026');await page.getByLabel('Повторите пароль').fill('Synthetic-layout-2026');
   const check=async()=>{await page.waitForFunction(()=>{const panel=document.querySelector('.ag-panel'),content=document.querySelector('.ag-panel-content');return panel&&content&&panel.clientHeight>=content.offsetHeight&&panel.clientHeight<=content.offsetHeight+3;});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Registration must fit the viewport');};
   await check();await page.screenshot({path:output+'/registration-desktop.png'});

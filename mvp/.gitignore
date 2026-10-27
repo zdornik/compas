@@ -8,6 +8,7 @@ dist/
 .local-secrets/
 .demo-secrets/
 .demo-runtime.env
+.primary-runtime.env
 backups/
 
 knowledge/raw/
